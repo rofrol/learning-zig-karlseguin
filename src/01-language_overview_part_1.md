@@ -27,7 +27,7 @@ Jeśli zapiszesz powyższe jako _learning.zig_ i uruchomisz `zig run learning.zi
 
 Jest to prosty przykład, gdzie możesz podążać za kodem, nawet jeśli pierwszy raz widzisz Ziga. Mimo to, przejrzymy go linijka po linijce.
 
-> Zobacz sekcję dotyczącą [instalacji Zig](https://www.openmymind.net/learning_zig/#install), aby szybko rozpocząć pracę.
+> Zobacz sekcję dotyczącą [instalacji Ziga](https://www.openmymind.net/learning_zig/#install), aby szybko rozpocząć pracę.
 
 ## Importowanie
 
