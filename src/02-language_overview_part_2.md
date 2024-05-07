@@ -1,57 +1,55 @@
-# Visão Geral da Linguagem - Parte 2
+# Przegląd języka - część 2
 
-Esta parte continua de onde a anterior parou: familiarizando-nos com a linguagem. Vamos explorar o fluxo de controle e tipos do Zig além das estruturas. Juntamente com a primeira parte, teremos coberto a maior parte da sintaxe da linguagem, permitindo-nos abordar mais aspectos da linguagem e da biblioteca padrão.
+Ta część jest kontynuacją poprzedniej: zapoznanie się z językiem. Zbadamy przepływ sterowania Zig i typy oprócz struktur. Wraz z pierwszą częścią omówimy większość składni języka, co pozwoli nam zająć się większą częścią języka i biblioteki standardowej.
 
+## Przepływ sterowania
 
+Przepływ sterowania Ziga jest prawdopodobnie znajomy, ale z dodatkowymi synergiami z aspektami języka, które musimy jeszcze zbadać. Zaczniemy od szybkiego przeglądu przepływu sterowania i wrócimy do omawiania funkcji, które wywołują specjalne zachowanie przepływu sterowania.
 
-## Fluxo de controle
+Zauważysz, że zamiast operatorów logicznych `&&` i `||`, używamy `and` i `or`. Podobnie jak w większości języków, `and` i `or` kontrolują przepływ wykonania: robią krótkie spięcie. Prawa strona `and` nie jest obliczana, jeśli lewa strona jest fałszywa, a prawa strona `or` nie jest obliczana, jeśli lewa strona jest prawdziwa. W Zigu przepływ sterowania odbywa się za pomocą słów kluczowych, a zatem używane są `and` i `or`.
 
-O fluxo de controle em Zig é provavelmente familiar, mas com sinergias adicionais em relação a aspectos da linguagem que ainda não exploramos. Vamos começar com uma visão geral rápida do fluxo de controle e voltaremos a isso quando discutirmos recursos que geram comportamentos especiais de fluxo de controle.
+Ponadto operator porównania, `==`, nie działa między wycinkami, takimi jak `[]const u8`, tj. ciągami znaków. W większości przypadków należy użyć `std.mem.eql(u8, str1, str2)`, który porówna długość, a następnie bajty dwóch wycinków.
 
-Você notará que, em vez dos operadores lógicos `&&` e `||`, usamos `and` e `or`. Como na maioria das linguagens, `and` e `or` controlam o fluxo de execução: eles têm "curto-circuito" (interrompe e modificam o fluxo de execução do programa). O lado direito de um `and` não é avaliado se o lado esquerdo for `false`, e o lado direito de um `or` não é avaliado se o lado esquerdo for `true`. Em Zig, o fluxo de controle é realizado com palavras-chave, e, portanto, `and` e `or` são usados.
-
-Além disso, o operador de comparação, `==`, não funciona entre slices, como `[]const u8`, ou seja, strings. Na maioria dos casos, você usará `std.mem.eql(u8, str1, str2)`, que comparará o comprimento e, em seguida, os bytes das duas slices.
-
-O `if`, `else if` e `else` em Zig são comuns:
+Ziga `if`, `else if` i `else` są powszechne:
 
 ```zig
-// std.mem.eql faz uma comparação byte-a-byte
-// no caso de uma string, é uma comparação sensitiva
-if (std.mem.eql(u8, method, "GET") or std.mem.eql(u8, method, "HEAD")) {
-	// lidar com a requisição GET
+// std.mem.eql porównuje bajt po bajcie
+// dla ciągu znaków będzie rozróżniana wielkość liter
+if (std.mem.eql(u8, method, "GET") lub std.mem.eql(u8, method, "HEAD")) {
+    // obsłuż żądanie GET
 } else if (std.mem.eql(u8, method, "POST")) {
-	// lidar com a requisição POST
+    // obsłuż żądanie POST
 } else {
-	// ...
+    // ...
 }
 ```
 
-> O primeiro argumento para `std.mem.eql` é um tipo, neste caso, `u8`. Este é o primeiro exemplo de uma função genérica que vimos. Vamos explorar isso mais detalhadamente em uma parte posterior.
+> Pierwszym argumentem funkcji `std.mem.eql` jest typ, w tym przypadku `u8`. Jest to pierwsza funkcja generyczna, którą widzieliśmy. Omówimy to bardziej szczegółowo w dalszej części.
 
-O exemplo acima está comparando strings ASCII e provavelmente deveria ser insensível a maiúsculas e minúsculas. `std.ascii.eqlIgnoreCase(str1, str2)` é provavelmente uma opção melhor.
+Powyższy przykład porównuje ciągi ASCII i prawdopodobnie powinien być niewrażliwy na wielkość liter. `std.ascii.eqlIgnoreCase(str1, str2)` jest prawdopodobnie lepszą opcją.
 
-Não há operador ternário, mas você pode usar um `if/else` da seguinte forma:
+Nie ma operatora trójargumentowego, ale można użyć `if/else` w następujący sposób:
 
 ```zig
 const super = if (power > 9000) true else false;
 ```
 
-`switch` é semelhante a um `if`/`else if`/`else`, mas tem a vantagem de ser exaustivo. Ou seja, é um erro de compilação se nem todos os casos forem tratados. Este código não será compilado:
+`switch` jest podobny do `if/else`, ale ma tę zaletę, że jest wyczerpujący. Oznacza to, że jeśli nie wszystkie przypadki zostaną uwzględnione, wystąpi błąd kompilacji. Ten kod nie zostanie skompilowany:
 
 ```zig
 fn anniversaryName(years_married: u16) []const u8 {
-	switch (years_married) {
-		1 => return "paper",
-		2 => return "cotton",
-		3 => return "leather",
-		4 => return "flower",
-		5 => return "wood",
-		6 => return "sugar",
-	}
+    switch (years_married) {
+        1 => return "papier",
+        2 => return "bawełna",
+        3 => return "skóra",
+        4 => return "kwiat",
+        5 => return "drewno",
+        6 => return "cukier",
+    }
 }
 ```
 
-Nos é dito: o `switch` deve lidar com todas as possibilidades. Como nosso `years_married` é um inteiro de 16 bits, isso significa que precisamos lidar com todos os 64 mil casos? Sim, mas felizmente há um `else`:
+Powiedziano nam: _switch musi obsługiwać wszystkie możliwości_. Ponieważ nasze `years_married` jest 16-bitową liczbą całkowitą, czy oznacza to, że musimy obsłużyć wszystkie 64K przypadków? Tak, ale na szczęście jest `else`:
 
 ```zig
 // ...
@@ -59,465 +57,455 @@ Nos é dito: o `switch` deve lidar com todas as possibilidades. Como nosso `year
 else => return "no more gifts for you",
 ```
 
-Podemos combinar vários casos ou usar intervalos, e usar blocos para casos complexos:
+Możemy łączyć wiele przypadków lub używać zakresów, a także używać bloków dla złożonych przypadków:
 
 ```zig
 fn arrivalTimeDesc(minutes: u16, is_late: bool) []const u8 {
-	switch (minutes) {
-		0 => return "arrived",
-		1, 2 => return "soon",
-		3...5 => return "no more than 5 minutes",
-		else => {
-			if (!is_late) {
-				return "sorry, it'll be a while";
-			}
-			// a fazer, algo está muito errado
-			return "never";
-		},
-	}
+    switch (minutes) {
+        0 => return "arrived",
+        1, 2 => return "soon",
+        3...5 => return "no more than 5 minutes",
+        else => {
+            if (!is_late) {
+                return "sorry, it'll be a while";
+            }
+            // todo, something is very wrong
+            return "never";
+        },
+    }
 }
 ```
 
-Embora um `switch` seja útil em vários casos, sua natureza exaustiva realmente se destaca ao lidar com enums, sobre as quais falaremos em breve.
+Podczas gdy `switch` jest przydatny w wielu przypadkach, jego wyczerpująca natura naprawdę błyszczy, gdy mamy do czynienia z enumami, które omówimy wkrótce.
 
-O loop `for` do Zig é usado para iterar sobre arrays, slices e intervalos. Por exemplo, para verificar se um array contém um valor, poderíamos escrever:
+Pętla `for` Ziga służy do iteracji po tablicach, wycinkach i zakresach. Na przykład, aby sprawdzić, czy tablica zawiera wartość, możemy napisać:
 
 ```zig
 fn contains(haystack: []const u32, needle: u32) bool {
-	for (haystack) |value| {
-		if (needle == value) {
-			return true;
-		}
-	}
-	return false;
+    for (haystack) |value| {
+        if (needle == value) {
+            return true;
+        }
+    }
+    return false;
 }
 ```
 
-Os loops `for` podem funcionar em várias sequências ao mesmo tempo, contanto que essas sequências tenham o mesmo comprimento. Acima, usamos a função `std.mem.eql`. Veja como ela (quase) se parece:
+Pętle `for` mogą działać na wielu sekwencjach jednocześnie, o ile sekwencje te są tej samej długości. Powyżej użyliśmy funkcji `std.mem.eql`. Oto jak to (prawie) wygląda:
 
 ```zig
 pub fn eql(comptime T: type, a: []const T, b: []const T) bool {
-	// se não tiverem o mesmo comprimento, não pode ser iguais
-	if (a.len != b.len) return false;
+    // jeśli nie mają tej samej długości, nie mogą być równe
+    if (a.len != b.len) return false;
 
-	for (a, b) |a_elem, b_elem| {
-		if (a_elem != b_elem) return false;
-	}
+    for (a, b) |a_elem, b_elem| {
+        if (a_elem != b_elem) return false;
+    }
 
-	return true;
+    return true;
 }
 ```
 
-A verificação inicial do `if` não é apenas uma otimização de desempenho agradável, é uma proteção necessária. Se a retirarmos e passarmos argumentos de comprimentos diferentes, teremos um pânico em tempo de execução: loop `for` sobre objetos com comprimentos não iguais.
+Początkowe sprawdzenie `if` to nie tylko miła optymalizacja wydajności, to niezbędny strażnik. Jeśli go usuniemy i przekażemy argumenty o różnych długościach, otrzymamy runtime panic: _for loop over objects with non-equal lengths_.
 
-Os loops `for` também podem iterar sobre intervalos, como:
+Pętle `for` mogą również iterować po zakresach, takich jak:
 
 ```zig
 for (0..10) |i| {
-	std.debug.print("{d}\n", .{i});
+    std.debug.print("{d}\n", .{i});
 }
 ```
 
-> Nosso `switch` usou três pontos, `3...6`, enquanto este intervalo usa dois, `0..10`. Isso ocorre porque os casos do `switch` são inclusivos de ambos os números, enquanto o `for` é exclusivo do limite superior.
+> Nasz zakres `switch` używał trzech kropek, `3...6`, podczas gdy ten zakres używa dwóch, `0..10`. Dzieje się tak, ponieważ przypadki `switch` obejmują obie liczby, podczas gdy `for` wyklucza górną granicę.
 
-Isso realmente se destaca em combinação com uma (ou mais!) sequência:
+To naprawdę błyszczy w połączeniu z jedną (lub więcej!) sekwencją:
 
 ```zig
 fn indexOf(haystack: []const u32, needle: u32) ?usize {
-	for (haystack, 0..) |value, i| {
-		if (needle == value) {
-			return i;
-		}
-	}
-	return null;
+    for (haystack, 0..) |value, i| {
+        if (needle == value) {
+            return i;
+        }
+    }
+    return null;
 }
 ```
 
-> Isso é uma prévia de tipos nulos.
+> To jest tylko krótki rzut oka na typy nullable.
 
-O final do intervalo é inferido a partir do comprimento de `haystack`, embora pudéssemos nos punir e escrever: `0..haystack.len`. Loops `for` não suportam a forma mais genérica do idioma `init; compare; step`. Para isso, contamos com o `while`.
+Koniec zakresu jest wywnioskowany z długości `haystack`, chociaż moglibyśmy się ukarać i napisać: `0..hastack.len`. Pętle `for` nie obsługują bardziej ogólnego idiomu `init; compare; step`. W tym celu polegamy na pętli `while`.
 
-Como o `while` é mais simples, tomando a forma de `while (condição) { }`, temos um maior controle sobre a iteração. Por exemplo, ao contar o número de sequências de escape em uma string, precisamos incrementar nosso iterador em 2 para evitar contar duas vezes uma `\\`:
+Ponieważ `while` jest prostsze, przyjmując formę `while (warunek) { }`, mamy większą kontrolę nad iteracją. Na przykład, podczas liczenia liczby sekwencji escape w ciągu znaków, musimy zwiększyć nasz iterator o 2, aby uniknąć podwójnego liczenia `\\`:
 
 ```zig
 var i: usize = 0;
 var escape_count: usize = 0;
 while (i < src.len) {
-	if (src[i] == '\\') {
-		i += 2;
-		escape_count += 1;
-	} else {
-		i += 1;
-	}
+    if (src[i] == '\\') {
+        i += 2;
+        escape_count += 1;
+    } else {
+        i += 1;
+    }
 }
 ```
 
-Um `while` pode ter uma cláusula `else`, que é executada quando a condição é falsa. Ele também aceita uma declaração para ser executada após cada iteração. Esse recurso era comumente usado antes do `for` suportar várias sequências. O exemplo acima pode ser escrito como:
+`while` może mieć klauzulę `else`, która jest wykonywana, gdy warunek jest fałszywy. Akceptuje również instrukcję do wykonania po każdej iteracji. Ta funkcja była powszechnie używana zanim `for` obsługiwało wielokrotne sekwencje. Powyższe można zapisać jako:
 
 ```zig
 var i: usize = 0;
 var escape_count: usize = 0;
 
-//                  esta parte
+// ta część
 while (i < src.len) : (i += 1) {
-	if (src[i] == '\\') {
-		// +1 aqui, e +1 acima == +2
-		i += 1;
-		escape_count += 1;
-	}
+    if (src[i] == '\\') {
+        // +1 tutaj i +1 powyżej == +2
+        i += 1;
+        escape_count += 1;
+    }
 }
 ```
 
-`break` e `continue` são suportados para interromper o loop mais interno ou pular para a próxima iteração.
+`break` i `continue` są obsługiwane w celu przerwania wewnętrznej pętli lub przejścia do następnej iteracji.
 
-Blocos podem ser rotulados e `break` e `continue` podem direcionar um rótulo específico. Um exemplo artificial:
+Bloki mogą być oznaczone etykietami, a `break` i `continue` mogą odnosić się do konkretnej etykiety. Wymyślony przykład:
 
 ```zig
 outer: for (1..10) |i| {
-	for (i..10) |j| {
-		if (i * j > (i+i + j+j)) continue :outer;
-		std.debug.print("{d} + {d} >= {d} * {d}\n", .{i+i, j+j, i, j});
-	}
+    for (i..10) |j| {
+        if (i * j > (i+i + j+j)) continue :outer;
+        std.debug.print("{d} + {d} >= {d} * {d}\n", .{i+i, j+j, i, j});
+    }
 }
 ```
 
-`break` tem outro comportamento interessante, que é o de retornar um valor de um bloco:
+`break` ma jeszcze jedno interesujące zachowanie, zwracając wartość z bloku:
 
 ```zig
 const personality_analysis = blk: {
-	if (tea_vote > coffee_vote) break :blk "sane";
-	if (tea_vote == coffee_vote) break :blk "whatever";
-	if (tea_vote < coffee_vote) break :blk "dangerous";
+    if (tea_vote > coffee_vote) break :blk "sane";
+    if (tea_vote == coffee_vote) break :blk "whatever";
+    if (tea_vote < coffee_vote) break :blk "dangerous";
 };
 ```
 
-Blocos de código como este devem ser terminados com ponto e vírgula.
+Bloki takie jak ten muszą być zakończone średnikiem.
 
-Mais tarde, ao explorarmos uniões marcadas, uniões de erros e tipos opcionais, veremos o que mais essas estruturas de fluxo de controle têm a oferecer.
+Później, gdy będziemy badać tagowane unie (tagged unions), unie błędów (error unions) i typy opcjonalne, zobaczymy, co jeszcze mają do zaoferowania te struktury przepływu sterowania.
 
+## Enumy
 
-
-## Enumerações _(enums)_
-
-Enumerações são constantes inteiras que recebem um rótulo. Eles são definidos de maneira semelhante a um struct:
+Enumy są stałymi całkowitymi, które otrzymują etykietę. Są one zdefiniowane podobnie jak struktura:
 
 ```zig
-// poderia ser "pub"
+// może to być "pub"
 const Status = enum {
-	ok,
-	bad,
-	unknown,
+    ok,
+    bad,
+    unknown,
 };
 ```
 
-E, assim como um struct, pode conter outras definições, incluindo funções que podem ou não receber o enum como parâmetro:
+I, podobnie jak struktura, może zawierać inne definicje, w tym funkcje, które mogą, ale nie muszą, przyjmować enuma jako parametr:
 
 ```zig
 const Stage = enum {
-	validate,
-	awaiting_confirmation,
-	confirmed,
-	completed,
-	err,
+    validate,
+    awaiting_confirmation,
+    confirmed,
+    completed,
+    err,
 
-	fn isComplete(self: Stage) bool {
-		return self == .confirmed or self == .err;
-	}
+    fn isComplete(self: Stage) bool {
+        return self == .confirmed or self == .err;
+    }
 };
 ```
 
-> Se você deseja a representação de string de um enum, pode usar a função embutida `@tagName(enum)`.
+> Jeśli chcesz uzyskać reprezentację ciągu znaków enuma, możesz użyć wbudowanej funkcji `@tagName(enum)`.
 
-Lembre-se de que os tipos de struct podem ser inferidos com base no tipo atribuído ou no tipo de retorno usando a notação `.{...}`. Acima, vemos o tipo de enum sendo inferido com base em sua comparação com `self`, que é do tipo `Stage`. Poderíamos ter sido explícitos e escrito: `return self == Stage.confirmed or self == Stage.err;`. Mas, ao lidar com enums, você frequentemente verá o tipo de enum omitido via a notação `.$value`.
+Przypomnijmy, że typy struktura można wywnioskować na podstawie ich przypisania lub typu zwracanego przy użyciu notacji `.{...}`. Powyżej widzimy, że typ enum jest wnioskowany na podstawie porównania z `self`, który jest typu `Stage`. Mogliśmy napisać wprost: `return self == Stage.confirmed or self == Stage.err;`. Jednak w przypadku enumów często można spotkać się z pominięciem typu enum za pomocą notacji `.$value`. Nazywa się to _literałem enum_.
 
-A natureza exaustiva do `switch` combina bem com enums, pois garante que você tratou todos os casos possíveis. Tenha cuidado ao usar a cláusula `else` de um `switch`, pois ela corresponderá a qualquer valor de enum recém-adicionado, o que pode ou não ser o comportamento desejado.
+Wyczerpująca natura `switch` sprawia, że dobrze łączy się z enumami, ponieważ zapewnia obsługę wszystkich możliwych przypadków. Zachowaj jednak ostrożność podczas korzystania z klauzuli `else` w `switch`, ponieważ będzie ona pasować do wszystkich nowo dodanych wartości wyliczeniowych, co może, ale nie musi być zachowaniem, które chcesz.
 
+## Tagowane unie (tagged unions)
 
-
-## Uniões marcadas _(tagged unions)_
-
-Uma união define um conjunto de tipos que um valor pode ter. Por exemplo, esta união `Number` pode ser um `integer` (número inteiro), um número `float` (ponto flutuante) ou um `NaN` (não é um número):
+Unia definiuje zestaw typów, które może mieć wartość. Na przykład, ta unia `Number` może być `integer`, `float` lub `nan` (nie liczbą):
 
 ```zig
 const std = @import("std");
 
 pub fn main() void {
-	const n = Number{.int = 32};
-	std.debug.print("{d}\n", .{n.int});
+    const n = Number{.int = 32};
+    std.debug.print("{d}\n", .{n.int});
 }
 
 const Number = union {
-	int: i64,
-	float: f64,
-	nan: void,
+    int: i64,
+    float: f64,
+    nan: void,
 };
 ```
 
-Uma união pode ter apenas um campo definido por vez; é um erro tentar acessar um campo não definido. Como definimos o campo `int`, se tentássemos acessar `n.float` em seguida, receberíamos um erro. Um de nossos campos, `nan`, tem um tipo `void`. Como definiríamos o seu valor? Utilize `{}`:
+Unia może mieć ustawione tylko jedno pole na raz; próba uzyskania dostępu do nieustawionego pola jest błędem. Ponieważ ustawiliśmy pole `int`, gdybyśmy następnie spróbowali uzyskać dostęp do `n.float`, otrzymalibyśmy błąd. Jedno z naszych pól, `nan`, ma typ `void`. Jak moglibyśmy ustawić jego wartość? Używając `{}`:
 
 ```zig
 const n = Number{.nan = {}};
 ```
 
-Um desafio com uniões é saber qual campo está definido. É aí que as uniões marcadas entram em jogo. Uma união marcada combina um enum com uma união, que pode ser usada em uma instrução `switch`. Considere este exemplo:
+Wyzwaniem w przypadku unii jest wiedza, które pole jest ustawione. W tym miejscu do gry wkraczają tagowane unie. Tagowana unia łączy enuma z unią, która może być użyta w instrukcji `switch`. Rozważmy następujący przykład:
 
 ```zig
 pub fn main() void {
-	const ts = Timestamp{.unix = 1693278411};
-	std.debug.print("{d}\n", .{ts.seconds()});
+    const ts = Timestamp{.unix = 1693278411};
+    std.debug.print("{d}\n", .{ts.seconds()});
 }
 
 const TimestampType = enum {
-	unix,
-	datetime,
+    unix,
+    datetime,
 };
 
 const Timestamp = union(TimestampType) {
-	unix: i32,
-	datetime: DateTime,
+    unix: i32,
+    datetime: DateTime,
 
-	const DateTime = struct {
-		year: u16,
-		month: u8,
-		day: u8,
-		hour: u8,
-		minute: u8,
-		second: u8,
-	};
+    const DateTime = struct {
+        year: u16,
+        month: u8,
+        day: u8,
+        hour: u8,
+        minute: u8,
+        second: u8,
+    };
 
-	fn seconds(self: Timestamp) u16 {
-		switch (self) {
-			.datetime => |dt| return dt.second,
-			.unix => |ts| {
-				const seconds_since_midnight: i32 = @rem(ts, 86400);
-				return @intCast(@rem(seconds_since_midnight, 60));
-			},
-		}
-	}
+    fn seconds(self: Timestamp) u16 {
+        switch (self) {
+            .datetime => |dt| return dt.second,
+            .unix => |ts| {
+                const seconds_since_midnight: i32 = @rem(ts, 86400);
+                return @intCast(@rem(seconds_since_midnight, 60));
+            },
+        }
+    }
 };
 ```
 
-Observe que cada caso em nosso `switch` captura o valor tipado do campo. Ou seja, `dt` é um `Timestamp.DateTime` e `ts` é um `i32`. Esta é também a primeira vez que vemos uma estrutura aninhada dentro de outro tipo. `DateTime` poderia ter sido definido fora da união. Também estamos vendo duas novas funções embutidas: `@rem` para obter o resto e `@intCast` para converter o resultado para um `u16` (`@intCast` infere que queremos um `u16` a partir do nosso tipo de retorno, uma vez que o valor está sendo retornado).
+Zauważ, że każdy przypadek w naszym `switch` przechwytuje wpisaną wartość pola. Oznacza to, że `dt` to `Timestamp.DateTime`, a `ts` to `i32`. Jest to również pierwszy raz, kiedy widzimy strukturę zagnieżdżoną w innym typie. `DateTime` mógł zostać zdefiniowany poza unią. Widzimy również dwie nowe wbudowane funkcje: `@rem`, aby uzyskać resztę i `@intCast`, aby przekonwertować wynik na `u16` (`@intCast` wnioskuje, że chcemy `u16` z naszego typu zwracanego, ponieważ zwracana jest wartość).
 
-Como podemos ver no exemplo acima, uniões marcadas podem ser usadas de alguma forma como interfaces, desde que todas as implementações possíveis sejam conhecidas antecipadamente e possam ser incorporadas na união marcada.
+Jak widać na powyższym przykładzie, tagowane unie mogą być używane w pewnym sensie jak interfejsy, o ile wszystkie możliwe implementacje są znane z wyprzedzeniem i mogą być dodane do tagowanej unii.
 
-Finalmente, o tipo de enum de uma união marcada pode ser inferido. Em vez de definir um `TimestampType`, poderíamos ter feito:
+Wreszcie, typ enum tagowanej unii może być wywnioskowany. Zamiast definiować `TimestampType`, mogliśmy zrobić:
 
 ```zig
 const Timestamp = union(enum) {
-	unix: i32,
-	datetime: DateTime,
+    unix: i32,
+    datetime: DateTime,
 
-	...
+    ...
 ```
 
-e o Zig teria criado um enum implícito com base nos campos da nossa união.
+a Zig utworzyłby niejawny enum oparty na polach naszego związku.
 
+## Typ opcjonalny
 
-
-## Opcionais
-
-Qualquer valor pode ser declarado como opcional adicionando um ponto de interrogação, `?`, ao tipo. Tipos opcionais podem ser `null` ou um valor do tipo definido:
+Każda wartość może być zadeklarowana jako opcjonalna poprzez dodanie znaku zapytania `?` do typu. Typy opcjonalne mogą mieć wartość `null` lub wartość zdefiniowanego typu:
 
 ```zig
 var home: ?[]const u8 = null;
 var name: ?[]const u8 = "Leto";
 ```
 
-A necessidade de ter um tipo explícito deve estar clara: se tivéssemos apenas feito `const name = "Leto";`, então o tipo inferido seria o não opcional `[]const u8`.
+Potrzeba posiadania wyraźnego typu powinna być jasna: gdybyśmy po prostu zrobili `const name = "Leto";`, wówczas wnioskowanym typem byłby nieopcjonalny `[]const u8`.
 
-`.?` é usado para acessar o valor por trás do tipo opcional:
+`.?` służy do uzyskania dostępu do wartości kryjącej się za typem opcjonalnym:
 
 ```zig
 std.debug.print("{s}\n", .{name.?});
 ```
 
-Mas teremos um pânico em tempo de execução se usarmos `.?` em um valor nulo. Uma instrução `if` pode desempacotar com segurança um valor opcional:
+Jeśli jednak użyjemy `.?` na wartości `null`, otrzymamy `runtime panic`. Instrukcja `if` może bezpiecznie rozpakować wartość opcjonalną:
 
 ```zig
 if (home) |h| {
-	// h é um []const u8
-	// temos um valor para "home"
+    // h jest []const u8
+    // mamy wartość home
 } else {
-	// não temos um valor para "home"
+    // nie mamy wartości home
 }
 ```
 
-`orelse` pode ser usado para desempacotar o valor opcional ou executar código. Isso é comumente usado para especificar um valor padrão ou retornar da função:
+`orelse` może być używane do rozwijania opcjonalnego lub wykonywanego kodu. Jest to często używane do określenia wartości domyślnej lub powrotu z funkcji:
 
 ```zig
 const h = home orelse "unknown"
-// ou talvez
+// lub może
 
-// retornar nossa função
+// wyjście z funkcji
 const h = home orelse return;
 ```
 
-No entanto, `orelse` também pode receber um bloco e executar lógica mais complexa. Tipos opcionais também se integram com `while` e são frequentemente usados para criar iteradores. Não implementaremos um iterador aqui, mas espero que este código fictício faça sentido:
+Jednak `orelse` może również otrzymać blok i wykonywać bardziej złożoną logikę. Typy opcjonalne również integrują się z `while` i są często używane do tworzenia iteratorów. Nie będziemy implementować iteratora, ale miejmy nadzieję, że ten fikcyjny kod ma sens:
 
 ```zig
 while (rows.next()) |row| {
-	// realizar alguma operação com "row"
+    // zrób coś z naszym wierszem
 }
 ```
 
+## Undefined
 
+Jak dotąd, każda pojedyncza zmienna, którą widzieliśmy, została zainicjowana do sensownej wartości. Czasami jednak nie znamy wartości zmiennej w momencie jej deklaracji. Typy opcjonalne są jedną z opcji, ale nie zawsze mają sens. W takich przypadkach możemy ustawić zmienne na `undefined`, aby pozostawić je niezainicjalizowane.
 
-## Tipo indefinido _(undefined)_
-
-Até agora, cada variável que vimos foi inicializada com um valor sensato. Mas às vezes não conhecemos o valor de uma variável quando ela é declarada. Tipos opcionais são uma opção, mas nem sempre fazem sentido. Nestes casos, podemos definir variáveis como `undefined` para deixá-las não inicializadas.
-
-Um lugar comum para fazer isso é ao criar uma array que será preenchida por alguma função:
+Jednym z miejsc, w których jest to często wykonywane, jest tworzenie tablicy, która ma zostać wypełniona przez jakąś funkcję:
 
 ```zig
 var pseudo_uuid: [16]u8 = undefined;
 std.crypto.random.bytes(&pseudo_uuid);
 ```
 
-O código acima ainda cria uma array de 16 bytes, mas deixa a memória não inicializada.
+Powyższe rozwiązanie nadal tworzy tablicę 16 bajtów, ale pozostawia pamięć niezainicjowaną.
 
+## Błędy (errors)
 
-
-## Erros
-
-Zig possui capacidades simples e pragmáticas para tratamento de erros. Tudo começa com conjuntos de erros, que se parecem e se comportam como enums:
+Zig posiada proste i pragmatyczne możliwości obsługi błędów. Wszystko zaczyna się od zestawów błędów (error sets), które wyglądają i zachowują się jak enumy:
 
 ```zig
-// Assim como nosso struct na Parte 1, "OpenError" pode ser marcado como "pub"
-// para torná-lo acessível do lado de fora do arquivo em que está definido
+// Podobnie jak nasza struktura w części 1, OpenError może być oznaczony jako "pub"
+// aby był dostępny poza plikiem, w którym jest zdefiniowany
 const OpenError = error {
-	AccessDenied,
-	NotFound,
+    AccessDenied,
+    NotFound,
 };
 ```
 
-A função, incluindo o `main`, pode agora retornar este erro:
+Funkcja, w tym `main`, może teraz zwrócić ten błąd:
 
 ```zig
 pub fn main() void {
-	return OpenError.AccessDenied;
+    return OpenError.AccessDenied;
 }
 
 const OpenError = error {
-	AccessDenied,
-	NotFound,
+    AccessDenied,
+    NotFound,
 };
 ```
 
-Se você tentar executar isso, receberá um erro: _"expected type 'void', found 'error{AccessDenied,NotFound}'"_. Isso faz sentido: definimos o `main` com um tipo de retorno `void`, mas estamos retornando algo (um erro, claro, mas isso ainda não é `void`). Para resolver isso, precisamos alterar o tipo de retorno de nossa função.
+Jeśli spróbujesz to uruchomić, otrzymasz błąd: _expected type 'void', found 'error{AccessDenied,NotFound}'_. Ma to sens: zdefiniowaliśmy `main` z typem zwracanym `void`, ale zwracamy coś (błąd, oczywiście, ale to wciąż nie jest `void`). Aby rozwiązać ten problem, musimy zmienić typ zwracany naszej funkcji.
 
 ```zig
 pub fn main() OpenError!void {
-	return OpenError.AccessDenied;
+    return OpenError.AccessDenied;
 }
 ```
 
-Isso é chamado de tipo de união de erros e indica que nossa função pode retornar ou um erro `OpenError` ou um `void` (ou seja, nada). Até agora, fomos bastante explícitos: criamos um conjunto de erros para os possíveis erros que nossa função pode retornar e usamos esse conjunto de erros no tipo de retorno da união de erros de nossa função. No entanto, quando se trata de erros, o Zig tem alguns truques interessantes na manga. Primeiro, em vez de especificar uma união de erros como `error set!return type`, podemos deixar o Zig inferir o conjunto de erros usando: `!return type`. Portanto, poderíamos, e provavelmente iríamos, definir nosso `main` como:
+Nazywa się to typem unii błędów i wskazuje, że nasza funkcja może zwrócić albo błąd `OpenError`, albo `void` (czyli nic). Do tej pory byliśmy dość jednoznaczni: utworzyliśmy zestaw błędów dla możliwych błędów, które może zwrócić nasza funkcja, i użyliśmy tego zestawu błędów w typie zwracanym naszej funkcji. Ale jeśli chodzi o błędy, Zig ma kilka zgrabnych sztuczek w rękawie. Po pierwsze, zamiast określać związek błędów jako `error set!return type`, możemy pozwolić Zigowi wywnioskować zestaw błędów za pomocą: `!return type`. Moglibyśmy więc, i prawdopodobnie byśmy to zrobili, zdefiniować nasz `main` jako:
 
 ```zig
 pub fn main() !void
 ```
 
-Ainda, Zig é capaz de criar conjuntos de erros implicitamente para nós. Em vez de criar nosso conjunto de erros, poderíamos ter feito:
+Po drugie, Zig jest w stanie niejawnie tworzyć dla nas zestawy błędów. Zamiast tworzyć nasz zestaw błędów, moglibyśmy zrobić:
 
 ```zig
 pub fn main() !void {
-	return error.AccessDenied;
+    return error.AccessDenied;
 }
 ```
 
-Nossas abordagens completamente explícitas e implícitas não são exatamente equivalentes. Por exemplo, referências a funções com conjuntos de erros implícitos exigem o uso do tipo especial `anyerror`. Desenvolvedores de bibliotecas podem ver vantagens em serem mais explícitos, como código auto-documentado. Ainda assim, acredito que tanto os conjuntos de erros implícitos quanto a união de erros inferida são pragmáticos; eu faço amplo uso de ambos.
+Nasze całkowicie jawne i niejawne podejścia nie są dokładnie równoważne. Na przykład odniesienia do funkcji z niejawnymi zestawami błędów wymagają użycia specjalnego typu `anyerror`. Deweloperzy bibliotek mogą dostrzec zalety bycia bardziej jawnym, takie jak samodokumentujący się kod. Mimo to uważam, że zarówno niejawne zestawy błędów, jak i wywnioskowana unia błędów są pragmatyczne; intensywnie korzystam z obu.
 
-O verdadeiro valor das uniões de erros é o suporte embutido na linguagem na forma de `catch` e `try`. Uma chamada de função que retorna uma união de erros pode incluir uma cláusula `catch`. Por exemplo, uma biblioteca de servidor HTTP pode ter um código que se parece com:
+Prawdziwą wartością unii błędów jest wbudowane wsparcie językowe w postaci `catch` i `try`. Wywołanie funkcji zwracającej unię błędów może zawierać klauzulę `catch`. Na przykład, biblioteka serwera http może mieć kod, który wygląda następująco:
 
 ```zig
 action(req, res) catch |err| {
-	if (err == error.BrokenPipe or err == error.ConnectionResetByPeer) {
-		return;
-	} else if (err == error.BodyTooBig) {
-		res.status = 431;
-		res.body = "Request body is too big";
-	} else {
-		res.status = 500;
-		res.body = "Internal Server Error";
-		// todo: log err
-	}
+    if (err == error.BrokenPipe or err == error.ConnectionResetByPeer) {
+        return;
+    } else if (err == error.BodyTooBig) {
+        res.status = 431;
+        res.body = "Request body is too big";
+    } else {
+        res.status = 500;
+        res.body = "Internal Server Error";
+        // todo: log err
+    }
 };
 ```
 
-A versão usando `switch` é mais idiomática:
+Wersja ze `switch` jest bardziej idiomatyczna:
 
 ```zig
 action(req, res) catch |err| switch (err) {
-	error.BrokenPipe, error.ConnectionResetByPeer) => return,
-	error.BodyTooBig => {
-		res.status = 431;
-		res.body = "Request body is too big";
-	},
-	else => {
-		res.status = 500;
-		res.body = "Internal Server Error";
-	}
+    error.BrokenPipe, error.ConnectionResetByPeer) => return,
+    error.BodyTooBig => {
+        res.status = 431;
+        res.body = "Request body is too big";
+    },
+    else => {
+        res.status = 500;
+        res.body = "Internal Server Error";
+    }
 };
 ```
 
-Isso é tudo muito elegante, mas sejamos honestos, o mais provável é que você vai fazer em `catch` é propagar o erro para quem chamou:
+To wszystko jest dość wymyślne, ale bądźmy szczerzy, najbardziej prawdopodobną rzeczą, jaką zamierzasz zrobić w `catch`, jest przekazanie błędu do wywołującego:
 
 ```zig
 action(req, res) catch |err| return err;
 ```
 
-Isso é tão comum que é o que `try` faz. Em vez do exemplo acima, fazemos:
+Jest to tak powszechne, że właśnie to robi `try`. Zamiast powyższego, robimy:
 
 ```zig
 try action(req, res);
 ```
 
-Isso é especialmente útil, dado que **os erros devem ser tratados**. Muito provavelmente, você fará isso com um `try` ou `catch`.
+Jest to szczególnie przydatne, gdy **błąd musi zostać obsłużony**. Najprawdopodobniej zrobisz to za pomocą `try` lub `catch`.
 
-> Programadores de Go perceberão que `try` requer menos teclas do que `if err != nil { return err }`.
+> Programiści Go zauważą, że `try` wymaga mniej naciśnięć klawiszy niż `if err != nil { return err }`.
 
-Na maioria das vezes, você usará `try` e `catch`, mas as uniões de erros também são suportadas por `if` e `while`, assim como os tipos opcionais. No caso de `while`, se a condição retornar um erro, a cláusula `else` será executada.
+Przez większość czasu będziesz używać `try` i `catch`, ale związki błędów są również obsługiwane przez `if` i `while`, podobnie jak typy opcjonalne. W przypadku `while`, jeśli warunek zwróci błąd, wykonywana jest klauzula `else`.
 
-Existe um tipo especial chamado `anyerror`, que pode conter qualquer erro. Embora pudéssemos definir uma função como retornando `anyerror!TYPE` em vez de `!TYPE`, os dois não são equivalentes. O conjunto de erros inferido é criado com base no que a função pode retornar. `anyerror` é o conjunto de erros global, um superset de todos os conjuntos de erros no programa. Portanto, usar `anyerror` em uma assinatura de função provavelmente sinaliza que sua função pode retornar erros que, na realidade, ela não pode. `anyerror` é usado para parâmetros de função ou campos de estrutura que podem lidar com qualquer erro (imagine uma biblioteca de auditoria, ou _"logging"_).
+Istnieje specjalny typ `anyerror`, który może przechowywać dowolny błąd. Chociaż możemy zdefiniować funkcję jako zwracającą `anyerror!TYPE` zamiast `!TYPE`, te dwa typy nie są równoważne. Wywnioskowany zestaw błędów jest tworzony na podstawie tego, co funkcja może zwrócić. `anyerror` jest globalnym zestawem błędów, podzbiorem wszystkich zestawów błędów w programie. Dlatego użycie `anyerror` w sygnaturze funkcji może sygnalizować, że funkcja może zwracać błędy, których w rzeczywistości nie może. `anyerror` jest używany dla parametrów funkcji lub pól struktury, które mogą działać z dowolnym błędem (wyobraź sobie bibliotekę logowania).
 
-Não é incomum uma função retornar uma união de erros com tipo opcional. Com um conjunto de erros inferido, isso se parece com:
+Nierzadko zdarza się, że funkcja zwraca opcjonalny typ unii błędów. Z wywnioskowanym zestawem błędów wygląda to następująco:
 
 ```zig
-// carregue o último jogo salvo
+// wczytanie ostatnio zapisanej gry
 pub fn loadLast() !?Save {
-	// A fazer
-	return null;
+    // TODO
+    return null;
 }
 ```
 
-Existem diferentes maneiras de consumir essas funções, mas a mais compacta é usar `try` para desembrulhar nosso erro e, em seguida, `orelse` para desembrulhar o opcional. Aqui está um esqueleto funcional:
+Istnieją różne sposoby korzystania z takich funkcji, ale najbardziej kompaktowym jest użycie `try` do rozpakowania naszego błędu, a następnie `orelse` do rozpakowania wartości typu opcjonalnego. Oto działający szkielet:
 
 ```zig
 const std = @import("std");
 
 pub fn main() void {
-	// Esta é a linha que você quer se concentrar
-	const save = (try Save.loadLast()) orelse Save.blank();
-	std.debug.print("{any}\n", .{save});
+    // To jest linia, na której chcesz się skupić
+    const save = (try Save.loadLast()) orelse Save.blank();
+    std.debug.print("{any}\n", .{save});
 }
 
 pub const Save = struct {
-	lives: u8,
-	level: u16,
+    lives: u8,
+    level: u16,
 
-	pub fn loadLast() !?Save {
-		//a fazer
-		return null;
-	}
+    pub fn loadLast() !?Save {
+        //todo
+        return null;
+    }
 
-	pub fn blank() Save {
-		return .{
-			.lives = 3,
-			.level = 1,
-		};
-	}
+    pub fn blank() Save {
+        return .{
+            .lives = 3,
+            .level = 1,
+        };
+    }
 };
 ```
 
-Embora o Zig tenha mais profundidade, e algumas das características da linguagem tenham capacidades mais avançadas, o que vimos nestas duas primeiras partes é uma parte significativa da linguagem. Isso servirá como uma base, permitindo-nos explorar tópicos mais complexos sem nos distrairmos muito com a sintaxe.
+Podczas gdy Zig ma większą głębię, a niektóre funkcje języka mają większe możliwości, to co widzieliśmy w tych dwóch pierwszych częściach jest znaczącą częścią języka. Będzie to służyć jako podstawa, pozwalając nam odkrywać bardziej złożone tematy bez zbytniego rozpraszania się składnią.
