@@ -1,6 +1,6 @@
 # Przegląd języka – część 1
 
-Zig jest silnie typowanym językiem kompilowanym. Obsługuje generyki, ma potężne możliwości metaprogramowania w czasie kompilacji i **nie** zawiera odśmiecacza pamięci (garbage collector). Wiele osób uważa Ziga za nowoczesną alternatywę dla C. Jako alternatywa, składnia języka jest podobna do C. Mówimy o instrukcjach zakończonych średnikiem i blokach ograniczonych nawiasami klamrowymi.
+Zig jest silnie typowanym językiem kompilowanym. Obsługuje generyki, ma potężne możliwości metaprogramowania w czasie kompilacji i **nie** zawiera odśmiecacza pamięci (garbage collector). Wiele osób uważa Ziga za nowoczesną alternatywę dla C. Jako alternatywa ma składnię języka podobną do C. Mówimy o instrukcjach zakończonych średnikiem i blokach ograniczonych nawiasami klamrowymi.
 
 Oto jak wygląda kod Zig:
 
