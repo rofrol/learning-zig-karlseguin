@@ -74,7 +74,7 @@ const User = user.User;
 const MAX_POWER = user.MAX_POWER;
 ```
 
-W tym momencie możesz mieć więcej pytań niż odpowiedzi. Czym jest `user` w powyższym fragmencie? Jeszcze tego nie widzieliśmy, ale co jeśli użyjemy `var` zamiast `const`? A może zastanawiasz się, jak korzystać z bibliotek osób postronnych. To wszystko są dobre pytania, ale aby na nie odpowiedzieć, musimy najpierw dowiedzieć się więcej o Zigu. Na razie będziemy musieli zadowolić się tym, czego się nauczyliśmy: jak importować standardową bibliotekę Ziga, jak importować inne pliki i jak eksportować definicje.
+W tym momencie możesz mieć więcej pytań niż odpowiedzi. Czym jest `user` w powyższym fragmencie? Jeszcze tego nie widzieliśmy, ale co jeśli użyjemy `var` zamiast `const`? A może zastanawiasz się, jak korzystać z bibliotek stron trzecich. To wszystko są dobre pytania, ale aby na nie odpowiedzieć, musimy najpierw dowiedzieć się więcej o Zigu. Na razie będziemy musieli zadowolić się tym, czego się nauczyliśmy: jak importować standardową bibliotekę Ziga, jak importować inne pliki i jak eksportować definicje.
 
 ## Komentarze
 
