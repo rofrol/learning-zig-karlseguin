@@ -1,74 +1,72 @@
-# Visão Geral da Linguagem - Parte 1
+# Przegląd języka – część 1
 
-Zig é uma linguagem compilada fortemente tipada. Ela suporta genéricos (parametrização polimórfica), possui poderosas capacidades de metaprogramação em tempo de compilação e **não inclui** um coletor de lixo. Muitas pessoas consideram o Zig uma alternativa moderna ao C. Como tal, a sintaxe da linguagem é semelhante à do C. Estamos falando de declarações terminadas por ponto e vírgula e blocos delimitados por chaves.
+Zig jest silnie typowanym językiem kompilowanym. Obsługuje generyki, ma potężne możliwości metaprogramowania w czasie kompilacji i **nie** zawiera odśmiecacza pamięci (garbage collector). Wiele osób uważa Ziga za nowoczesną alternatywę dla C. Jako alternatywa, składnia języka jest podobna do C. Mówimy o instrukcjach zakończonych średnikiem i blokach ograniczonych nawiasami klamrowymi.
 
-Aqui está como se parece o código Zig:
+Oto jak wygląda kod Zig:
 
 ```zig
 const std = @import("std");
 
-// Este código não irá compilar caso a função `main` não seja `pub` (tenha visibilidade pública)
+// Ten kod nie skompiluje się, jeśli `main` nie jest `pub` (publiczny)
 pub fn main() void {
-	const user = User{
-		.power = 9001,
-		.name = "Goku",
-	};
+    const user = User{
+        .power = 9001,
+        .name = "Goku",
+    };
 
-	std.debug.print("{s}'s power is {d}\n", .{user.name, user.power});
+    std.debug.print("{s}'s power is {d}", .{user.name, user.power});
 }
 
 pub const User = struct {
-	power: u64,
-	name: []const u8,
+    power: u64,
+    name: []const u8,
 };
 ```
 
-Se você salvar o código acima como *learning.zig* e executar `zig run learning.zig`, você deverá ver: `Goku's power is 9001`.
+Jeśli zapiszesz powyższe jako _learning.zig_ i uruchomisz `zig run learning.zig`, powinieneś zobaczyć: `Goku's power is 9001`.
 
-Este é um exemplo simples, algo que você pode conseguir acompanhar mesmo que seja a primeira vez que você está vendo um codigo em Zig. Ainda assim, vamos analisar linha por linha.
+Jest to prosty przykład, gdzie możesz podążać za kodem, nawet jeśli pierwszy raz widzisz Ziga. Mimo to, przejrzymy go linijka po linijce.
 
-> Consulte a seção de [instalação do Zig](https://www.openmymind.net/learning_zig/#install) para configurar rapidamente e começar a usar.
+> Zobacz sekcję dotyczącą [instalacji Zig](https://www.openmymind.net/learning_zig/#install), aby szybko rozpocząć pracę.
 
+## Importowanie
 
+Bardzo niewiele programów jest napisanych jako pojedynczy plik bez standardowej biblioteki lub bibliotek zewnętrznych. Nasz pierwszy program nie jest wyjątkiem i wykorzystuje standardową bibliotekę Ziga do drukowania naszych danych wyjściowych. System importu Ziga jest prosty i opiera się na funkcji `@import` i słowie kluczowym `pub` (aby kod był dostępny poza bieżącym plikiem).
 
-## Importação
+> Funkcje zaczynające się od `@` są funkcjami wbudowanymi. Są one dostarczane przez kompilator, a nie przez bibliotekę standardową.
 
-Muito poucos programas são escritos como um único arquivo sem uma biblioteca padrão ou bibliotecas externas. Nosso primeiro programa não é exceção e utiliza a biblioteca padrão do Zig para imprimir nossa saída. O sistema de importação do Zig é direto e depende da função `@import` e da palavra-chave `pub` (para tornar o código acessível fora do arquivo atual).
-
-> Funções que começam com `@` são funções integradas (nativas em nível de compilador). Estas são fornecidas pelo compilador, constrastando com aquelas fornecidas pela biblioteca padrão.
-
-Importamos um módulo especificando o nome do módulo. A biblioteca padrão do Zig está disponível usando o nome "std". Para importar um arquivo específico, utilizamos o seu caminho relativo ao arquivo que está fazendo a importação. Por exemplo, se movermos a estrutura `User` para seu próprio arquivo, digamos _models/user.zig_:
+Importujemy moduł określając jego nazwę. Standardowa biblioteka Ziga jest dostępna przy użyciu nazwy "std". Aby zaimportować określony plik, używamy jego ścieżki względem pliku wykonującego import. Na przykład, jeśli przenieśliśmy strukturę `User` do jej własnego pliku, powiedzmy _models/user.zig_:
 
 ```zig
 // models/user.zig
 pub const User = struct {
-	power: u64,
-	name: []const u8,
+    power: u64,
+    name: []const u8,
 };
 ```
 
-Então, o importaríamos da seguinte forma:
+Następnie zaimportujemy go za pośrednictwem:
 
 ```zig
 // main.zig
 const User = @import("models/user.zig").User;
 ```
 
-> Se nosso _struct_ `User` não estiver marcada como `pub`, receberemos o seguinte erro: _'User' não está marcada como 'pub'_.
+> Jeśli nasza _struktura_ `User` nie została oznaczona jako `pub`, otrzymamy następujący błąd: _'User' is not marked 'pub'_.
 
-_models/user.zig_ pode exportar mais de uma coisa. Por exemplo, também poderíamos exportar uma constante:
+_models/user.zig_ może eksportować więcej niż jedną rzecz. Na przykład, możemy również wyeksportować stałą:
 
 ```zig
 // models/user.zig
 pub const MAX_POWER = 100_000;
 
 pub const User = struct {
-	power: u64,
-	name: []const u8,
+    power: u64,
+    name: []const u8,
 };
 ```
 
-Neste caso, poderíamos importar ambos:
+W takim przypadku moglibyśmy zaimportować oba:
 
 ```zig
 const user = @import("models/user.zig");
@@ -76,374 +74,357 @@ const User = user.User;
 const MAX_POWER = user.MAX_POWER
 ```
 
-Neste ponto, você pode ter mais perguntas do que respostas. No trecho acima, o que é `user`? Ainda não o vimos, mas e se usarmos `var` em vez de `const`? Ou talvez você esteja se perguntando como usar bibliotecas de terceiros. São todas boas perguntas, mas para respondê-las, primeiro precisamos aprender mais sobre Zig. Por enquanto, teremos que ficar satisfeitos com o que aprendemos: como importar a biblioteca padrão do Zig, como importar outros arquivos e como exportar definições.
+W tym momencie możesz mieć więcej pytań niż odpowiedzi. Czym jest `user` w powyższym fragmencie? Jeszcze tego nie widzieliśmy, ale co jeśli użyjemy `var` zamiast `const`? A może zastanawiasz się, jak korzystać z bibliotek osób postronnych. To wszystko są dobre pytania, ale aby na nie odpowiedzieć, musimy najpierw dowiedzieć się więcej o Zigu. Na razie będziemy musieli zadowolić się tym, czego się nauczyliśmy: jak importować standardową bibliotekę Ziga, jak importować inne pliki i jak eksportować definicje.
 
+## Komentarze
 
-
-## Comentários
-
-A próxima linha no nosso exemplo Zig é um comentário:
+Następna linia naszego przykładu Zig jest komentarzem:
 
 ```zig
-// Este código não irá compilar caso a função `main` não seja `pub` (tenha visibilidade pública)
+// Ten kod nie skompiluje się, jeśli `main` nie jest `pub` (publiczny)
 ```
 
-O Zig não tem comentários de várias linhas, como os `/* ... */` em C.
+Zig nie posiada wielowierszowych komentarzy, tak jak `/* ... */` w C.
 
-Existe suporte experimental para geração automatizada de documentação com base em comentários. Se você já viu a [documentação da biblioteca padrão do Zig](https://ziglang.org/documentation/master/std), então você já viu isso em ação. `//!` é conhecido como um comentário de documento de nível superior e pode ser colocado no início do arquivo. Um comentário de três barras (`///`), conhecido como comentário de documento, pode ser colocado em lugares específicos, como antes de uma declaração. Você receberá um erro do compilador se tentar usar qualquer tipo de comentário de documento no lugar errado.
+Istnieje eksperymentalne wsparcie dla automatycznego generowania dokumentów na podstawie komentarzy. Jeśli widziałeś [dokumentację biblioteki standardowej](https://ziglang.org/documentation/master/std) Zig, to widziałeś to w akcji. `//!` jest znany jako komentarz dokumentu najwyższego poziomu i może być umieszczony na początku pliku. Komentarz z potrójnym ukośnikiem (`///`), znany jako komentarz dokumentu, może być umieszczony w określonych miejscach, na przykład przed deklaracją. Próba użycia któregokolwiek typu komentarza dokumentu w niewłaściwym miejscu spowoduje błąd kompilatora.
 
+## Funkcje
 
-
-## Funções
-
-Nossa próxima linha de código é o início da nossa função principal (`main`):
+Następny wiersz kodu jest początkiem naszej głównej funkcji:
 
 ```zig
 pub fn main() void
 ```
 
-Todo executável precisa de uma função chamada `main`: é o ponto de entrada do programa. Se renomeássemos `main` para algo diferente, como `doIt`, e tentássemos executar `zig run learning.zig`, receberíamos um erro: _'learning' has no member named 'main'_ (dizendo que _'learning'_ não tem um membro chamado _'main'_).
+Każdy plik wykonywalny potrzebuje funkcji o nazwie `main`: jest to punkt wejścia do programu. Gdybyśmy zmienili nazwę `main` na coś innego, na przykład `doIt`, i spróbowali uruchomić `zig run learning.zig`, otrzymalibyśmy błąd informujący, że `'learning' has no member named 'main'`.
 
-Ignorando o papel especial de `main` como o ponto de entrada do nosso programa, é uma função bastante básica: não recebe parâmetros e não retorna nada, ou seja, `void`. O seguinte é _um pouco_ mais interessante:
+Pomijając specjalną rolę `main` jako punktu wejścia naszego programu, jest to naprawdę podstawowa funkcja: nie przyjmuje żadnych parametrów i nic nie zwraca, czyli `void`. Poniższy przykład jest _nieco_ bardziej interesujący:
 
 ```zig
 const std = @import("std");
 
 pub fn main() void {
-	const sum = add(8999, 2);
-	std.debug.print("8999 + 2 = {d}\n", .{sum});
+    const sum = add(8999, 2);
+    std.debug.print("8999 + 2 = {d}\n", .{sum});
 }
 
 fn add(a: i64, b: i64) i64 {
-	return a + b;
+    return a + b;
 }
 ```
 
-Programadores de C e C++ perceberão que em Zig não se exige declarações pré-definidas, ou seja, a função `add` é chamada _antes_ de ser definida.
+Programiści C i C++ zauważą, że Zig nie wymaga deklaracji forward, tj. `add` jest wywoływany przed jego zdefiniowaniem.
 
-A próxima coisa a notar é o tipo `i64`: um inteiro de 64 bits com marcação. Alguns outros tipos numéricos são: `u8`, `i8`, `u16`, `i16`, `u32`, `i32`, `u47`, `i47`, `u64`, `i64`, `f32` e `f64`. A inclusão de `u47` e `i47` não é um teste para garantir que você ainda está acordado; Zig suporta inteiros de tamanho arbitrário em bits. Embora você provavelmente não os use com frequência, eles podem ser úteis. Um tipo que você usará com frequência é `usize`, que é um inteiro sem marcação do tamanho de um ponteiro e geralmente o tipo que representa o comprimento/tamanho de algo.
+Kolejną rzeczą, na którą należy zwrócić uwagę, jest typ `i64`: 64-bitowa liczba całkowita ze znakiem. Inne typy liczbowe to: `u8`, `i8`, `u16`, `i16`, `u32`, `i32`, `u47`, `i47`, `u64`, `i64`, `f32` i `f64`. Włączenie `u47` i `i47` nie jest testem, aby upewnić się, że nadal nie śpisz; Zig obsługuje liczby całkowite o dowolnej szerokości bitowej. Chociaż prawdopodobnie nie będziesz ich często używać, mogą się przydać. Jednym z często _używanych_ typów jest `usize`, który jest liczbą całkowitą bez znaku o rozmiarze wskaźnika i ogólnie typem reprezentującym długość/rozmiar czegoś.
 
-> Além de `f32` e `f64`, Zig também suporta os tipos de ponto flutuante `f16`, `f80` e `f128`.
+> Oprócz `f32` i `f64`, Zig obsługuje również typy zmiennoprzecinkowe `f16`, `f80` i `f128`.
 
-Embora não haja uma boa razão para fazer isso, se mudarmos a implementação de `add` para:
+Chociaż nie ma dobrego powodu, aby to robić, jeśli zmienimy implementację `add` na:
 
 ```zig
 fn add(a: i64, b: i64) i64 {
-	a += b;
-	return a;
+    a += b;
+    return a;
 }
 ```
 
-Vamos obter um erro em `a += b;`: _cannot assign to constant_ (não é possível atribuir a uma constante). Esta é uma lição importante que revisaremos com mais detalhes posteriormente: os parâmetros de função são constantes.
+Otrzymamy błąd na `a += b;`: _cannot assign to constant_. Jest to ważna lekcja, do której wrócimy bardziej szczegółowo później: parametry funkcji są stałymi.
 
-Para melhorar a legibilidade, não há sobrecarga de funções (a mesma função nomeada definida com tipos de parâmetros e/ou número de parâmetros diferentes). Por enquanto, isso é tudo o que precisamos saber sobre funções.
+Ze względu na lepszą czytelność, nie ma przeciążania funkcji (ta sama funkcja zdefiniowana z różnymi typami parametrów i/lub liczbą parametrów). Na razie to wszystko, co musimy wiedzieć o funkcjach.
 
+## Struktury _(struct)_
 
-
-## Estruturas _(struct)_
-
-A próxima linha de código é a criação de um `User`, um tipo que é definido no final do nosso trecho. A definição de `User` é:
+Następną linią kodu jest utworzenie typu `User`, który jest zdefiniowany na końcu naszego snippetu. Definicja `User` to:
 
 ```zig
 pub const User = struct {
-	power: u64,
-	name: []const u8,
+    power: u64,
+    name: []const u8,
 };
 ```
 
-> Como nosso programa é um único arquivo e, portanto, `User` é usado apenas no arquivo onde é definido, não precisávamos torná-lo `pub`. Mas, então, não teríamos visto como expor uma declaração para outros arquivos.
+> Ponieważ nasz program jest pojedynczym plikiem, a zatem `User` jest używany tylko w pliku, w którym jest zdefiniowany, nie musieliśmy go robić `pub`. Ale wtedy nie zobaczylibyśmy, jak wyeksponować deklarację innym plikom.
 
-Os campos de um `struct` são terminados com uma vírgula e podem ser atribuídos um valor padrão:
+Pola `struct` są zakończone przecinkiem i mogą mieć wartość domyślną::
 
 ```zig
 pub const User = struct {
-	power: u64 = 0,
-	name: []const u8,
+    power: u64 = 0,
+    name: []const u8,
 };
 ```
 
-Quando criamos um `struct`, **cada campo** deve ser definido. Por exemplo, na definição original, onde `power` não tinha um valor padrão, o seguinte geraria um erro: _missing struct field: power_.
+Kiedy tworzymy strukturę, **każde** pole musi być ustawione. Na przykład w oryginalnej definicji, w której `power` nie miało wartości domyślnej, wystąpiłby następujący błąd: _missing struct field: power_.
 
 ```zig
 const user = User{.name = "Goku"};
 ```
 
-No entanto, com o nosso valor padrão, o código acima compila normalmente.
+Jednak z naszą domyślną wartością, powyższe kompiluje się dobrze.
 
-_Structs_ podem ter métodos, podem conter declarações (incluindo outros _structs_) e até mesmo podem não ter nenhum campo, nesse caso agindo mais como um _namespace_.
+Struktury mogą mieć metody, mogą zawierać deklaracje (w tym inne struktury), a nawet mogą zawierać zero pól, w którym to momencie działają bardziej jak przestrzeń nazw.
 
 ```zig
 pub const User = struct {
-	power: u64 = 0,
-	name: []const u8,
+    power: u64 = 0,
+    name: []const u8,
 
-	pub const SUPER_POWER = 9000;
+    pub const SUPER_POWER = 9000;
 
-	fn diagnose(user: User) void {
-		if (user.power >= SUPER_POWER) {
-			std.debug.print("it's over {d}!!!", .{SUPER_POWER});
-		}
-	}
+    fn diagnose(user: User) void {
+        if (user.power >= SUPER_POWER) {
+            std.debug.print("it's over {d}!!!", .{SUPER_POWER});
+        }
+    }
 };
 ```
 
-Métodos são apenas funções normais que podem ser chamadas com uma sintaxe de ponto. Ambas funções funcionam:
+Metody to zwykłe funkcje, które można wywołać za pomocą składni kropki. Oba te sposoby działają:
 
 ```zig
-// Chamar a função através da variável
+// wywołaj diagnose na userze
 user.diagnose();
 
-// É o mesmo que chamar a função através do tipo, passando a variável como argumento
+// Powyższe jest cukrem składniowym dla:
 User.diagnose(user);
 ```
 
-Na maioria das vezes, você usará a sintaxe de ponto, mas os métodos como uma espécie simplificação na sintaxe sobre funções normais podem ser úteis.
+Przez większość czasu będziesz używać składni kropkowej, ale metody jako cukier składniowy nad zwykłymi funkcjami mogą się przydać.
 
-> A instrução `if` é o primeiro controle de fluxo que vimos. É bastante direta, não é? Vamos explorar isso com mais detalhes na próxima parte.
+> Instrukcja `if` jest pierwszym przepływem sterowania, który widzieliśmy. To całkiem proste, prawda? Zbadamy to bardziej szczegółowo w następnej części.
 
-A função `diagnose` é definida dentro do nosso tipo `User` e aceita um `User` como seu primeiro parâmetro. Como tal, podemos chamá-la com a sintaxe de ponto. Mas as funções dentro de uma estrutura não precisam seguir esse padrão. Um exemplo comum é ter uma função `init` para iniciar nossa estrutura:
+`diagnose` jest zdefiniowana w naszym typie `User` i akceptuje `User` jako pierwszy parametr. W związku z tym możemy wywołać ją za pomocą składni kropkowej. Ale funkcje wewnątrz struktury nie muszą podążać za tym wzorcem. Jednym z typowych przykładów jest funkcja `init` inicjująca naszą strukturę:
 
 ```zig
 pub const User = struct {
-	power: u64 = 0,
-	name: []const u8,
+    power: u64 = 0,
+    name: []const u8,
 
-	pub fn init(name: []const u8, power: u64) User {
-		return User{
-			.name = name,
-			.power = power,
-		};
-	}
+    pub fn init(name: []const u8, power: u64) User {
+        return User{
+            .name = name,
+            .power = power,
+        };
+    }
 }
 ```
 
-O uso de `init` é apenas uma convenção e, em alguns casos, `open` ou algum outro nome pode fazer mais sentido. Se você, como eu, não é um(a) programador(a) de C++, a sintaxe para inicializar campos, `.$campo = $valor`, pode parecer um pouco estranha, mas você se acostumará rapidamente.
+Użycie `init` jest jedynie konwencją i w niektórych przypadkach `open` lub inna nazwa może mieć więcej sensu. Jeśli jesteś podobny do mnie i nie jesteś programistą C++, składnia inicjalizacji pól, `.$field = $value`, może być nieco dziwna, ale szybko się do niej przyzwyczaisz.
 
-Quando criamos "Goku", declaramos a variável `user` como `const`:
+Kiedy utworzyliśmy "Goku", zadeklarowaliśmy zmienną `user` jako `const`:
 
 ```zig
 const user = User{
-	.power = 9001,
-	.name = "Goku",
+    .power = 9001,
+    .name = "Goku",
 };
 ```
 
-Isso significa que não podemos modificar `user`. Para modificar uma variável, ela deve ser declarada usando `var`. Além disso, você pode ter notado que o tipo de `user` é inferido com base no que é atribuído a ele. Poderíamos ser explícitos:
+Oznacza to, że nie możemy modyfikować `user`. Aby zmodyfikować zmienną, należy ją zadeklarować za pomocą `var`. Być może zauważyłeś również, że typ `user` jest wnioskowany na podstawie tego, co jest do niego przypisane. Moglibyśmy być jawni:
 
 ```zig
 const user: User = User{
-	.power = 9001,
-	.name = "Goku",
+    .power = 9001,
+    .name = "Goku",
 };
 ```
 
-Veremos casos em que precisamos ser explícitos sobre o tipo de uma variável, mas na maioria das vezes, o código é mais legível sem o tipo explícito. A inferência de tipo funciona da mesma forma. Isso é equivalente a ambos os trechos acima:
-
-```zig
-const user: User = .{
-	.power = 9001,
-	.name = "Goku",
-};
-```
-
-No entanto, essa forma de uso é bastante incomum. Um lugar onde é mais comum é ao retornar uma estrutura de uma função. Aqui, o tipo pode ser inferido a partir do tipo de retorno da função. Nossa função `init` provavelmente seria escrita assim:
+Takie użycie jest jednak dość nietypowe. Jednym z miejsc, w których jest to bardziej powszechne, jest zwracanie struktury z funkcji. Tutaj typ można wywnioskować z typu zwracanego przez funkcję. Nasza funkcja `init` prawdopodobnie zostałaby napisana w ten sposób:
 
 ```zig
 pub fn init(name: []const u8, power: u64) User {
-	// Ao invés de retornar "User{...}"
-	return .{
-		.name = name,
-		.power = power,
-	};
+    // zamiast zwracać User{...}
+    return .{
+        .name = name,
+        .power = power,
+    };
 }
 ```
 
-Como a maioria das coisas que exploramos até agora, revisaremos `structs` no futuro quando falarmos sobre outras partes da linguagem. Mas, na maior parte, são bem simples.
+Jak przypadku większości rzeczy, które do tej pory zbadaliśmy, w przyszłości powrócimy do struktur, gdy będziemy mówić o innych częściach języka. Ale w przeważającej części są one proste.
 
+## Tablice _(arrays)_ i wycinki _(slices)_
 
+Moglibyśmy pominąć ostatnią linię naszego kodu, ale biorąc pod uwagę, że nasz mały fragment zawiera dwa ciągi znaków, **"Goku"** i **"{s}'s power is {d}\n"**, prawdopodobnie jesteś ciekawy ciągów znaków w Zigu. Aby lepiej zrozumieć ciągi, najpierw zbadajmy tablice i wycinki.
 
-## Vetores _(arrays)_ e Segmentos _(slices)_
+Tablice mają stały rozmiar i długość znaną w czasie kompilacji. Długość jest częścią typu, więc tablica 4 liczb całkowitych ze znakiem, `[4]i32`, jest innego typu niż tablica 5 liczb całkowitych ze znakiem, `[5]i32`.
 
-Podemos pular a última linha do nosso código, mas dado que nosso pequeno trecho contém duas _strings_ (cadeia de caraceteres), **"Goku"** e **"{s}'s power is {d}\n"**, você provavelmente está curioso sobre como funcionam as _strings_ em Zig. Para entender melhor as _strings_, vamos primeiro explorar _arrays_ e _slices_.
-
-_Arrays_ possuem tamanho fixo com um comprimento conhecido em tempo de compilação. O comprimento faz parte do tipo, portanto, um _array_ de 4 inteiros assinados, `[4]i32`, é um tipo diferente de um _array_ de 5 inteiros assinados, `[5]i32`.
-
-O comprimento do _array_ pode ser inferido a partir da inicialização. No código a seguir, todas as três variáveis são do tipo `[5]i32`:
+Długość tablicy można wywnioskować z inicjalizacji. W poniższym kodzie wszystkie trzy zmienne są typu `[5]i32`:
 
 ```zig
 const a = [5]i32{1, 2, 3, 4, 5};
 
-// nós já vimos esta .{...} sintaxe com structs
-// ela também funciona com arrays
+// widzieliśmy już tę składnię .{...} ze strukturami
+// działa to również z tablicami
 const b: [5]i32 = .{1, 2, 3, 4, 5};
 
-// use a notação _ para deixar o compilador inferir o comprimento do array
+// użyj _, aby pozwolić kompilatorowi wywnioskować długość
 const c = [_]i32{1, 2, 3, 4, 5};
 ```
 
-Um slice (segmento), por outro lado, é um ponteiro para um array com um comprimento. O comprimento é conhecido em tempo de execução. Abordaremos ponteiros em uma parte posterior, mas você pode pensar em um slice como uma visão (segmento) de parte do array.
+Z drugiej strony, _slice_ jest wskaźnikiem do tablicy o określonej długości. Długość jest znana w czasie wykonywania. Wskaźniki omówimy w późniejszej części, ale można myśleć o wycinku jako o widoku tablicy.
 
-> Se você está familiarizado com Go, pode ter notado que as slices em Zig são um pouco diferentes: elas não têm uma capacidade, apenas um ponteiro e um comprimento.
+> Jeśli jesteś zaznajomiony z Go, być może zauważyłeś, że wycinki w Zig są nieco inne: nie mają pojemności, a jedynie wskaźnik i długość.
 
-Dado o seguinte bloco de código,
+Biorąc pod uwagę następujące,
 
 ```zig
 const a = [_]i32{1, 2, 3, 4, 5};
 const b = a[1..4];
 ```
 
-Eu adoraria poder te dizer que `b` é um slice com um comprimento de 3 e um ponteiro para `a`. No entanto, porque "fatiamos" nosso array usando valores conhecidos em tempo de compilação, ou seja, `1` e `4`, nosso comprimento, `3`, também é conhecido em tempo de compilação. O compilador do Zig analisa tudo isso e, portanto, `b` não é realmente um slice, mas sim um ponteiro para um array de inteiros com um comprimento de 3. Especificamente, seu tipo é `*const [3]i32`. Portanto, esta demonstração de um slice é frustrada pela engenhosidade e capacidade de análise do compilador do Zig.
+Chciałbym móc powiedzieć, że `b` jest wycinkiem o długości 3 i wskaźnikiem do `a`. Ale ponieważ "pokroiliśmy" naszą tablicę przy użyciu wartości znanych w czasie kompilacji, tj. `1` i `4`, nasza długość, `3`, jest również znana w czasie kompilacji. Zig rozgryzł to wszystko i dlatego `b` nie jest wycinkiem, ale raczej wskaźnikiem do tablicy liczb całkowitych o długości 3. Konkretnie, jego typ to `*const [3]i32`. Tak więc ta demonstracja wycinka została udaremniona przez spryt Ziga.
 
-Em uma bse de código real, você provavelmente usará mais slices do que arrays. Para o bem ou para o mal, os programas tendem a ter mais informações em tempo de execução do que em tempo de compilação. Em um exemplo pequeno, no entanto, precisamos enganar o compilador para obter o que queremos:
+W prawdziwym kodzie prawdopodobnie będziesz używał wycinków częściej niż tablic. Na dobre i na złe, programy mają tendencję do posiadania większej ilości informacji w czasie wykonywania niż w czasie kompilacji. W tym małym przykładzie musimy jednak oszukać kompilator, aby uzyskać to, czego chcemy:
 
 ```zig
 const a = [_]i32{1, 2, 3, 4, 5};
-var end: usize = 4;
+var end: usize = 3;
+end += 1;
 const b = a[1..end];
 ```
 
-Agora, `b` é, de fato, um slice. Mais especificamente, seu tipo é `[]const i32`. Você pode perceber que o comprimento do slice não faz parte do tipo, porque o comprimento é uma propriedade em tempo de execução, e os tipos são sempre totalmente conhecidos em tempo de compilação. Ao criar um slice, podemos omitir o limite superior para criar um slice até o final do que estamos fatiando (seja um array ou um slice), por exemplo, `const c = b[2..];`.
+`b` jest teraz prawidłowym wycinkiem, a konkretnie jego typem jest `[]const i32`. Można zauważyć, że długość wycinka nie jest częścią typu, ponieważ długość jest właściwością runtime, a typy są zawsze w pełni znane w czasie kompilacji. Podczas tworzenia wycinka możemy pominąć górną granicę, aby utworzyć wycinek do końca tego, co kroimy (tablicy lub wycinka), np. `const c = b[2...]`;.
 
-> Se tivéssemos declarado `end` como `const`, ela teria se tornado um valor conhecido em tempo de compilação, o que teria resultado em um comprimento conhecido em tempo de compilação para `b` e, portanto, criado um ponteiro para um array, e não um slice. Eu acho isso um pouco confuso, mas não é algo que surge com muita frequência e não é muito difícil de dominar. Eu adoraria pular isso neste momento, mas não consegui encontrar uma maneira legítima de evitar esse detalhe.
+> Gdybyśmy zrobili `const end: usize = 4` bez inkrementacji, to `1...end` stałoby się znaną w czasie kompilacji długością dla `b`, a tym samym utworzyłoby wskaźnik do tablicy, a nie wycinek. Uważam, że jest to trochę mylące, ale nie jest to coś, co pojawia się zbyt często i nie jest zbyt trudne do opanowania. Chciałbym pominąć to w tym momencie, ale nie mogłem znaleźć uczciwego sposobu na uniknięcie tego szczegółu.
 
-Aprender a linguagem Zig me ensinou que os tipos são muito descritivos. Não é apenas um número inteiro ou um booleano, ou mesmo um array de inteiros de 32 bits com sinal. Os tipos também contêm outras informações importantes. Já falamos sobre o comprimento fazer parte do tipo de um array, e muitos dos exemplos mostraram como a constância também faz parte dele. Por exemplo, em nosso último exemplo, o tipo de `b` é `[]const i32`. Você pode verificar isso por si mesmo com o seguinte código:
+Nauka Ziga nauczyła mnie, że typy są bardzo opisowe. To nie tylko liczba całkowita lub logiczna, czy nawet tablica podpisanych 32-bitowych liczb całkowitych. Typy zawierają również inne ważne informacje. Rozmawialiśmy o tym, że długość jest częścią typu tablicy, a wiele przykładów pokazało, że stałość jest również jego częścią. Na przykład, w naszym ostatnim przykładzie, typem `b` jest `[]const i32`. Można to zobaczyć na przykładzie poniższego kodu:
 
 ```zig
 const std = @import("std");
 
 pub fn main() void {
-	const a = [_]i32{1, 2, 3, 4, 5};
-	var end: usize = 4;
-	const b = a[1..end];
-	std.debug.print("{any}", .{@TypeOf(b)});
+    const a = [_]i32{1, 2, 3, 4, 5};
+    var end: usize = 4;
+    end += 1;
+    const b = a[1..end];
+    std.debug.print("{any}", .{@TypeOf(b)});
 }
 ```
 
-Se tentássemos escrever em `b`, como por exemplo `b[2] = 5;`, obteríamos um erro de compilação: _"cannot assign to constant"_ (não é possível atribuir a uma constante). Isso ocorre devido ao tipo de `b`.
+Gdybyśmy próbowali wpisać do `b`, np. `b[2] = 5;` otrzymalibyśmy błąd kompilacji: _cannot assign to constant_. Jest to spowodowane typem `b`.
 
-Para resolver isso, você pode ser tentado a fazer a seguinte alteração:
+Aby rozwiązać ten problem, można pokusić się o wprowadzenie następującej zmiany:
 
 ```zig
-// substituição de const por var
+// zamień const na var
 var b = a[1..end];
 ```
 
-Mas você obterá o mesmo erro, por quê? Como dica, fica a questão: qual é o tipo de `b`, ou mais genericamente, o que é `b`? Um slice é um comprimento e um ponteiro para **parte de** um array. O tipo de um slice é sempre derivado do array subjacente. Se `b` for declarado como `const` ou não, o array subjacente é do tipo `[5]const i32`, e assim `b` deve ser do tipo `[]const i32`. Se quisermos poder escrever em `b`, precisamos alterar `a` de `const` para `var`.
+ale otrzymasz ten sam błąd, dlaczego? Jako podpowiedź, jaki jest typ `b`, lub bardziej ogólnie, czym jest `b`? Wycinek jest długością i wskaźnikiem do [części] tablicy. Typ wycinka jest zawsze pochodną tego, co jest wycinane. Niezależnie od tego, czy `b` jest zadeklarowane jako stałe, czy nie, jest to wycinek `[5]const i32`, więc `b` musi być typu `[]const i32`. Jeśli chcemy mieć możliwość zapisu do `b`, musimy zmienić `a` z `const` na `var`.
 
 ```zig
 const std = @import("std");
 
 pub fn main() void {
-	var a = [_]i32{1, 2, 3, 4, 5};
-	var end: usize = 4;
-	const b = a[1..end];
-	b[2] = 99;
+    var a = [_]i32{1, 2, 3, 4, 5};
+    var end: usize = 3;
+    end += 1;
+    const b = a[1..end];
+    b[2] = 99;
 }
 ```
 
-Isso funciona porque nosso slice não é mais `[]const i32`, mas sim `[]i32`. Você pode estar se perguntando por que isso funciona quando `b` ainda é `const` (constante). Mas a constância de `b` está relacionada a `b` em si, não aos dados que `b` aponta. Bem, não tenho certeza se essa é uma ótima explicação, mas para mim, este código destaca a diferença:
+Działa to, ponieważ nasz wycinek nie jest już `[]const i32`, ale raczej `[]i32`. Można się zastanawiać, dlaczego to działa, skoro `b` wciąż jest stałą. Ale stałość `b` odnosi się do samego `b`, a nie do danych, na które `b` wskazuje. Cóż, nie jestem pewien, czy to świetne wyjaśnienie, ale dla mnie ten kod podkreśla różnicę:
 
 ```zig
 const std = @import("std");
 
 pub fn main() void {
-	var a = [_]i32{1, 2, 3, 4, 5};
-	var end: usize = 4;
-	const b = a[1..end];
-	b = b[1..];
+    var a = [_]i32{1, 2, 3, 4, 5};
+    var end: usize = 3;
+    end += 1;
+    const b = a[1..end];
+    b = b[1..];
 }
 ```
 
-Este código não irá compilar; como o compilador nos informa: _"cannot assign to constant"_ (não podemos atribuir a uma constante). Mas se tivéssemos feito `var b = a[1..end];`, então o código teria funcionado porque `b` em si já não é uma constante.
+To się nie skompiluje; jak mówi nam kompilator, _cannot assign to constant_. Ale jeśli zrobilibyśmy `var b = a[1..end];`, kod zadziałałby, ponieważ samo `b` nie jest już stałą.
 
-Vamos descobrir mais sobre arrays e slices enquanto exploramos outros aspectos da linguagem, incluindo strings, que não são menos importantes.
+Więcej o tablicach i wycinkach dowiemy się przyglądając się innym aspektom języka, z których nie najmniej ważnym są ciągi znaków.
 
+## Ciągi znaków _(strings)_
 
+Chciałbym móc powiedzieć, że Zig ma typ ciąg znaków i że jest niesamowity. Niestety tak nie jest. W najprostszym ujęciu, ciągi znaków Zig są sekwencjami (tj. tablicami lub wycinkami) bajtów (`u8`). Widzieliśmy to w definicji pola `name`: `name: []const u8,`.
 
-## Cadeia de caracteres _(strings)_
+Zgodnie z konwencją, i tylko zgodnie z konwencją, takie ciągi powinny zawierać tylko wartości UTF-8, ponieważ kod źródłowy Zig jest sam w sobie zakodowany w UTF-8. Ale nie jest to egzekwowane i tak naprawdę nie ma różnicy między `[]const u8`, który reprezentuje ciąg ASCII lub UTF-8, a `[]const u8`, który reprezentuje dowolne dane binarne. Jak mogłoby być inaczej, są tego samego typu.
 
-Eu gostaria de poder dizer que Zig possui um tipo de `string` e que é incrível. Infelizmente, não é o caso. Em sua forma mais simples, as strings em Zig são sequências (ou seja, arrays ou slices) de bytes (`u8`). Vimos isso na definição do campo `name`: `name: []const u8`.
+Z tego, czego nauczyliśmy się o tablicach i wycinkach, można się domyślić, że `[]const u8` jest wycinkiem do stałej tablicy bajtów (gdzie bajt jest 8-bitową liczbą całkowitą bez znaku). Ale nigdzie w naszym kodzie nie wycięliśmy tablicy, ani nawet nie mieliśmy tablicy, prawda? Wszystko, co zrobiliśmy, to przypisanie "Goku" do `user.name`. Jak to zadziałało?
 
-Por convenção, e apenas por convenção, essas strings devem conter apenas valores UTF-8, já que o código-fonte Zig é ele mesmo codificado em UTF-8. No entanto, isso não é imposto pelo compilador, e não há realmente nenhuma diferença entre um `[]const u8` que representa uma string ASCII ou UTF-8 e um `[]const u8` que representa dados binários arbitrários. Como poderia haver, eles são do mesmo tipo.
+Literały ciągu znaków, te które widzisz w kodzie źródłowym, mają znaną długość w czasie kompilacji. Kompilator wie, że "Goku" ma długość 4. Można by więc pomyśleć, że "Goku" najlepiej reprezentuje tablica, coś w rodzaju `[4]const u8`. Ale literały ciągu znaków mają kilka specjalnych właściwości. Są one przechowywane w specjalnym miejscu w pliku binarnym i deduplikowane. Tak więc zmienna do literału ciągu znaków będzie wskaźnikiem do tej specjalnej lokalizacji. Oznacza to, że typ "Goku" jest bliższy `*const [4]u8`, wskaźnikowi do stałej tablicy 4 bajtów.
 
-Com base no que aprendemos sobre arrays e slices, você estaria correto ao supor que `[]const u8` é uma slice de um array constante de bytes (onde um byte é um inteiro sem sinal de 8 bits). Mas em nenhum lugar do nosso código fatiamos um array ou mesmo tivemos um array, certo? Tudo o que fizemos foi atribuir "Goku" a `user.name`. Como isso funcionou?
-
-As literais de string, aquelas que você vê no código-fonte, têm um comprimento conhecido em tempo de compilação. O compilador sabe que "Goku" tem um comprimento de 4. Então, você estaria próximo ao pensar que "Goku" é melhor representado por um array, algo como `[4]const u8`. Mas as literais de string têm algumas propriedades especiais. Elas são armazenadas em um local especial dentro do binário e são deduplicadas. Portanto, uma variável para uma literal de string será um ponteiro para este local especial. Isso significa que o tipo de "Goku" está mais próximo de `*const [4]u8`, um ponteiro para um array constante de 4 bytes.
-
-Tem mais. As literais de string são terminadas por um caractere nulo. Ou seja, elas sempre têm um `\0` no final. Strings terminadas por nulo são importantes ao interagir com C. Na memória, "Goku" realmente se pareceria com: `{'G', 'o', 'k', 'u', 0}`, então você poderia pensar que o tipo é `*const [5]u8`. Mas isso seria ambíguo na melhor das hipóteses e perigoso na pior das hipóteses (você poderia sobrescrever o terminador nulo). Em vez disso, Zig tem uma sintaxe distinta para representar arrays terminados por nulo. "Goku" tem o tipo: `*const [4:0]u8`, um ponteiro para um array de 4 bytes terminado por nulo. Embora estejamos falando sobre strings, estamos nos concentrando em arrays de bytes terminados por nulo (já que é assim que as strings são tipicamente representadas em C), a sintaxe é mais genérica: `[COMPRIMENTO:MARCADOR]`, onde "MARCADOR" é o valor especial encontrado no final do array. Então, embora eu não consiga pensar em um motivo para isso, o seguinte é completamente válido:
+To nie wszystko. Literały ciągu znaków są zakończone zerem. Oznacza to, że zawsze mają `\0` na końcu. Ciągi znaków zakończone zerem są ważne podczas interakcji z C. W pamięci, "Goku" wyglądałoby tak: `{'G', 'o', 'k', 'u', 0}`, więc można by pomyśleć, że typem jest `*const [5]u8`. Byłoby to jednak w najlepszym przypadku niejednoznaczne, a w gorszym niebezpieczne (można by nadpisać terminator zerowy). Zamiast tego, Zig ma odrębną składnię do reprezentowania tablic zakończonych zerem. "Goku" ma typ: `*const [4:0]u8`, wskaźnik do zakończonej zerem tablicy 4 bajtów. Mówiąc o ciągach znaków, skupiamy się na tablicach bajtów zakończonych znakiem null (ponieważ w ten sposób ciągi znaków są zwykle reprezentowane w C), składnia jest bardziej ogólna: `[LENGTH:SENTINEL]`, gdzie "SENTINEL" to specjalna wartość znajdująca się na końcu tablicy. Tak więc, chociaż nie mogę wymyślić, dlaczego byłoby to potrzebne, poniższe jest całkowicie poprawne:
 
 ```zig
 const std = @import("std");
 
 pub fn main() void {
-    // um array de 3 booleanos com false sendo o marcador
-	const a = [3:false]bool{false, true, false};
+    // tablica 3 wartości logicznych z false jako wartością wartownika
+    const a = [3:false]bool{false, true, false};
 
-	// Esta linha de código é mais avançada e não será explicada!
-	std.debug.print("{any}\n", .{std.mem.asBytes(&a).*});
+    // Ta linia jest bardziej zaawansowana i nie zostanie wyjaśniona!
+    std.debug.print("{any}\n", .{std.mem.asBytes(&a).*});
 }
 ```
 
-Cuja saída será: `{ 0, 1, 0, 0}`.
+Co daje wynik: `{ 0, 1, 0, 0}`.
 
-> Eu hesitei em incluir este exemplo, já que a última linha é bastante avançada e eu não pretendo explicá-la. Por outro lado, é um exemplo funcional que você pode executar e experimentar para examinar melhor alguns dos conceitos que discutimos até agora, se você estiver interessado.
+> Waham się, czy dołączyć ten przykład, ponieważ ostatnia linia jest dość zaawansowana i nie zamierzam jej wyjaśniać. Z drugiej strony, jest to działający przykład, który możesz uruchomić i pobawić się nim, aby lepiej zbadać trochę z tego, co omówiliśmy do tej pory, jeśli masz taką ochotę.
 
-Se eu consegui explicar isso de forma aceitável, provavelmente ainda há uma coisa da qual você está incerto. Se "Goku" é um `*const [4:0]u8`, como conseguimos atribuí-lo a `name`, um `[]const u8`? A resposta é simples: o Zig fará a coerção de tipo para você. Ele fará isso entre alguns tipos diferentes, mas é mais óbvio com strings. Isso significa que se uma função tiver um parâmetro `[]const u8`, ou uma estrutura tiver um campo `[]const u8`, literais de string podem ser usadas. Como as strings terminadas por nulo são arrays, e os arrays têm um comprimento conhecido, essa coerção é barata, ou seja, **não** requer a iteração pela string para encontrar o terminador nulo.
+Jeśli udało mi się to wyjaśnić w zadowalający sposób, prawdopodobnie nadal jest jedna rzecz, której nie jesteś pewien. Jeśli "Goku" jest `*const [4:0]u8`, jak to się stało, że mogliśmy przypisać go do `name`, które jest `[]const u8`? Odpowiedź jest prosta: Zig wymusi typ za ciebie. Zrobi to między kilkoma różnymi typami, ale jest to najbardziej oczywiste w przypadku ciągu znaków. Oznacza to, że jeśli funkcja ma parametr `[]const u8` lub struktura ma pole `[]const u8`, można użyć literałów ciągu znaków. Ponieważ ciągi znaków zakończone nullem są tablicami, a tablice mają znaną długość, ta koercja jest tania, tj. **nie** wymaga iteracji przez ciąg znaków w celu znalezienia zakończenia nullem.
 
-Portanto, ao falar sobre strings, geralmente nos referimos a um `[]const u8`. Quando necessário, explicitamente mencionamos uma string terminada por nulo, que pode ser automaticamente coercida para um `[]const u8`. Mas lembre-se de que um `[]const u8` também é usado para representar dados binários arbitrários, e, como tal, o Zig não tem a noção de uma string como as linguagens de programação de nível mais alto têm. Além disso, a biblioteca padrão do Zig possui apenas um módulo unicode muito básico.
+Tak więc, mówiąc o ciągach znaków, zwykle mamy na myśli `[]const u8`. W razie potrzeby wyraźnie podajemy ciąg zakończony zerem, który może zostać automatycznie przekształcony w `[]const u8`. Należy jednak pamiętać, że `[]const u8` jest również używany do reprezentowania dowolnych danych binarnych i jako taki, Zig nie ma pojęcia ciągu znaków, które mają języki programowania wyższego poziomu. Co więcej, biblioteka standardowa Zig ma tylko bardzo podstawowy moduł unicode.
 
-Claro, em um programa real, a maioria das strings (e de forma mais genérica, arrays) não são conhecidas em tempo de compilação. O exemplo clássico é a entrada do usuário, que não é conhecida quando o programa está sendo compilado. Isso é algo que teremos que revisitar ao falar sobre memória. Mas a resposta curta é que, para esses dados, que têm um valor desconhecido em tempo de compilação e, portanto, um comprimento desconhecido, alocaremos dinamicamente memória em tempo de execução. Nossas variáveis de string, ainda do tipo `[]const u8`, serão slices que apontam para essa memória alocada dinamicamente.
+Oczywiście w prawdziwym programie większość ciągów znaków (i bardziej ogólnie, tablic) nie jest znana w czasie kompilacji. Klasycznym przykładem są dane wprowadzane przez użytkownika, które nie są znane podczas kompilacji programu. Jest to coś, do czego będziemy musieli powrócić, mówiąc o pamięci. Ale krótka odpowiedź jest taka, że dla takich danych, które mają nieznaną wartość w czasie kompilacji, a tym samym nieznaną długość, będziemy dynamicznie alokować pamięć w czasie wykonywania. Nasze zmienne ciągu znaków, wciąż typu `[]const u8`, będą wycinkami wskazującymi na tę dynamicznie przydzielaną pamięć.
 
+## comptime i anytype
 
-
-## Palavras-chave _comptime_ e _anytype_
-
-Há muito mais acontecendo na última linha de código não explorada:
+W naszej ostatniej niezbadanej linii kodu dzieje się o wiele więcej niż na pierwszy rzut oka:
 
 ```zig
 std.debug.print("{s}'s power is {d}\n", .{user.name, user.power});
 ```
 
-Vamos apenas dar uma olhada superficial, mas isso oferece a oportunidade de destacar alguns dos recursos mais avançados do Zig. Essas são coisas das quais você pelo menos deve estar ciente, mesmo que não as tenha dominado.
+Prześledzimy go tylko pobieżnie, ale stanowi on okazję do podkreślenia niektórych z bardziej zaawansowanych funkcji Zig. Są to rzeczy, o których powinieneś przynajmniej wiedzieć, nawet jeśli ich nie opanowałeś.
 
-O primeiro é o conceito em Zig de execução em tempo de compilação, ou `comptime`. Isso é fundamental para as capacidades de metaprogramação do Zig e, como o nome sugere, envolve a execução de código em tempo de compilação, em vez de tempo de execução. Ao longo deste guia, apenas arranharemos a superfície do que é possível com `comptime`, mas é algo que está sempre presente.
+Pierwszą z nich jest koncepcja wykonywania w czasie kompilacji, czyli `comptime`. Jest to rdzeń możliwości metaprogramowania Zig i, jak sama nazwa wskazuje, obraca się wokół uruchamiania kodu w czasie kompilacji, a nie w czasie wykonywania. W tym przewodniku tylko zbadamy po łebkach co jest możliwe z `comptime`, ale jest to coś, co stale istnieje.
 
-Você pode estar se perguntando o que há na linha acima que exige a execução em tempo de compilação. A definição da função `print` exige que nosso primeiro parâmetro, o formato da string, seja conhecido em tempo de compilação:
+Być może zastanawiasz się, co takiego jest w powyższej linii, że wymaga ona wykonania w czasie kompilacji. Definicja funkcji `print` wymaga, aby nasz pierwszy parametr, format ciągu znaków, był znany w czasie kompilacji:
 
 ```zig
-// perceba "comptime" antes da variável "fmt"
+// zwróć uwagę na "comptime" przed zmienną "fmt"
 pub fn print(comptime fmt: []const u8, args: anytype) void {
 ```
 
-E a razão para isso é que a função `print` realiza verificações extras em tempo de compilação que você não teria na maioria das outras linguagens. Que tipo de verificações? Bem, digamos que você altere o formato para `"it's over {d}\n"`, mas mantenha os dois argumentos. Você receberá um erro de compilação: _unused argument in 'it's over {d}'_ (argumento não utilizado em _'it's over {d}'_). Ela também faz verificações de tipo: altere a string de formato para `"{s}'s power is {s}\n"` e você receberá: _invalid format string 's' for type 'u64'_ (string de formato inválida 's' para o tipo 'u64'). Essas verificações não seriam possíveis de serem feitas em tempo de compilação se o formato da string não fosse conhecido em tempo de compilação. Daí a necessidade de um valor conhecido em tempo de compilação.
+Powodem tego jest to, że `print` wykonuje dodatkowe sprawdzanie w czasie kompilacji, którego nie można uzyskać w większości innych języków. Jakiego rodzaju sprawdzanie? Cóż, powiedzmy, że zmieniłeś format na `"it's over {d}\n"`, ale zachowałeś dwa argumenty. Otrzymasz błąd czasu kompilacji: _unused argument in 'it's over {d}'_. Będzie również sprawdzać typ: zmień ciąg formatu na `"{s}'s power is {s}\n"`, a otrzymasz `invalid format string 's' for type 'u64'`. To sprawdzanie nie byłyby możliwe do wykonania w czasie kompilacji, gdyby format ciągu nie był znany w czasie kompilacji. Stąd wymóg wartości znanej w czasie kompilacji.
 
-O único lugar onde o `comptime` impactará imediatamente o seu código são os tipos padrão para literais de inteiros e ponto flutuante, os tipos especiais `comptime_int` e `comptime_float`. Esta linha de código não é válida: `var i = 0;`. Você receberá um erro de compilação: _variable of type 'comptime_int' must be const or comptime_ (a variável do tipo 'comptime_int' deve ser const ou comptime). O código `comptime` só pode trabalhar com dados que são conhecidos em tempo de compilação e, para inteiros e pontos-flutuantes, esses dados são identificados pelos tipos especiais `comptime_int` e `comptime_float`. Um valor desse tipo pode ser usado na execução em tempo de compilação. Mas provavelmente você não passará a maior parte do seu tempo escrevendo código para a execução em tempo de compilação, então isso não é particularmente útil por padrão. O que você precisará fazer é dar um tipo explícito às suas variáveis:
+Jedynym miejscem, w którym `comptime` natychmiast wpłynie na twoje kodowanie, są domyślne typy dla literałów całkowitych i zmiennoprzecinkowych, specjalne `comptime_int` i `comptime_float`. Ten wiersz kodu jest nieprawidłowy: `var i = 0;`. Otrzymasz błąd kompilacji: _variable of type 'comptime_int' must be const or comptime_. Kod `comptime` może działać tylko z danymi, które są znane w czasie kompilacji, a dla liczb całkowitych i zmiennoprzecinkowych takie dane są identyfikowane przez specjalne typy `comptime_int` i `comptime_float`. Wartość tego typu może być użyta w czasie wykonywania kompilacji. Prawdopodobnie jednak nie będziesz spędzać większości czasu na pisaniu kodu do wykonania w czasie kompilacji, więc nie jest to szczególnie przydatna wartość domyślna. To, co musisz zrobić, to nadać zmiennym jawny typ:
 
 ```zig
 var i: usize = 0;
 var j: f64 = 0;
 ```
 
-> Observe que esse erro ocorreu apenas porque usamos `var`. Se tivéssemos usado `const`, não teríamos recebido o erro, já que o ponto central do erro é que um `comptime_int` __deve__ ser constante.
+> Zauważ, że ten błąd wystąpił tylko dlatego, że użyliśmy `var`. Gdybyśmy użyli `const`, nie mielibyśmy błędu, ponieważ cała istota błędu polega na tym, że `comptime_int` musi być `const`.
 
-Em uma parte futura, examinaremos o comptime um pouco mais ao explorar os genéricos.
+W przyszłej części przyjrzymy się nieco bliżej `comptime` podczas eksploracji generyków.
 
-A outra coisa especial sobre nossa linha de código é o estranho `. {user.name, user.power}`, que, a partir da definição de `print` acima, sabemos que mapeia para uma variável do tipo `anytype`. Esse tipo não deve ser confundido com algo como o `Object` em Java ou o `any` (também conhecido como `interface{}`) em Go. Em vez disso, em tempo de compilação, o Zig criará uma versão da função `print` especificamente para todos os tipos que foram passados para ela.
+Inną szczególną rzeczą w naszej linii kodu jest dziwne `.{user.name, user.power}`, które, jak wiemy z powyższej definicji `print`, mapuje na zmienną typu `anytype`. Typ ten nie powinien być mylony z czymś takim jak `Object` w Javie lub `any` w Go (znany jako `interface{}`). Zamiast tego, w czasie kompilacji, Zig utworzy wersję funkcji `print` specjalnie dla wszystkich typów, które zostały do niej przekazane.
 
-Isso nos leva à pergunta: o que estamos passando para ela? Já vimos a notação `.{ ... }` antes, ao permitir que o compilador infira o tipo da nossa estrutura. Isso é semelhante: cria um literal de estrutura anônima. Considere este código:
+Nasuwa się pytanie: co do niej _przekazujemy_? Notację `.{...}` widzieliśmy już wcześniej, gdy pozwalaliśmy kompilatorowi wnioskować o typie naszej struktury. Tu jest podobnie: tworzy anonimową literalną strukturę. Rozważmy ten kod:
 
 ```zig
 pub fn main() void {
-	std.debug.print("{any}\n", .{@TypeOf(.{.year = 2023, .month = 8})});
+    std.debug.print("{any}\n", .{@TypeOf(.{.year = 2023, .month = 8})});
 }
 ```
 
-cuja saída no terminal será:
+który drukuje:
 
-```zig
+```
 struct{comptime year: comptime_int = 2023, comptime month: comptime_int = 8}
 ```
 
-Aqui, demos nomes aos campos de nossa estrutura anônima, `year` e `month`. Em nosso código original, não o fizemos. Nesse caso, os nomes dos campos são gerados automaticamente como "0", "1", "2", etc. A função `print` espera uma estrutura com esses campos e usa a posição ordinal na string de formato para obter o argumento apropriado.
+Tutaj nadaliśmy naszej anonimowej strukturze nazwy pól, `year` i `month`. W naszym oryginalnym kodzie tego nie zrobiliśmy. W takim przypadku nazwy pól są generowane automatycznie jako "0", "1", "2" itd. Chociaż oba są przykładami literału anonimowej struktury, ta bez nazw pól jest często nazywana _krotką_. Funkcja `print` oczekuje krotki i używa pozycji porządkowej w formacie ciągu znaków, aby uzyskać odpowiedni argument.
 
-Zig não possui sobrecarga de funções, e não possui funções variádicas (funções com um número arbitrário de argumentos). Mas ele tem um compilador capaz de criar funções especializadas com base nos tipos passados, incluindo tipos inferidos e criados pelo próprio compilador.
+Zig nie ma przeciążania funkcji i nie ma funkcji vardiadic (funkcji ze zmienną liczbą argumentów). Posiada jednak kompilator zdolny do tworzenia wyspecjalizowanych funkcji w oparciu o przekazane typy, w tym typy wywnioskowane i utworzone przez sam kompilator.
