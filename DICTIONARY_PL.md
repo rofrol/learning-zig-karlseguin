@@ -26,4 +26,5 @@
 - recursive - rekursywny
 - following the code - podążając za kodem
 - generics - generyki
+- dot syntax - składnia kropkowa
 - runtime - czas wykonania
