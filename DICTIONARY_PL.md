@@ -1,5 +1,5 @@
 - control flow - przepływ sterowania
-- control - sprawdzenie (a może jednak kontrola? wykonanie kontrol)
+- control - sprawdzenie (wykonanie kontrol brzmi dziwnie)
 - slice - wycinek (plasterek nie pasuje mi)
 - enum - enum (wyliczenie nie pasuje mi)
 - optional - typ opcjonalny (opcjonal dziwnie brzmi, a może opcjonalny?)
@@ -25,3 +25,4 @@
 - variadic function - funkcja vardiadic
 - recursive - rekursywny
 - following the code - podążając za kodem
+- generics - generyki
