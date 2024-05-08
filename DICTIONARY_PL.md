@@ -2,7 +2,7 @@
 - control - sprawdzenie (wykonanie kontrol brzmi dziwnie)
 - slice - wycinek (plasterek nie pasuje mi)
 - enum - enum (wyliczenie nie pasuje mi)
-- optional - opcjonalny (opcjonal/opcjonał dziwnie brzmi)
+- optional - opcjonalny (opcjonal/opcjonał dziwnie brzmi, wartość opcjonalna/typ opcjonalny?)
 - optional typ - typ opcjonany
 - uwrap optional - rozpakować opcjonalny
 - string - łańcuch (łańcuch znaków można skracać do łańcuch i używać też w literał łańcuchowy, zamiast ciąg znaków)
@@ -15,6 +15,7 @@
 - check - sprawdzenie (kontrola dziwnie brzmi)
 - case - rozmiar znaku
 - caller - wywoływacz
+- call stack - stos wywołań
 - to Zig - dla Ziga
 - struct - struktura
 - entire point of error - cała istota błędu
@@ -32,3 +33,11 @@
 - runtime - czas wykonania
 - self-documenting - samodokumentujący
 - garbage collector - garbage collector
+- deduplicate - deuduplikować
+- framework - framework
+- push on stack - włożyć na stos
+- pop off stack - zdjąć ze stosu
+- segfault - naruszenie ochrony pamięci (zamiennie z segfault)
+- invalid - nieważne (nieprawidłowy to bardziej incorrect. inwalid jak walidacja?)
+- scope - zakres
+- `user` outlives its scope - `user` przeżyje (żyje dłużej niż) swój zakres
