@@ -11,3 +11,4 @@
 - error - błąd (zostawić error?)
 - null-terminated - zakończony wartością null (zakończony nullem? terminowany nullem?)
 - check - sprawdzenie (kontrola dziwnie brzmi)
+- case - rozmiar znaku
