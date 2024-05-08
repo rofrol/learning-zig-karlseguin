@@ -361,7 +361,7 @@ Powyższy kod wypisuje "Go!u". Musieliśmy zmienić typ `name` z `[]const u8` na
 
 Niektóre języki mają inną implementację, ale wiele języków działa dokładnie w ten sposób (lub bardzo bliski). Choć wszystko to może wydawać się ezoteryczne, ma to fundamentalne znaczenie dla codziennego programowania. Dobrą wiadomością jest to, że można to opanować za pomocą prostych przykładów i fragmentów; nie staje się to bardziej skomplikowane wraz ze wzrostem złożoności innych części systemu.
 
-## Struktury rekursywne
+## Struktury rekurencyjne
 
 Czasami potrzebna jest struktura rekurencyjna. Zachowując nasz istniejący kod, dodajmy opcjonalnego `manager` typu `?User` do naszego `User`. W tym momencie utworzymy dwóch użytkowników i przypiszemy jednego jako menedżera do drugiego:
 

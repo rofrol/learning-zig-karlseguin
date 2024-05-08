@@ -23,3 +23,4 @@
 - ugly hack - brzydki hack
 - receiver - odbiornik
 - variadic function - funkcja vardiadic
+- recursive - rekurencyjny
