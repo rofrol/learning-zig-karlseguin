@@ -8,7 +8,7 @@
 - tagged union - tagowana unia
 - statement - instrukcja
 - expression - wyrażenie
-- error - błąd (zostawić error?)
+- error - błąd (zostawić error?)
 - null-terminated - zakończony wartością null (zakończony nullem? terminowany nullem?)
 - check - sprawdzenie (kontrola dziwnie brzmi)
 - case - rozmiar znaku
