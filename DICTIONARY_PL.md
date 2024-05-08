@@ -3,7 +3,7 @@
 - slice - wycinek (plasterek nie pasuje mi)
 - enum - enum (wyliczenie nie pasuje mi)
 - optional - typ opcjonalny (opcjonal dziwnie brzmi, a może opcjonalny?)
-- string - ciąg znaków (ale łańcuch znaków można skracać do łańcuch i używać w literał łańcuchowy)
+- string - łańcuch (łańcuch znaków można skracać do łańcuch i używać też w literał łańcuchowy, zamiast ciąg znaków)
 - baked into - dodane? (wypieczone dziwnie brzmi)
 - tagged union - tagowana unia
 - statement - instrukcja
@@ -22,3 +22,4 @@
 - allocator - alokator
 - ugly hack - brzydki hack
 - receiver - odbiornik
+- variadic function - funkcja vardiadic

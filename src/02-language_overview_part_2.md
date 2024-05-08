@@ -8,13 +8,13 @@ Przepływ sterowania Ziga jest prawdopodobnie znajomy, ale z dodatkowymi synergi
 
 Zauważysz, że zamiast operatorów logicznych `&&` i `||`, używamy `and` i `or`. Podobnie jak w większości języków, `and` i `or` kontrolują przepływ wykonania: robią krótkie spięcie. Prawa strona `and` nie jest obliczana, jeśli lewa strona jest fałszywa, a prawa strona `or` nie jest obliczana, jeśli lewa strona jest prawdziwa. W Zigu przepływ sterowania odbywa się za pomocą słów kluczowych, a zatem używane są `and` i `or`.
 
-Ponadto operator porównania, `==`, nie działa między wycinkami, takimi jak `[]const u8`, tj. ciągami znaków. W większości przypadków należy użyć `std.mem.eql(u8, str1, str2)`, który porówna długość, a następnie bajty dwóch wycinków.
+Ponadto operator porównania, `==`, nie działa między wycinkami, takimi jak `[]const u8`, tj. łańcuchami. W większości przypadków należy użyć `std.mem.eql(u8, str1, str2)`, który porówna długość, a następnie bajty dwóch wycinków.
 
 Ziga `if`, `else if` i `else` są powszechne:
 
 ```zig
 // std.mem.eql porównuje bajt po bajcie
-// dla ciągu znaków będzie rozróżniana wielkość liter
+// dla łańcucha będzie rozróżniana wielkość liter
 if (std.mem.eql(u8, method, "GET") lub std.mem.eql(u8, method, "HEAD")) {
     // obsłuż żądanie GET
 } else if (std.mem.eql(u8, method, "POST")) {
@@ -26,7 +26,7 @@ if (std.mem.eql(u8, method, "GET") lub std.mem.eql(u8, method, "HEAD")) {
 
 > Pierwszym argumentem funkcji `std.mem.eql` jest typ, w tym przypadku `u8`. Jest to pierwsza funkcja generyczna, którą widzieliśmy. Omówimy to bardziej szczegółowo w dalszej części.
 
-Powyższy przykład porównuje ciągi ASCII i prawdopodobnie powinien być niewrażliwy na wielkość liter. `std.ascii.eqlIgnoreCase(str1, str2)` jest prawdopodobnie lepszą opcją.
+Powyższy przykład porównuje łańcuchy ASCII i prawdopodobnie powinien być niewrażliwy na wielkość liter. `std.ascii.eqlIgnoreCase(str1, str2)` jest prawdopodobnie lepszą opcją.
 
 Nie ma operatora trójargumentowego, ale można użyć `if/else` w następujący sposób:
 
@@ -135,7 +135,7 @@ fn indexOf(haystack: []const u32, needle: u32) ?usize {
 
 Koniec zakresu jest wywnioskowany z długości `haystack`, chociaż moglibyśmy się ukarać i napisać: `0..hastack.len`. Pętle `for` nie obsługują bardziej ogólnego idiomu `init; compare; step`. W tym celu polegamy na pętli `while`.
 
-Ponieważ `while` jest prostsze, przyjmując formę `while (warunek) { }`, mamy większą kontrolę nad iteracją. Na przykład, podczas liczenia liczby sekwencji escape w ciągu znaków, musimy zwiększyć nasz iterator o 2, aby uniknąć podwójnego liczenia `\\`:
+Ponieważ `while` jest prostsze, przyjmując formę `while (warunek) { }`, mamy większą kontrolę nad iteracją. Na przykład, podczas liczenia liczby sekwencji escape w łańcuchu, musimy zwiększyć nasz iterator o 2, aby uniknąć podwójnego liczenia `\\`:
 
 ```zig
 var i: usize = 0;
@@ -222,7 +222,7 @@ const Stage = enum {
 };
 ```
 
-> Jeśli chcesz uzyskać reprezentację ciągu znaków enuma, możesz użyć wbudowanej funkcji `@tagName(enum)`.
+> Jeśli chcesz uzyskać reprezentację łańcuchową enuma, możesz użyć wbudowanej funkcji `@tagName(enum)`.
 
 Przypomnijmy, że typy struktura można wywnioskować na podstawie ich przypisania lub typu zwracanego przy użyciu notacji `.{...}`. Powyżej widzimy, że typ enum jest wnioskowany na podstawie porównania z `self`, który jest typu `Stage`. Mogliśmy napisać wprost: `return self == Stage.confirmed or self == Stage.err;`. Jednak w przypadku enumów często można spotkać się z pominięciem typu enum za pomocą notacji `.$value`. Nazywa się to _literałem enum_.
 

@@ -245,7 +245,7 @@ Jak przypadku większości rzeczy, które do tej pory zbadaliśmy, w przyszłoś
 
 ## Tablice _(arrays)_ i wycinki _(slices)_
 
-Moglibyśmy pominąć ostatnią linię naszego kodu, ale biorąc pod uwagę, że nasz mały fragment zawiera dwa ciągi znaków, **"Goku"** i **"{s}'s power is {d}\n"**, prawdopodobnie jesteś ciekawy ciągów znaków w Zigu. Aby lepiej zrozumieć ciągi, najpierw zbadajmy tablice i wycinki.
+Moglibyśmy pominąć ostatnią linię naszego kodu, ale biorąc pod uwagę, że nasz mały fragment zawiera dwa łańcuchy, **"Goku"** i **"{s}'s power is {d}\n"**, prawdopodobnie jesteś ciekawy łańcuch w Zigu. Aby lepiej zrozumieć łancuchy, najpierw zbadajmy tablice i wycinki.
 
 Tablice mają stały rozmiar i długość znaną w czasie kompilacji. Długość jest częścią typu, więc tablica 4 liczb całkowitych ze znakiem, `[4]i32`, jest innego typu niż tablica 5 liczb całkowitych ze znakiem, `[5]i32`.
 
@@ -341,19 +341,19 @@ pub fn main() void {
 
 To się nie skompiluje; jak mówi nam kompilator, _cannot assign to constant_. Ale jeśli zrobilibyśmy `var b = a[1..end];`, kod zadziałałby, ponieważ samo `b` nie jest już stałą.
 
-Więcej o tablicach i wycinkach dowiemy się przyglądając się innym aspektom języka, z których nie najmniej ważnym są ciągi znaków.
+Więcej o tablicach i wycinkach dowiemy się przyglądając się innym aspektom języka, z których nie najmniej ważnym są łańcuchy.
 
-## Ciągi znaków _(strings)_
+## Łańcuchy _(strings)_
 
-Chciałbym móc powiedzieć, że Zig ma typ ciąg znaków i że jest niesamowity. Niestety tak nie jest. W najprostszym ujęciu, ciągi znaków Zig są sekwencjami (tj. tablicami lub wycinkami) bajtów (`u8`). Widzieliśmy to w definicji pola `name`: `name: []const u8,`.
+Chciałbym móc powiedzieć, że Zig ma typ łańcuch i że jest niesamowity. Niestety tak nie jest. W najprostszym ujęciu, łańcuchy Zig są sekwencjami (tj. tablicami lub wycinkami) bajtów (`u8`). Widzieliśmy to w definicji pola `name`: `name: []const u8,`.
 
-Zgodnie z konwencją, i tylko zgodnie z konwencją, takie ciągi powinny zawierać tylko wartości UTF-8, ponieważ kod źródłowy Zig jest sam w sobie zakodowany w UTF-8. Ale nie jest to egzekwowane i tak naprawdę nie ma różnicy między `[]const u8`, który reprezentuje ciąg ASCII lub UTF-8, a `[]const u8`, który reprezentuje dowolne dane binarne. Jak mogłoby być inaczej, są tego samego typu.
+Zgodnie z konwencją, i tylko zgodnie z konwencją, takie łańcuchy powinny zawierać tylko wartości UTF-8, ponieważ kod źródłowy Zig jest sam w sobie zakodowany w UTF-8. Ale nie jest to egzekwowane i tak naprawdę nie ma różnicy między `[]const u8`, który reprezentuje łańcuch ASCII lub UTF-8, a `[]const u8`, który reprezentuje dowolne dane binarne. Jak mogłoby być inaczej, są tego samego typu.
 
 Z tego, czego nauczyliśmy się o tablicach i wycinkach, można się domyślić, że `[]const u8` jest wycinkiem do stałej tablicy bajtów (gdzie bajt jest 8-bitową liczbą całkowitą bez znaku). Ale nigdzie w naszym kodzie nie wycięliśmy tablicy, ani nawet nie mieliśmy tablicy, prawda? Wszystko, co zrobiliśmy, to przypisanie "Goku" do `user.name`. Jak to zadziałało?
 
-Literały ciągu znaków, te które widzisz w kodzie źródłowym, mają znaną długość w czasie kompilacji. Kompilator wie, że "Goku" ma długość 4. Można by więc pomyśleć, że "Goku" najlepiej reprezentuje tablica, coś w rodzaju `[4]const u8`. Ale literały ciągu znaków mają kilka specjalnych właściwości. Są one przechowywane w specjalnym miejscu w pliku binarnym i deduplikowane. Tak więc zmienna do literału ciągu znaków będzie wskaźnikiem do tej specjalnej lokalizacji. Oznacza to, że typ "Goku" jest bliższy `*const [4]u8`, wskaźnikowi do stałej tablicy 4 bajtów.
+Literały łańcuchowe, te które widzisz w kodzie źródłowym, mają znaną długość w czasie kompilacji. Kompilator wie, że "Goku" ma długość 4. Można by więc pomyśleć, że "Goku" najlepiej reprezentuje tablica, coś w rodzaju `[4]const u8`. Ale literały łańcuchowe mają kilka specjalnych właściwości. Są one przechowywane w specjalnym miejscu w pliku binarnym i deduplikowane. Tak więc zmienna do literału łańcuchowego będzie wskaźnikiem do tej specjalnej lokalizacji. Oznacza to, że typ "Goku" jest bliższy `*const [4]u8`, wskaźnikowi do stałej tablicy 4 bajtów.
 
-To nie wszystko. Literały ciągu znaków są zakończone zerem. Oznacza to, że zawsze mają `\0` na końcu. Ciągi znaków zakończone zerem są ważne podczas interakcji z C. W pamięci, "Goku" wyglądałoby tak: `{'G', 'o', 'k', 'u', 0}`, więc można by pomyśleć, że typem jest `*const [5]u8`. Byłoby to jednak w najlepszym przypadku niejednoznaczne, a w gorszym niebezpieczne (można by nadpisać terminator zerowy). Zamiast tego, Zig ma odrębną składnię do reprezentowania tablic zakończonych zerem. "Goku" ma typ: `*const [4:0]u8`, wskaźnik do zakończonej zerem tablicy 4 bajtów. Mówiąc o ciągach znaków, skupiamy się na tablicach bajtów zakończonych znakiem null (ponieważ w ten sposób ciągi znaków są zwykle reprezentowane w C), składnia jest bardziej ogólna: `[LENGTH:SENTINEL]`, gdzie "SENTINEL" to specjalna wartość znajdująca się na końcu tablicy. Tak więc, chociaż nie mogę wymyślić, dlaczego byłoby to potrzebne, poniższe jest całkowicie poprawne:
+To nie wszystko. Literały łańcuchowe są zakończone zerem. Oznacza to, że zawsze mają `\0` na końcu. Łańcuchy zakończone zerem są ważne podczas interakcji z C. W pamięci, "Goku" wyglądałoby tak: `{'G', 'o', 'k', 'u', 0}`, więc można by pomyśleć, że typem jest `*const [5]u8`. Byłoby to jednak w najlepszym przypadku niejednoznaczne, a w gorszym niebezpieczne (można by nadpisać terminator zerowy). Zamiast tego, Zig ma odrębną składnię do reprezentowania tablic zakończonych zerem. "Goku" ma typ: `*const [4:0]u8`, wskaźnik do zakończonej zerem tablicy 4 bajtów. Mówiąc o łańcuchach, skupiamy się na tablicach bajtów zakończonych znakiem null (ponieważ w ten sposób łańcuchy są zwykle reprezentowane w C), składnia jest bardziej ogólna: `[LENGTH:SENTINEL]`, gdzie "SENTINEL" to specjalna wartość znajdująca się na końcu tablicy. Tak więc, chociaż nie mogę wymyślić, dlaczego byłoby to potrzebne, poniższe jest całkowicie poprawne:
 
 ```zig
 const std = @import("std");
@@ -371,11 +371,11 @@ Co daje wynik: `{ 0, 1, 0, 0}`.
 
 > Waham się, czy dołączyć ten przykład, ponieważ ostatnia linia jest dość zaawansowana i nie zamierzam jej wyjaśniać. Z drugiej strony, jest to działający przykład, który możesz uruchomić i pobawić się nim, aby lepiej zbadać trochę z tego, co omówiliśmy do tej pory, jeśli masz taką ochotę.
 
-Jeśli udało mi się to wyjaśnić w zadowalający sposób, prawdopodobnie nadal jest jedna rzecz, której nie jesteś pewien. Jeśli "Goku" jest `*const [4:0]u8`, jak to się stało, że mogliśmy przypisać go do `name`, które jest `[]const u8`? Odpowiedź jest prosta: Zig wymusi typ za ciebie. Zrobi to między kilkoma różnymi typami, ale jest to najbardziej oczywiste w przypadku ciągu znaków. Oznacza to, że jeśli funkcja ma parametr `[]const u8` lub struktura ma pole `[]const u8`, można użyć literałów ciągu znaków. Ponieważ ciągi znaków zakończone nullem są tablicami, a tablice mają znaną długość, ta koercja jest tania, tj. **nie** wymaga iteracji przez ciąg znaków w celu znalezienia zakończenia nullem.
+Jeśli udało mi się to wyjaśnić w zadowalający sposób, prawdopodobnie nadal jest jedna rzecz, której nie jesteś pewien. Jeśli "Goku" jest `*const [4:0]u8`, jak to się stało, że mogliśmy przypisać go do `name`, które jest `[]const u8`? Odpowiedź jest prosta: Zig wymusi typ za ciebie. Zrobi to między kilkoma różnymi typami, ale jest to najbardziej oczywiste w przypadku łańcuchów. Oznacza to, że jeśli funkcja ma parametr `[]const u8` lub struktura ma pole `[]const u8`, można użyć literałów łańcuchowe. Ponieważ łańcuchy zakończone nullem są tablicami, a tablice mają znaną długość, ta koercja jest tania, tj. **nie** wymaga iteracji przez łańcuch w celu znalezienia zakończenia nullem.
 
-Tak więc, mówiąc o ciągach znaków, zwykle mamy na myśli `[]const u8`. W razie potrzeby wyraźnie podajemy ciąg zakończony zerem, który może zostać automatycznie przekształcony w `[]const u8`. Należy jednak pamiętać, że `[]const u8` jest również używany do reprezentowania dowolnych danych binarnych i jako taki, Zig nie ma pojęcia ciągu znaków, które mają języki programowania wyższego poziomu. Co więcej, biblioteka standardowa Zig ma tylko bardzo podstawowy moduł unicode.
+Tak więc, mówiąc o łańcuchach, zwykle mamy na myśli `[]const u8`. W razie potrzeby wyraźnie podajemy łańcuch zakończony zerem, który może zostać automatycznie przekształcony w `[]const u8`. Należy jednak pamiętać, że `[]const u8` jest również używany do reprezentowania dowolnych danych binarnych i jako taki, Zig nie ma pojęcia łańcucha, które mają języki programowania wyższego poziomu. Co więcej, biblioteka standardowa Zig ma tylko bardzo podstawowy moduł unicode.
 
-Oczywiście w prawdziwym programie większość ciągów znaków (i bardziej ogólnie, tablic) nie jest znana w czasie kompilacji. Klasycznym przykładem są dane wprowadzane przez użytkownika, które nie są znane podczas kompilacji programu. Jest to coś, do czego będziemy musieli powrócić, mówiąc o pamięci. Ale krótka odpowiedź jest taka, że dla takich danych, które mają nieznaną wartość w czasie kompilacji, a tym samym nieznaną długość, będziemy dynamicznie alokować pamięć w czasie wykonywania. Nasze zmienne ciągu znaków, wciąż typu `[]const u8`, będą wycinkami wskazującymi na tę dynamicznie przydzielaną pamięć.
+Oczywiście w prawdziwym programie większość łańcuchów (i bardziej ogólnie, tablic) nie jest znana w czasie kompilacji. Klasycznym przykładem są dane wprowadzane przez użytkownika, które nie są znane podczas kompilacji programu. Jest to coś, do czego będziemy musieli powrócić, mówiąc o pamięci. Ale krótka odpowiedź jest taka, że dla takich danych, które mają nieznaną wartość w czasie kompilacji, a tym samym nieznaną długość, będziemy dynamicznie alokować pamięć w czasie wykonywania. Nasze zmienne łańcuchowe, wciąż typu `[]const u8`, będą wycinkami wskazującymi na tę dynamicznie przydzielaną pamięć.
 
 ## comptime i anytype
 
@@ -389,14 +389,14 @@ Prześledzimy go tylko pobieżnie, ale stanowi on okazję do podkreślenia niekt
 
 Pierwszą z nich jest koncepcja wykonywania w czasie kompilacji, czyli `comptime`. Jest to rdzeń możliwości metaprogramowania Zig i, jak sama nazwa wskazuje, obraca się wokół uruchamiania kodu w czasie kompilacji, a nie w czasie wykonywania. W tym przewodniku tylko zbadamy po łebkach co jest możliwe z `comptime`, ale jest to coś, co stale istnieje.
 
-Być może zastanawiasz się, co takiego jest w powyższej linii, że wymaga ona wykonania w czasie kompilacji. Definicja funkcji `print` wymaga, aby nasz pierwszy parametr, format ciągu znaków, był znany w czasie kompilacji:
+Być może zastanawiasz się, co takiego jest w powyższej linii, że wymaga ona wykonania w czasie kompilacji. Definicja funkcji `print` wymaga, aby nasz pierwszy parametr, format łańcucha, był znany w czasie kompilacji:
 
 ```zig
 // zwróć uwagę na "comptime" przed zmienną "fmt"
 pub fn print(comptime fmt: []const u8, args: anytype) void {
 ```
 
-Powodem tego jest to, że `print` wykonuje dodatkowe sprawdzenia w czasie kompilacji, którego nie można uzyskać w większości innych języków. Jakiego rodzaju sprawdzenia? Cóż, powiedzmy, że zmieniłeś format na `"it's over {d}\n"`, ale zachowałeś dwa argumenty. Otrzymasz błąd czasu kompilacji: _unused argument in 'it's over {d}'_. Będzie również sprawdzenia typu: zmień ciąg formatu na `"{s}'s power is {s}\n"`, a otrzymasz `invalid format string 's' for type 'u64'`. To sprawdzenia nie byłyby możliwe do wykonania w czasie kompilacji, gdyby format ciągu nie był znany w czasie kompilacji. Stąd wymóg wartości znanej w czasie kompilacji.
+Powodem tego jest to, że `print` wykonuje dodatkowe sprawdzenia w czasie kompilacji, którego nie można uzyskać w większości innych języków. Jakiego rodzaju sprawdzenia? Cóż, powiedzmy, że zmieniłeś format na `"it's over {d}\n"`, ale zachowałeś dwa argumenty. Otrzymasz błąd czasu kompilacji: _unused argument in 'it's over {d}'_. Będzie również sprawdzenia typu: zmień format łańcuchowy na `"{s}'s power is {s}\n"`, a otrzymasz `invalid format string 's' for type 'u64'`. To sprawdzenia nie byłyby możliwe do wykonania w czasie kompilacji, gdyby format łańcuchowy nie był znany w czasie kompilacji. Stąd wymóg wartości znanej w czasie kompilacji.
 
 Jedynym miejscem, w którym `comptime` natychmiast wpłynie na twoje kodowanie, są domyślne typy dla literałów całkowitych i zmiennoprzecinkowych, specjalne `comptime_int` i `comptime_float`. Ten wiersz kodu jest nieprawidłowy: `var i = 0;`. Otrzymasz błąd kompilacji: _variable of type 'comptime_int' must be const or comptime_. Kod `comptime` może działać tylko z danymi, które są znane w czasie kompilacji, a dla liczb całkowitych i zmiennoprzecinkowych takie dane są identyfikowane przez specjalne typy `comptime_int` i `comptime_float`. Wartość tego typu może być użyta w czasie wykonywania kompilacji. Prawdopodobnie jednak nie będziesz spędzać większości czasu na pisaniu kodu do wykonania w czasie kompilacji, więc nie jest to szczególnie przydatna wartość domyślna. To, co musisz zrobić, to nadać zmiennym jawny typ:
 
@@ -425,6 +425,6 @@ który drukuje:
 struct{comptime year: comptime_int = 2023, comptime month: comptime_int = 8}
 ```
 
-Tutaj nadaliśmy naszej anonimowej strukturze nazwy pól, `year` i `month`. W naszym oryginalnym kodzie tego nie zrobiliśmy. W takim przypadku nazwy pól są generowane automatycznie jako "0", "1", "2" itd. Chociaż oba są przykładami literału anonimowej struktury, ta bez nazw pól jest często nazywana _krotką_. Funkcja `print` oczekuje krotki i używa pozycji porządkowej w formacie ciągu znaków, aby uzyskać odpowiedni argument.
+Tutaj nadaliśmy naszej anonimowej strukturze nazwy pól, `year` i `month`. W naszym oryginalnym kodzie tego nie zrobiliśmy. W takim przypadku nazwy pól są generowane automatycznie jako "0", "1", "2" itd. Chociaż oba są przykładami literału anonimowej struktury, ta bez nazw pól jest często nazywana _krotką_. Funkcja `print` oczekuje krotki i używa pozycji porządkowej w formacie łańcuchowym, aby uzyskać odpowiedni argument.
 
 Zig nie ma przeciążania funkcji i nie ma funkcji vardiadic (funkcji ze zmienną liczbą argumentów). Posiada jednak kompilator zdolny do tworzenia wyspecjalizowanych funkcji w oparciu o przekazane typy, w tym typy wywnioskowane i utworzone przez sam kompilator.
