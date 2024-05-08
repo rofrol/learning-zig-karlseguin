@@ -30,3 +30,4 @@
 - generics - generyki
 - dot syntax - składnia kropkowa
 - runtime - czas wykonania
+- garbage collector - garbage collector
