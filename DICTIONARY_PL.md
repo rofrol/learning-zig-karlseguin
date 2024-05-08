@@ -30,4 +30,5 @@
 - generics - generyki
 - dot syntax - składnia kropkowa
 - runtime - czas wykonania
+- self-documenting - samodokumentujący
 - garbage collector - garbage collector
