@@ -1,0 +1,13 @@
+- control flow - przepływ sterowania
+- control - sprawdzenie (a może jednak kontrola? wykonanie kontrol)
+- slice - wycinek (plasterek nie pasuje mi)
+- enum - enum (wyliczenie nie pasuje mi)
+- optional - typ wyliczeniowy (opcjonal dziwnie brzmi)
+- string - ciąg znaków (ale łańcuch znaków można skracać do łańcuch i używać w literał łańcuchowy)
+- baked into - dodane? (wypieczone dziwnie brzmi)
+- tagged union - tagowana unia
+- statement - instrukcja
+- expression - wyrażenie
+- error - błąd (zostawić error?)
+- null-terminated - zakończony wartością null (zakończony nullem? terminowany nullem?)
+- check - sprawdzenie
