@@ -31,7 +31,7 @@ Jest to prosty przykład, gdzie możesz podążać za kodem, nawet jeśli pierws
 
 ## Importowanie
 
-Bardzo niewiele programów jest napisanych jako pojedynczy plik bez standardowej biblioteki lub bibliotek zewnętrznych. Nasz pierwszy program nie jest wyjątkiem i wykorzystuje standardową bibliotekę Ziga do drukowania naszych danych wyjściowych. System importu Ziga jest prosty i opiera się na funkcji `@import` i słowie kluczowym `pub` (aby kod był dostępny poza bieżącym plikiem).
+Bardzo niewiele programów jest napisanych jako pojedynczy plik bez standardowej biblioteki lub bibliotek zewnętrznych. Nasz pierwszy program nie jest wyjątkiem i wykorzystuje standardową bibliotekę Ziga do wypisania naszych danych wyjściowych. System importu Ziga jest prosty i opiera się na funkcji `@import` i słowie kluczowym `pub` (aby kod był dostępny poza bieżącym plikiem).
 
 > Funkcje zaczynające się od `@` są funkcjami wbudowanymi. Są one dostarczane przez kompilator, a nie przez bibliotekę standardową.
 
@@ -419,7 +419,7 @@ pub fn main() void {
 }
 ```
 
-który drukuje:
+który wypisuje:
 
 ```
 struct{comptime year: comptime_int = 2023, comptime month: comptime_int = 8}

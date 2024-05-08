@@ -16,11 +16,11 @@
 - to Zig - dla Ziga
 - struct - struktura
 - entire point of error - cała istota błędu
-- prints - wypisuje
+- print - wypisać
 - mutable - mutowalny
 - heap - sterta
 - allocator - alokator
 - ugly hack - brzydki hack
 - receiver - odbiornik
 - variadic function - funkcja vardiadic
-- recursive - rekurencyjny
+- recursive - rekursywny
