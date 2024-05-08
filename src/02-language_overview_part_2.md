@@ -305,7 +305,7 @@ const Timestamp = union(enum) {
     ...
 ```
 
-a Zig utworzyłby niejawny enum oparty na polach naszego związku.
+a Zig utworzyłby niejawny enum oparty na polach naszej unii.
 
 ## Typ opcjonalny
 
