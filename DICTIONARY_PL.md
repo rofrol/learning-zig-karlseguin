@@ -24,3 +24,4 @@
 - receiver - odbiornik
 - variadic function - funkcja vardiadic
 - recursive - rekursywny
+- following the code - podążając za kodem
