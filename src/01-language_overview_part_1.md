@@ -193,7 +193,7 @@ Przez większość czasu będziesz używać składni kropkowej, ale metody jako 
 
 > Instrukcja `if` jest pierwszym przepływem sterowania, który widzieliśmy. To całkiem proste, prawda? Zbadamy to bardziej szczegółowo w następnej części.
 
-`diagnose` jest zdefiniowana w naszym typie `User` i akceptuje `User` jako pierwszy parametr. W związku z tym możemy wywołać ją za pomocą składni kropkowej. Ale funkcje wewnątrz struktury nie muszą podążać za tym wzorcem. Jednym z typowych przykładów jest funkcja `init` inicjująca naszą strukturę:
+`diagnose` jest zdefiniowana w naszym typie `User` i akceptuje `User` jako pierwszy parametr. W związku z tym możemy wywołać ją za pomocą składni kropkowej. Ale funkcje wewnątrz struktury _nie muszą_ podążać za tym wzorcem. Jednym z typowych przykładów jest funkcja `init` inicjująca naszą strukturę:
 
 ```zig
 pub const User = struct {
