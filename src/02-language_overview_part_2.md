@@ -307,16 +307,16 @@ const Timestamp = union(enum) {
 
 a Zig utworzyłby niejawny enum oparty na polach naszej unii.
 
-## Typ opcjonalny
+## Opcjonalne
 
-Każda wartość może być zadeklarowana jako opcjonalna poprzez dodanie znaku zapytania `?` do typu. Typy opcjonalne mogą mieć wartość `null` lub wartość zdefiniowanego typu:
+Każda wartość może być zadeklarowana jako opcjonalny poprzez dodanie znaku zapytania `?` do typu. Typy opcjonalne mogą mieć wartość `null` lub wartość zdefiniowanego typu:
 
 ```zig
 var home: ?[]const u8 = null;
 var name: ?[]const u8 = "Leto";
 ```
 
-Potrzeba posiadania wyraźnego typu powinna być jasna: gdybyśmy po prostu zrobili `const name = "Leto";`, wówczas wnioskowanym typem byłby nieopcjonalny `[]const u8`.
+Potrzeba posiadania wyraźnego typu powinna być jasna: gdybyśmy po prostu zrobili `const name = "Leto";`, wówczas wnioskowanym typem byłby nie-opcjonalny `[]const u8`.
 
 `.?` służy do uzyskania dostępu do wartości kryjącej się za typem opcjonalnym:
 
@@ -324,7 +324,7 @@ Potrzeba posiadania wyraźnego typu powinna być jasna: gdybyśmy po prostu zrob
 std.debug.print("{s}\n", .{name.?});
 ```
 
-Jeśli jednak użyjemy `.?` na wartości `null`, otrzymamy `runtime panic`. Instrukcja `if` może bezpiecznie rozpakować wartość opcjonalną:
+Jeśli jednak użyjemy `.?` na wartości `null`, otrzymamy `runtime panic`. Instrukcja `if` może bezpiecznie rozpakować opcjonalny:
 
 ```zig
 if (home) |h| {
@@ -335,7 +335,7 @@ if (home) |h| {
 }
 ```
 
-`orelse` może być używane do rozwijania opcjonalnego lub wykonywanego kodu. Jest to często używane do określenia wartości domyślnej lub powrotu z funkcji:
+`orelse` może być używane do rozpakowania opcjonalnego lub wykonania kodu. Jest to często używane do określenia wartości domyślnej lub powrotu z funkcji:
 
 ```zig
 const h = home orelse "unknown"
@@ -465,11 +465,11 @@ Jest to szczególnie przydatne, gdy **błąd musi zostać obsłużony**. Najpraw
 
 > Programiści Go zauważą, że `try` wymaga mniej naciśnięć klawiszy niż `if err != nil { return err }`.
 
-Przez większość czasu będziesz używać `try` i `catch`, ale związki błędów są również obsługiwane przez `if` i `while`, podobnie jak typy opcjonalne. W przypadku `while`, jeśli warunek zwróci błąd, wykonywana jest klauzula `else`.
+Przez większość czasu będziesz używać `try` i `catch`, ale unie błędów są również obsługiwane przez `if` i `while`, podobnie jak typy opcjonalne. W przypadku `while`, jeśli warunek zwróci błąd, wykonywana jest klauzula `else`.
 
 Istnieje specjalny typ `anyerror`, który może przechowywać dowolny błąd. Chociaż możemy zdefiniować funkcję jako zwracającą `anyerror!TYPE` zamiast `!TYPE`, te dwa typy nie są równoważne. Wywnioskowany zestaw błędów jest tworzony na podstawie tego, co funkcja może zwrócić. `anyerror` jest globalnym zestawem błędów, podzbiorem wszystkich zestawów błędów w programie. Dlatego użycie `anyerror` w sygnaturze funkcji może sygnalizować, że funkcja może zwracać błędy, których w rzeczywistości nie może. `anyerror` jest używany dla parametrów funkcji lub pól struktury, które mogą działać z dowolnym błędem (wyobraź sobie bibliotekę logowania).
 
-Nierzadko zdarza się, że funkcja zwraca opcjonalny typ unii błędów. Z wywnioskowanym zestawem błędów wygląda to następująco:
+Nierzadko zdarza się, że funkcja zwraca typ opcjonalny unii błędów. Z wywnioskowanym zestawem błędów wygląda to następująco:
 
 ```zig
 // wczytanie ostatnio zapisanej gry
@@ -479,7 +479,7 @@ pub fn loadLast() !?Save {
 }
 ```
 
-Istnieją różne sposoby korzystania z takich funkcji, ale najbardziej kompaktowym jest użycie `try` do rozpakowania naszego błędu, a następnie `orelse` do rozpakowania wartości typu opcjonalnego. Oto działający szkielet:
+Istnieją różne sposoby korzystania z takich funkcji, ale najbardziej kompaktowym jest użycie `try` do rozpakowania naszego błędu, a następnie `orelse` do rozpakowania opcjonalnego. Oto działający szkielet:
 
 ```zig
 const std = @import("std");

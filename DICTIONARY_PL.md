@@ -2,7 +2,9 @@
 - control - sprawdzenie (wykonanie kontrol brzmi dziwnie)
 - slice - wycinek (plasterek nie pasuje mi)
 - enum - enum (wyliczenie nie pasuje mi)
-- optional - typ opcjonalny (opcjonal dziwnie brzmi, a może opcjonalny?)
+- optional - opcjonalny (opcjonal/opcjonał dziwnie brzmi)
+- optional typ - typ opcjonany
+- uwrap optional - rozpakować opcjonalny
 - string - łańcuch (łańcuch znaków można skracać do łańcuch i używać też w literał łańcuchowy, zamiast ciąg znaków)
 - baked into - dodane? (wypieczone dziwnie brzmi)
 - tagged union - tagowana unia
