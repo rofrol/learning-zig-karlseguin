@@ -245,7 +245,7 @@ Jak przypadku większości rzeczy, które do tej pory zbadaliśmy, w przyszłoś
 
 ## Tablice _(arrays)_ i wycinki _(slices)_
 
-Moglibyśmy pominąć ostatnią linię naszego kodu, ale biorąc pod uwagę, że nasz mały fragment zawiera dwa łańcuchy, **"Goku"** i **"{s}'s power is {d}\n"**, prawdopodobnie jesteś ciekawy łańcuch w Zigu. Aby lepiej zrozumieć łancuchy, najpierw zbadajmy tablice i wycinki.
+Moglibyśmy pominąć ostatnią linię naszego kodu, ale biorąc pod uwagę, że nasz mały fragment zawiera dwa łańcuchy, **"Goku"** i **"{s}'s power is {d}\n"**, prawdopodobnie jesteś ciekawy łańcuchów w Zigu. Aby lepiej zrozumieć łańcuchy, najpierw zbadajmy tablice i wycinki.
 
 Tablice mają stały rozmiar i długość znaną w czasie kompilacji. Długość jest częścią typu, więc tablica 4 liczb całkowitych ze znakiem, `[4]i32`, jest innego typu niż tablica 5 liczb całkowitych ze znakiem, `[5]i32`.
 
