@@ -6,7 +6,7 @@ Zaczniemy od omówienia wskaźników, co jest ważnym tematem do omówienia samy
 
 ---
 
-Poniższy kod tworzy użytkownika o mocy (`power`) 100, a następnie wywołuje funkcję `levelUp`, która zwiększa moc użytownika o 1. Czy potrafisz odgadnąć wynik?
+Poniższy kod tworzy użytkownika o mocy (`power`) 100, a następnie wywołuje funkcję `levelUp`, która zwiększa moc użytkownika o 1. Czy potrafisz odgadnąć wynik?
 
 ```zig
 const std = @import("std");
@@ -173,7 +173,7 @@ pub const User = struct {
 
 Musieliśmy wprowadzić dwie zmiany. Pierwszą z nich jest wywołanie `levelUp` z adresem użytkownika, czyli `&user`, zamiast `user`. Oznacza to, że nasza funkcja nie otrzymuje już `User`. Zamiast tego otrzymuje `*User`, co było naszą drugą zmianą.
 
-Nie potrzebujemy już tego brzydkiego hacka wymuszającego mutację użytkownika poprzez `user.power += 0;`. Początkowo nie udało nam się skompilować kodu, ponieważ `user` był `var`, ale kompilator powiedział nam, że nigdy nie został zmutowany. Pomyśleliśmy, że może kompilator się mylił i "oszukał" go, wymuszając mutację. Ale, jak teraz wiemy, użytkownik zmutowany w `levelUp` był inny; kompilator miał rację.
+Nie potrzebujemy już tego brzydkiego hacka wymuszającego mutację użytkownika poprzez `user.power += 0;`. Początkowo nie udało nam się skompilować kodu, ponieważ `user` był `var`, ale kompilator powiedział nam, że nigdy nie został zmutowany. Pomyśleliśmy, że może kompilator się mylił i "oszukał" to, wymuszając mutację. Ale, jak teraz wiemy, użytkownik zmutowany w `levelUp` był inny; kompilator miał rację.
 
 Kod działa teraz zgodnie z przeznaczeniem. Nadal istnieje wiele subtelności związanych z parametrami funkcji i ogólnie naszym modelem pamięci, ale robimy postępy. To może być dobry moment, aby wspomnieć, że poza specyficzną składnią, nic z tego nie jest unikalne dla Ziga. Model, który tutaj badamy, jest najbardziej powszechny, niektóre języki mogą po prostu ukrywać wiele szczegółów, a tym samym elastyczność, przed programistami.
 

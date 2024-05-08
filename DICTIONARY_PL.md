@@ -18,3 +18,7 @@
 - entire point of error - cała istota błędu
 - prints - wypisuje
 - mutable - mutowalny
+- heap - sterta
+- allocator - alokator
+- ugly hack - brzydki hack
+- receiver - odbiornik
