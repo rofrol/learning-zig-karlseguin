@@ -1,12 +1,12 @@
-# Ponteiros
+# Wskaźniki (pointers)
 
-Zig não inclui um coletor de lixo. A responsabilidade de gerenciar a memória recai sobre você, o programador. É uma grande responsabilidade, pois tem impacto direto no desempenho, estabilidade e segurança da sua aplicação.
+Zig nie zawiera garbage collectora. Ciężar zarządzania pamięcią spoczywa na programiście. To duża odpowiedzialność, ponieważ ma bezpośredni wpływ na wydajność, stabilność i bezpieczeństwo aplikacji.
 
-Começaremos falando sobre ponteiros, que é um tópico importante para discutir por si só, mas também para começar a nos treinar para ver os dados do nosso programa de um ponto de vista orientado à memória. Se você já está familiarizado com ponteiros, alocações de memória _heap_ e ponteiros pendentes _(dangling pointers)_, sinta-se à vontade para pular para os próximos capítulos.
+Zaczniemy od omówienia wskaźników, co jest ważnym tematem do omówienia samym w sobie, ale także do rozpoczęcia szkolenia w zakresie postrzegania danych naszego programu z punktu widzenia pamięci. Jeśli jesteś już zaznajomiony ze wskaźnikami, alokacjami sterty i zwisającymi wskaźnikami, możesz pominąć kilka części do [pamięci sterty i alokatorów](06-heap_memory_and_allocators.md), które są bardziej specyficzne dla Zig.
 
 ---
 
-O código a seguir cria um usuário com um `power` de 1 e, em seguida, chama a função `levelUp` que incrementa o poder do usuário em 1. Você consegue adivinhar a saída?
+Poniższy kod tworzy użytkownika o mocy (`power`) 100, a następnie wywołuje funkcję `levelUp`, która zwiększa moc użytownika o 1. Czy potrafisz odgadnąć wynik?
 
 ```zig
 const std = @import("std");
@@ -17,7 +17,7 @@ pub fn main() void {
 		.power = 100,
 	};
 
-	// esta foi a linha adicionada
+  // ta linia została dodana
 	levelUp(user);
 	std.debug.print("User {d} has power of {d}\n", .{user.id, user.power});
 }
@@ -32,100 +32,7 @@ pub const User = struct {
 };
 ```
 
-Isso foi uma pegadinha; o código não será compilado: "cannot assign to constant" (não é possível atribuir a uma constante). Vimos na parte 1 que os parâmetros de função são constantes, portanto, `user.power += 1;` não é válido. Para corrigir o erro de compilação, poderíamos modificar a função `levelUp` para:
-
-```zig
-fn levelUp(user: User) void {
-	var u = user;
-	u.power += 1;
-}
-```
-
-O código será compilado, mas a saída será "User 1 has power of 100", embora a intenção do nosso código seja aumentar o poder do usuário (função `levelUp`) para `101`. O que está acontecendo?
-
-Para entender, ajuda pensar sobre dados em relação à memória e variáveis como rótulos que associam um tipo a um local específico na memória. Por exemplo, em `main`, criamos um `User`. Uma visualização simples desses dados na memória seria:
-
-```
-user -> ------------ (id)
-        |    1     |
-        ------------ (power)
-        |   100    |
-        ------------
-```
-
-Existem duas coisas importantes a serem observadas. A primeira é que nossa variável `user` aponta para o início de nossa estrutura. A segunda é que os campos são dispostos sequencialmente. Lembre-se de que nosso `user` também tem um tipo. Esse tipo nos diz que `id` é um inteiro de 64 bits e `power` é um inteiro de 32 bits. Armado com uma referência ao início de nossos dados e o tipo, o compilador pode traduzir `user.power` para: acessar um inteiro de 32 bits localizado 64 bits a partir do início. Isso é o poder das variáveis, elas referenciam a memória e incluem as informações de tipo necessárias para entender e manipular a memória de maneira significativa.
-
-> Por padrão, Zig não faz garantias sobre o layout de memória das estruturas. Pode armazenar os campos em ordem alfabética, por tamanho ascendente ou com lacunas. Pode fazer o que quiser, desde que seja capaz de traduzir nosso código corretamente. Essa liberdade pode permitir certas otimizações. Somente se declararmos uma struct compacta (`packed struct`) obteremos garantias firmes sobre o layout de memória. Ainda assim, nossa visualização de `user` é razoável e útil.
-
-Aqui está uma visualização um pouco diferente que inclui endereços de memória. O endereço de memória do início desses dados é um endereço aleatório que inventei. Este é o endereço de memória referenciado pela variável `user`, que também é o valor do nosso primeiro campo, `id`. No entanto, dado este endereço inicial, todos os endereços subsequentes têm um endereço relativo conhecido. Como `id` é um inteiro de 64 bits, ele ocupa 8 bytes de memória. Portanto, `power` deve estar em _$start_address + 8_:
-
-```
-user ->   ------------  (id: 1043368d0)
-          |    1     |
-          ------------  (power: 1043368d8)
-          |   100    |
-          ------------
-```
-
-Para verificar isso por si mesmo, gostaria de apresentar o operador _addressof_ (endereço de memória da variável): `&`. Como o nome indica, o operador `&` retorna o endereço de uma variável (também pode retornar o endereço de uma função, não é incrível?!). Mantendo a definição existente de `User`, experimente este código no `main`:
-
-```zig
-pub fn main() void {
-	var user = User{
-		.id = 1,
-		.power = 100,
-	};
-	std.debug.print("{*}\n{*}\n{*}\n", .{&user, &user.id, &user.power});
-}
-```
-
-Este código imprime o endereço de `user`, `user.id` e `user.power`. Você pode obter resultados diferentes com base em sua plataforma e outros fatores, mas espero que você veja que o endereço de `user` e `user.id` é o mesmo, enquanto `user.power` está em um deslocamento de 8 bytes. Eu obtive:
-
-```
-learning.User@1043368d0
-u64@1043368d0
-i32@1043368d8
-```
-
-O operador `&` retorna um ponteiro para um valor. Um ponteiro para um valor é um tipo distinto. O endereço de um valor do tipo `T` é um `*T`. Pronunciamos isso como um ponteiro para T. Portanto, se pegarmos o endereço de `user`, obteremos um `*User`, ou seja, um ponteiro para `User`:
-
-```zig
-pub fn main() void {
-	var user = User{
-		.id = 1,
-		.power = 100,
-	};
-
-	const user_p = &user;
-	std.debug.print("{any}\n", .{@TypeOf(user_p)});
-}
-```
-
-Nosso objetivo original era aumentar o atributo `power` do nosso `user` em 1, por meio da função `levelUp`. Conseguimos fazer o código compilar, mas quando imprimimos o valor de `power`, ele ainda era o valor original. É um pouco avançado, mas vamos mudar o código para imprimir o endereço de `user` em `main` e em `levelUp`:
-
-```zig
-pub fn main() void {
-	const user = User{
-		.id = 1,
-		.power = 100,
-	};
-
-	// linha acrescentada
-	std.debug.print("main: {*}\n", .{&user});
-
-	levelUp(user);
-	std.debug.print("User {d} has power of {d}\n", .{user.id, user.power});
-}
-
-fn levelUp(user: User) void {
-	// acrescente esta linha
-	std.debug.print("levelUp: {*}\n", .{&user});
-	var u = user;
-	u.power += 1;
-}
-```
-
-Se você executar isso, obterá dois endereços diferentes. Isso significa que `user` que está sendo modificado em `levelUp` é diferente de `user` em `main`. Isso acontece porque o Zig passa uma cópia do valor _(pass-by-value)_. Isso pode parecer uma escolha padrão estranha, mas um dos benefícios é que o chamador de uma função pode ter certeza de que a função não modificará o parâmetro (porque não pode). Em muitos casos, isso é uma garantia útil. Claro, às vezes, como com `levelUp`, queremos que a função modifique um parâmetro. Para conseguir isso, precisamos que `levelUp` atue no `user` real em `main`, não em uma cópia. Podemos fazer isso passando o endereço do nosso usuário para a função:
+To była niemiła sztuczka; kod się nie skompiluje: zmienna lokalna nigdy nie jest mutowana. Jest to odniesienie do zmiennej `user` w `main`. Zmienna, która nigdy nie jest mutowana, musi być zadeklarowana jako `const`. Możesz pomyśleć: ale w `levelUp` _mutujemy_ `user`, co się dzieje? Załóżmy, że kompilator Zig jest w błędzie i oszukajmy go. Zmusimy kompilator do zobaczenia, że `user` jest zmutowany:
 
 ```zig
 const std = @import("std");
@@ -135,6 +42,118 @@ pub fn main() void {
 		.id = 1,
 		.power = 100,
 	};
+	user.power += 0;
+  // reszta kodu jest taka sama
+```
+
+Teraz otrzymujemy błąd w `levelUp`: _cannot assign to constant_. Widzieliśmy w części 1, że parametry funkcji są stałymi, więc `user.power += 1;` jest nieprawidłowe. Aby naprawić błąd kompilacji, możemy zmienić funkcję `levelUp` na:
+
+```zig
+fn levelUp(user: User) void {
+	var u = user;
+	u.power += 1;
+}
+```
+
+Co się skompiluje, ale na wyjściu otrzymamy, że _User 1 has power of 100_, mimo że intencją naszego kodu jest wyraźnie, aby `levelUp` zwiększył moc użytkownika do `101`. Co się dzieje?
+
+Aby to zrozumieć, warto myśleć o danych w odniesieniu do pamięci, a zmienne jako etykiety, które kojarzą typ z określoną lokalizacją pamięci. Na przykład w `main` tworzymy `User`. Prosta wizualizacja tych danych w pamięci wyglądałaby następująco:
+
+```
+user -> ------------ (id)
+        |    1     |
+        ------------ (power)
+        |   100    |
+        ------------
+```
+
+Należy zwrócić uwagę na dwie ważne rzeczy. Po pierwsze, nasza zmienna `user` wskazuje na początek naszej struktury. Drugą jest to, że pola są ułożone sekwencyjnie. Pamiętaj, że nasz `user` ma również typ. Ten typ mówi nam, że `id` jest 64-bitową liczbą całkowitą, a `power` jest 32-bitową liczbą całkowitą. Uzbrojony w odniesienie do początku naszych danych i typu, kompilator może przetłumaczyć `user.power` na: _dostęp do 32-bitowej liczby całkowitej znajdującej się 64 bity od początku_. Na tym polega moc zmiennych, odwołują się one do pamięci i zawierają informacje o typie niezbędne do zrozumienia i manipulowania pamięcią w znaczący sposób.
+
+> Domyślnie Zig nie gwarantuje układu pamięci struktur. Może przechowywać pola w kolejności alfabetycznej, według rosnącego rozmiaru lub z przerwami. Może robić co chce, o ile jest w stanie poprawnie przetłumaczyć nasz kod. Ta swoboda może umożliwić pewne optymalizacje. Tylko jeśli zadeklarujemy `packed struct`, otrzymamy silne gwarancje dotyczące układu pamięci. Możemy również utworzyć `extern struct`, która gwarantuje, że układ pamięci będzie zgodny z binarnym interfejsem aplikacji C (ABI). Mimo to, nasza wizualizacja `user` jest rozsądna i użyteczna.
+
+Oto nieco inna wizualizacja, która zawiera adresy pamięci. Adres pamięci początku tych danych jest losowym adresem, który wymyśliłem. Jest to adres pamięci, do którego odwołuje się zmienna `user`, która jest również wartością naszego pierwszego pola, `id`. Jednak biorąc pod uwagę ten początkowy adres, wszystkie kolejne adresy mają znany adres względny. Ponieważ `id` jest 64-bitową liczbą całkowitą, zajmuje 8 bajtów pamięci. Dlatego `power` musi znajdować się pod adresem $start_address + 8:
+
+```
+user ->   ------------  (id: 1043368d0)
+          |    1     |
+          ------------  (power: 1043368d8)
+          |   100    |
+          ------------
+```
+
+Abyś mógł to sprawdzić, chciałbym przedstawić operator adresu: `&`. Jak sama nazwa wskazuje, operator adresu zwraca adres zmiennej (może również zwrócić adres funkcji, prawda?!). Zachowując istniejącą definicję `User`, wypróbuj ten `main`:
+
+```zig
+pub fn main() void {
+	const user = User{
+		.id = 1,
+		.power = 100,
+	};
+	std.debug.print("{*}\n{*}\n{*}\n", .{&user, &user.id, &user.power});
+}
+```
+
+Ten kod drukuje adres `user`, `user.id` i `user.power`. Możesz uzyskać różne wyniki w zależności od platformy i innych czynników, ale mam nadzieję, że zobaczysz, że adresy `user` i `user.id` są takie same, podczas gdy `user.power` jest przesunięty o 8 bajtów. Otrzymałem:
+
+```
+learning.User@1043368d0
+u64@1043368d0
+i32@1043368d8
+```
+
+Operator adresu zwraca wskaźnik do wartości. Wskaźnik do wartości jest odrębnym typem. Adres wartości typu `T` to `*T`. Mówimy, że jest to _wskaźnik do T_. Dlatego, jeśli weźmiemy adres `user`, otrzymamy `*User` lub wskaźnik do `User`:
+
+```zig
+pub fn main() void {
+	var user = User{
+		.id = 1,
+		.power = 100,
+	};
+	user.power += 0;
+
+	const user_p = &user;
+	std.debug.print("{any}\n", .{@TypeOf(user_p)});
+}
+```
+
+Naszym pierwotnym celem było zwiększenie mocy użytkownika o 1 za pomocą funkcji `levelUp`. Udało nam się skompilować kod, ale kiedy wypisaliśmy `powe`, wciąż była to oryginalna wartość. To trochę przeskok, ale zmieńmy kod, aby wydrukować adres `user` w `main` i w `levelUp`:
+
+```zig
+pub fn main() void {
+	var user = User{
+		.id = 1,
+		.power = 100,
+	};
+	user.power += 0;
+
+	// dodano to
+	std.debug.print("main: {*}\n", .{&user});
+
+	levelUp(user);
+	std.debug.print("User {d} has power of {d}\n", .{user.id, user.power});
+}
+
+fn levelUp(user: User) void {
+	// dodaj to
+	std.debug.print("levelUp: {*}\n", .{&user});
+	var u = user;
+	u.power += 1;
+}
+```
+
+Jeśli to uruchomisz, otrzymasz dwa różne adresy. Oznacza to, że `user` modyfikowany w `levelUp` różni się od `user` w `main`. Dzieje się tak, ponieważ Zig przekazuje kopię wartości. Może się to wydawać dziwnym domyślnym rozwiązaniem, ale jedną z korzyści jest to, że wywołujący funkcję może być pewien, że funkcja nie zmodyfikuje parametru (ponieważ nie może). W wielu przypadkach jest to dobra rzecz do zagwarantowania. Oczywiście czasami, tak jak w przypadku `levelUp`, chcemy, aby funkcja zmodyfikowała parametr. Aby to osiągnąć, `levelUp` musi działać na rzeczywistym `user` w `main`, a nie na jego kopii. Możemy to zrobić, przekazując do funkcji adres naszego użytkownika:
+
+```zig
+const std = @import("std");
+
+pub fn main() void {
+	var user = User{
+		.id = 1,
+		.power = 100,
+	};
+
+  // już niepotrzebne
+	// user.power += 1;
 
 	// user -> &user
 	levelUp(&user);
@@ -152,15 +171,15 @@ pub const User = struct {
 };
 ```
 
-Tivemos que fazer duas alterações. A primeira foi chamar `levelUp` com o endereço de `user`, ou seja, `&user`, em vez de `user`. Isso significa que nossa função não recebe mais um `User`. Em vez disso, ela recebe um `*User`, que foi a nossa segunda alteração.
+Musieliśmy wprowadzić dwie zmiany. Pierwszą z nich jest wywołanie `levelUp` z adresem użytkownika, czyli `&user`, zamiast `user`. Oznacza to, że nasza funkcja nie otrzymuje już `User`. Zamiast tego otrzymuje `*User`, co było naszą drugą zmianą.
 
-O código agora funciona conforme pretendido. Ainda há muitas sutilezas com os parâmetros de função e nosso modelo de memória em geral, mas estamos progredindo. Agora pode ser um bom momento para mencionar que, além da sintaxe específica, nada disso é exclusivo do Zig. O modelo que estamos explorando aqui é o mais comum; algumas linguagens podem apenas esconder muitos dos detalhes, e, assim, a flexibilidade, dos desenvolvedores.
+Nie potrzebujemy już tego brzydkiego hacka wymuszającego mutację użytkownika poprzez `user.power += 0;`. Początkowo nie udało nam się skompilować kodu, ponieważ `user` był `var`, ale kompilator powiedział nam, że nigdy nie został zmutowany. Pomyśleliśmy, że może kompilator się mylił i "oszukał" go, wymuszając mutację. Ale, jak teraz wiemy, użytkownik zmutowany w `levelUp` był inny; kompilator miał rację.
 
+Kod działa teraz zgodnie z przeznaczeniem. Nadal istnieje wiele subtelności związanych z parametrami funkcji i ogólnie naszym modelem pamięci, ale robimy postępy. To może być dobry moment, aby wspomnieć, że poza specyficzną składnią, nic z tego nie jest unikalne dla Ziga. Model, który tutaj badamy, jest najbardziej powszechny, niektóre języki mogą po prostu ukrywać wiele szczegółów, a tym samym elastyczność, przed programistami.
 
+## Metody
 
-## Métodos
-
-Muito provavelmente, você teria escrito `levelUp` como um método da estrutura `User`:
+Najprawdopodobniej napisałbyś `levelUp` jako metodę struktury `User`:
 
 ```zig
 pub const User = struct {
@@ -173,29 +192,25 @@ pub const User = struct {
 };
 ```
 
-Isso levanta a pergunta: como chamamos um método com um receptor de ponteiro? Talvez tenhamos que fazer algo como: `&user.levelUp()`? Na verdade, você apenas o chama normalmente, ou seja, `user.levelUp()`. O Zig sabe que o método espera um ponteiro e passa o valor corretamente (por referência).
+Nasuwa się pytanie: jak wywołać metodę z odbiornikiem wskaźnika? Może musimy zrobić coś w stylu: `&user.levelUp()`? Właściwie wystarczy wywołać ją normalnie, tj. `user.levelUp()`. Zig wie, że metoda oczekuje wskaźnika i przekazuje wartość poprawnie (przez referencję).
 
-Inicialmente, escolhi uma função porque é explícita e, portanto, mais fácil de entender.
+Początkowo wybrałem funkcję, ponieważ jest ona jawna, a tym samym łatwiejsza do nauczenia.
 
+## Stałe parametry funkcji
 
+Więcej niż sugerowałem, że domyślnie Zig będzie przekazywał kopię wartości (zwaną "przekazywaniem przez wartość"). Wkrótce zobaczymy, że rzeczywistość jest nieco bardziej subtelna (podpowiedź: co ze złożonymi wartościami z zagnieżdżonymi obiektami?).
 
-## Parâmetros constantes de função
+Nawet trzymając się prostych typów, prawda jest taka, że Zig może przekazywać parametry w dowolny sposób, o ile może zagwarantować, że intencja kodu zostanie zachowana. W naszym oryginalnym `levelUp`, gdzie parametrem był `User`, Zig mógł przekazać kopię użytkownika lub odwołanie do `main.user`, o ile mógł zagwarantować, że funkcja go nie zmutuje. (Wiem, że ostatecznie chcieliśmy go zmutować, ale tworząc typ `User`, mówiliśmy kompilatorowi, że tego nie chcemy).
 
-Eu mais do que insinuei que, por padrão, o Zig passará uma cópia de um valor (chamado de "passagem por valor"). Em breve, veremos que a realidade é um pouco mais sutil (dica: e quanto a valores complexos com objetos aninhados?)
+Ta swoboda pozwala Zigowi na użycie najbardziej optymalnej strategii opartej na typie parametru. Małe typy, takie jak `User`, mogą być tanio przekazywane przez wartość (tj. kopiowane). Większe typy mogą być tańsze do przekazania przez referencję. Zig może stosować dowolne podejście, o ile intencje kodu zostaną zachowane. Do pewnego stopnia jest to możliwe dzięki stałym parametrom funkcji.
 
-Mesmo ficando com tipos simples, a verdade é que o Zig pode passar parâmetros da maneira que quiser, contanto que possa garantir que a intenção do código seja preservada. Em nosso `levelUp` original, onde o parâmetro era um `User`, o Zig poderia ter passado uma cópia do usuário ou uma referência a `main.user`, contanto que pudesse garantir que a função não o modificasse. (Eu sei que, no final, queríamos que fosse modificado, mas ao fazer o tipo `User`, estávamos dizendo ao compilador que não queríamos).
+Teraz znasz już jeden z powodów, dla których parametry funkcji są stałe.
 
-Essa liberdade permite que o Zig use a estratégia mais otimizada com base no tipo do parâmetro. Tipos pequenos, como `User`, podem ser facilmente passados por valor (ou seja, copiados). Tipos maiores podem ser mais baratos de passar por referência. O Zig pode usar qualquer abordagem, contanto que a intenção do código seja preservada. Em certa medida, isso é possibilitado pela presença de parâmetros de função constantes.
+> Być może zastanawiasz się, w jaki sposób przekazywanie przez referencję może być wolniejsze, nawet w porównaniu do kopiowania naprawdę małej struktury. Zobaczymy to dokładniej w następnej części, ale sedno tkwi w tym, że wykonywanie `user.power`, gdy `user` jest wskaźnikiem, dodaje niewielki narzut. Kompilator musi rozważyć koszt kopiowania w stosunku do kosztu dostępu do pól pośrednio przez wskaźnik.
 
-Agora você sabe uma das razões pelas quais os parâmetros de função são constantes.
+## Wskaźnik do wskaźnika
 
-> Talvez você esteja se perguntando como passar por referência poderia ser mais lento, mesmo em comparação com a cópia de uma estrutura realmente pequena. Veremos isso de forma mais clara a seguir, mas a ideia principal é que acessar `user.power` quando `user` é um ponteiro adiciona um pequeno overhead. O compilador precisa avaliar o custo da cópia em comparação com o custo de acessar campos indiretamente por meio de um ponteiro.
-
-
-
-## Ponteiros de ponteiros
-
-Nós vimos anteriormente como era a memória de `user` dentro da nossa função `main`. Agora que alteramos o `levelUp`, como seria a memória dele?
+Poprzednio przyjrzeliśmy się, jak wygląda pamięć `user` w naszej głównej funkcji. Teraz, gdy zmieniliśmy `levelUp`, jak wyglądałaby jego pamięć?
 
 ```
 main:
@@ -205,8 +220,8 @@ user -> ------------  (id: 1043368d0)  <---
         |   100    |                      |
         ------------                      |
                                           |
-        .............  espaço vazio       |
-        .............  ou outros dados    |
+        .............  puste miejsce      |
+        .............  lub inne dane      |
                                           |
 levelUp:                                  |
 user -> -------------  (*User)            |
@@ -214,11 +229,11 @@ user -> -------------  (*User)            |
         -------------
 ```
 
-Dentro de `levelUp`, `user` é um ponteiro para um `User`. Seu valor é um endereço. Não é apenas qualquer endereço, é claro, mas o endereço de `main.user`. Vale a pena ser explícito que a variável `user` em `levelUp` representa um valor concreto. Esse valor acontece de ser um endereço. E não é apenas um endereço, é também um tipo, um `*User`. É tudo muito consistente, não importa se estamos falando de ponteiros ou não: variáveis associam informações de tipo a um endereço. A única coisa especial sobre ponteiros é que, quando usamos a sintaxe de ponto, por exemplo, `user.power`, o Zig, sabendo que `user` é um ponteiro, seguirá automaticamente o endereço.
+W `levelUp`, `user` jest wskaźnikiem do `User`. Jego wartością jest adres. Oczywiście nie byle jaki adres, ale adres `main.user`. Warto wyraźnie zaznaczyć, że zmienna `user` w `levelUp` reprezentuje konkretną wartość. Wartość ta jest adresem. I nie jest to tylko adres, ale także typ, `*User`. Wszystko to jest bardzo spójne, nie ma znaczenia, czy mówimy o wskaźnikach, czy nie: zmienne wiążą informacje o typie z adresem. Jedyną specjalną rzeczą dotyczącą wskaźników jest to, że gdy używamy składni kropkowej, np. `user.power`, Zig, wiedząc, że `user` jest wskaźnikiem, automatycznie podąży za adresem.
 
-> Algumas outras linguagens requerem um símbolo diferente ao acessar um campo por meio de um ponteiro.
+> Niektóre języki wymagają innego symbolu podczas uzyskiwania dostępu do pola za pomocą wskaźnika.
 
-O importante de entender é que a variável `user` em `levelUp` em si existe na memória em algum endereço. Assim como fizemos antes, podemos verificar isso por nós mesmos:
+Ważne jest, aby zrozumieć, że zmienna `user` w `levelUp` sama istnieje w pamięci pod jakimś adresem. Tak jak zrobiliśmy to wcześniej, możemy to zobaczyć na własne oczy:
 
 ```zig
 fn levelUp(user: *User) void {
@@ -227,17 +242,15 @@ fn levelUp(user: *User) void {
 }
 ```
 
-O código acima imprime o endereço que a variável `user` referencia, bem como o seu valor, que é o endereço de `user` em `main`.
+Powyższe wypisuje adres, do którego odwołuje się zmienna `user`, a także jej wartość, która jest adresem `user` w `main`.
 
-Se `user` é um `*User`, então o que é `&user`? É um `**User`, ou seja, **um ponteiro para um ponteiro** para um `User`. Eu posso continuar fazendo isso até que um de nós fique sem memória!
+Jeśli `user` jest `*User`, to czym jest `&user`? To `**User`, czyli wskaźnik do wskaźnika na użytkownika. Mogę to robić, dopóki jednemu z nas nie skończy się pamięć!
 
-**Existem casos de uso** para múltiplos níveis de indireção _(pointer indirection)_, mas não é algo que precisamos agora. O propósito desta seção é mostrar que ponteiros não são algo especial; eles são apenas um valor, que é um endereço, e um tipo.
+_Istnieją_ przypadki użycia dla wielu poziomów pośrednictwa (indirection), ale nie jest to nic, czego teraz potrzebujemy. Celem tej sekcji jest pokazanie, że wskaźniki nie są niczym specjalnym, są po prostu wartością, która jest adresem i typem.
 
+## Zagnieżdżone wskaźniki
 
-
-## Ponteiros aninhados
-
-Até agora, nosso `User` foi simples, contendo dois inteiros. É fácil visualizar sua memória e, quando falamos sobre "copiar", não há ambiguidade. Mas o que acontece quando `User` se torna mais complexo e contém um ponteiro?
+Do tej pory nasz `User` był prosty, zawierał dwie liczby całkowite. Łatwo jest zwizualizować jego pamięć, a kiedy mówimy o "kopiowaniu", nie ma żadnych niejasności. Ale co się stanie, gdy `User` stanie się bardziej złożony i będzie zawierał wskaźnik?
 
 ```zig
 pub const User = struct {
@@ -247,7 +260,7 @@ pub const User = struct {
 };
 ```
 
-Adicionamos um campo chamado `name`, que é um slice. Lembre-se de que um slice é composto por um comprimento e um ponteiro. Se inicializarmos nosso `user` com o nome `"Goku"`, como isso seria representado na memória?
+Dodaliśmy `name`, która jest wycinkiem. Przypomnijmy, że wycinek to długość i wskaźnik. Gdybyśmy zainicjowali naszego `user` nazwą `"Goku"`, jak wyglądałby on w pamięci?
 
 ```
 user -> -------------  (id: 1043368d0)
@@ -260,8 +273,8 @@ user -> -------------  (id: 1043368d0)
   ------| 1182145c0 |
   |     -------------
   |
-  |     .............  espaço vazio
-  |     .............  ou outros dados
+  |     .............  puste miejsce
+  |     .............  lub inne dane
   |
   --->  -------------  (1182145c0)
         |    'G'    |
@@ -274,13 +287,13 @@ user -> -------------  (id: 1043368d0)
         -------------
 ```
 
-O novo campo `name` é um slice composto por campos `len` e `ptr`. Eles são dispostos em sequência junto com todos os outros campos. Em uma plataforma de 64 bits, tanto `len` quanto `ptr` serão de 64 bits, ou seja, 8 bytes. A parte interessante é o valor de `name.ptr`: é um endereço para algum outro lugar na memória.
+Nowe pole `name` jest wycinkiem, który składa się z pola `len` i `ptr`. Są one ułożone w kolejności wraz ze wszystkimi innymi polami. Na platformie 64-bitowej zarówno `len`, jak i `ptr` będą miały 64 bity lub 8 bajtów. Interesującą częścią jest wartość `name.ptr`: jest to adres do innego miejsca w pamięci.
 
-> Já que usamos uma string literal, `user.name.ptr` apontará para uma localização específica dentro da área onde todas as constantes são armazenadas dentro do nosso binário.
+> Ponieważ użyliśmy literału łańcuchowego, `user.name.ptr` będzie wskazywać na konkretną lokalizację w obszarze, w którym przechowywane są wszystkie stałe w naszym pliku binarnym.
 
-Os tipos podem se tornar muito mais complexos do que isso com aninhamento profundo. Mas simples ou complexos, todos se comportam da mesma forma. Especificamente, se voltarmos ao nosso código original onde `levelUp` aceitava um simples `User` e Zig fornecia uma cópia, como isso seria agora que temos um ponteiro aninhado?
+Typy mogą stać się znacznie bardziej złożone dzięki głębokiemu zagnieżdżaniu. Ale proste czy złożone, wszystkie zachowują się tak samo. W szczególności, jeśli wrócimy do naszego oryginalnego kodu, w którym `levelUp` pobierał zwykłego `User`, a Zig dostarczał kopię, jak wyglądałoby to teraz, gdy mamy zagnieżdżony wskaźnik?
 
-A resposta é que apenas uma cópia rasa do valor é feita. Ou, como alguns dizem, apenas a memória imediatamente acessível pela variável é copiada. Pode parecer que `levelUp` obteria uma cópia incompleta de `user`, possivelmente com um `name` inválido. Mas lembre-se de que um ponteiro, como nosso `user.name.ptr`, é um valor, e esse valor é um endereço. Uma cópia de um endereço ainda é o mesmo endereço:
+Odpowiedź jest taka, że tworzona jest tylko płytka kopia wartości. Lub, jak niektórzy to określają, kopiowana jest tylko pamięć bezpośrednio adresowalna przez zmienną. Mogłoby się wydawać, że `levelUp` otrzyma połowiczną kopię `user`, być może z nieprawidłową nazwą. Należy jednak pamiętać, że wskaźnik, taki jak nasz `user.name.ptr`, jest wartością, a ta wartość jest adresem. Kopia adresu to wciąż ten sam adres:
 
 ```
 main: user ->    -------------  (id: 1043368d0)
@@ -301,8 +314,8 @@ levelUp: user -> -------------  (id: 1043368ec)       |
                  | 1182145c0 |-------------------------
                  -------------                        |
                                                       |
-                 .............  espaço vazio          |
-                 .............  ou outros dados       |
+                 .............  puste miejsce         |
+                 .............  lub inne dane         |
                                                       |
                  -------------  (1182145c0)        <---
                  |    'G'    |
@@ -315,17 +328,17 @@ levelUp: user -> -------------  (id: 1043368ec)       |
                  -------------
 ```
 
-A partir do que foi apresentado, podemos ver que a cópia rasa funcionará. Como o valor de um ponteiro é um endereço, copiar o valor significa que obtemos o mesmo endereço. Isso tem implicações importantes em relação à mutabilidade. Nossa função não pode alterar os campos diretamente acessíveis por `main.user`, já que ela obteve uma cópia, mas ela tem acesso ao mesmo `name`, então pode modificá-lo? Neste caso específico, não, `name` é uma constante (`const`). Além disso, nosso valor "Goku" é uma string literal, que é sempre imutável. No entanto, com um pouco de trabalho, podemos ver a implicação da cópia rasa:
+Z powyższego widać, że płytkie kopiowanie będzie działać. Ponieważ wartość wskaźnika jest adresem, kopiowanie wartości oznacza, że otrzymamy ten sam adres. Ma to ważne implikacje w odniesieniu do mutowalności. Nasza funkcja nie może zmodyfikować pól bezpośrednio dostępnych dla `main.user`, ponieważ otrzymała kopię, ale ma dostęp do tej samej `name`, więc czy może ją zmodyfikować? W tym konkretnym przypadku nie, `name` jest `const`. Dodatkowo, nasza wartość "Goku" jest literałem łańcuchowym, który jest zawsze niemutowalny. Ale przy odrobinie pracy możemy zobaczyć implikacje płytkiego kopiowania:
 
 ```zig
 const std = @import("std");
 
 pub fn main() void {
 	var name = [4]u8{'G', 'o', 'k', 'u'};
-	var user = User{
+	const user = User{
 		.id = 1,
 		.power = 100,
-		// transformando num slice, [4]u8 -> []u8
+		// wytnij to, [4]u8 -> []u8
 		.name = name[0..],
 	};
 	levelUp(user);
@@ -344,15 +357,13 @@ pub const User = struct {
 };
 ```
 
-O código acima imprime "Go!u". Tivemos que mudar o tipo de `name` de `[]const u8` para `[]u8` e, em vez de uma string literal, que é sempre imutável, criar uma matriz e fatiá-la. Alguns podem ver inconsistência aqui. Passar por valor impede que uma função mute campos imediatos, mas não campos com um valor por trás de um ponteiro. Se quiséssemos que `name` fosse imutável, deveríamos tê-lo declarado como `[]const u8` em vez de `[]u8`.
+Powyższy kod wypisuje "Go!u". Musieliśmy zmienić typ `name` z `[]const u8` na `[]u8` i zamiast literału łańcuchowego, które są zawsze niemutowalne, utworzyć tablicę i pokroić ją. Niektórzy mogą dostrzec tu niekonsekwencję. Przekazywanie przez wartość uniemożliwia funkcji mutowanie bezpośrednich pól, ale nie pól z wartością za wskaźnikiem. Gdybyśmy chcieli, aby nazwa była niezmienna, powinniśmy zadeklarować ją jako `[]const` u8 zamiast `[]u8`.
 
-Algumas linguagens têm uma implementação diferente, mas muitas linguagens funcionam exatamente assim (ou muito parecido). Embora tudo isso possa parecer esotérico, é fundamental para a programação diária. A boa notícia é que você pode dominar isso usando exemplos e trechos simples; não fica mais complicado à medida que outras partes do sistema crescem em complexidade.
+Niektóre języki mają inną implementację, ale wiele języków działa dokładnie w ten sposób (lub bardzo bliski). Choć wszystko to może wydawać się ezoteryczne, ma to fundamentalne znaczenie dla codziennego programowania. Dobrą wiadomością jest to, że można to opanować za pomocą prostych przykładów i fragmentów; nie staje się to bardziej skomplikowane wraz ze wzrostem złożoności innych części systemu.
 
+## Struktury rekursywne
 
-
-## Estruturas recursivas
-
-Às vezes, você precisa que uma estrutura seja recursiva. Mantendo nosso código existente, vamos adicionar uma varíavel `manager` opcional do tipo `?User` ao nosso `User`. Enquanto estamos nisso, criaremos dois `Users` e atribuiremos um como gerente de outro:
+Czasami potrzebna jest struktura rekurencyjna. Zachowując nasz istniejący kod, dodajmy opcjonalnego `manager` typu `?User` do naszego `User`. W tym momencie utworzymy dwóch użytkowników i przypiszemy jednego jako menedżera do drugiego:
 
 ```zig
 const std = @import("std");
@@ -367,41 +378,7 @@ pub fn main() void {
 	const duncan = User{
 		.id = 1,
 		.power = 9001,
-		.manager = leto,
-	};
-
-	std.debug.print("{any}\n{any}", .{leto, duncan});
-}
-
-pub const User = struct {
-	id: u64,
-	power: i32,
-	manager: ?User,
-};
-```
-
-Este código não vai compilar: _struct 'learning.User' depends on itself_ (dependência de si própria). Isso falha porque todo tipo precisa ter um tamanho conhecido em tempo de compilação.
-
-Não tivemos esse problema ao adicionar `name`, mesmo que os nomes possam ter comprimentos diferentes. O problema não é com o tamanho dos valores, mas com o tamanho dos tipos em si. Zig precisa dessa informação para fazer tudo o que discutimos acima, como acessar um campo com base na posição do seu deslocamento. `name` era uma fatia, um `[]const u8`, e isso tem um tamanho conhecido: 16 bytes - 8 bytes para `len` e 8 bytes para `ptr`.
-
-Você pode pensar que isso será um problema com qualquer opcional ou união. Mas para ambos os opcionais e uniões, o tamanho máximo possível é conhecido e Zig pode usá-lo. Uma estrutura recursiva não tem tal limite superior, a estrutura pode se repetir uma vez, duas vezes ou milhões de vezes. Esse número variaria de `User` para `User` e não seria conhecido em tempo de compilação.
-
-Vimos a resposta com `name`: use um ponteiro. Ponteiros sempre ocupam `usize` bytes. Em uma plataforma de 64 bits, isso são 8 bytes. Assim como o nome real "Goku" não foi armazenado com/ao lado do nosso `user`, usar um ponteiro significa que nosso gerente não está mais vinculado ao layout de memória de `user`.
-
-```zig
-const std = @import("std");
-
-pub fn main() void {
-	const leto = User{
-		.id = 1,
-		.power = 9001,
-		.manager = null,
-	};
-
-	const duncan = User{
-		.id = 1,
-		.power = 9001,
-		// mudança: leto -> &leto
+		// zmieniono z leto -> &leto
 		.manager = &leto,
 	};
 
@@ -411,13 +388,49 @@ pub fn main() void {
 pub const User = struct {
 	id: u64,
 	power: i32,
-	// mudança: ?const User -> ?*const User
+	// zmieniono z ?const User -> ?*const User
 	manager: ?*const User,
 };
 ```
 
-Você pode nunca precisar de uma estrutura recursiva, mas isso não se trata de modelagem de dados. Trata-se de entender ponteiros e modelos de memória e compreender melhor o que o compilador está fazendo.
+Ten kod nie skompiluje się: _struct 'learning.User' depends on itself_. Nie powiedzie się, ponieważ każdy typ musi mieć znany rozmiar w czasie kompilacji.
+
+Nie napotkaliśmy tego problemu, gdy dodaliśmy `name`, mimo że nazwy mogą mieć różne długości. Problemem nie jest rozmiar wartości, ale rozmiar samych typów. Zig potrzebuje tej wiedzy, aby zrobić wszystko, o czym mówiliśmy powyżej, jak uzyskanie dostępu do pola na podstawie jego pozycji offsetu. `name` był wycinkiem, `[]const u8`, który ma znany rozmiar: 16 bajtów - 8 bajtów dla `len` i 8 bajtów dla `ptr`.
+
+Można by pomyśleć, że będzie to problem z każdą opcją lub unią. Jednak zarówno w przypadku opcjonali, jak i unii, największy możliwy rozmiar jest znany i Zig może go użyć. Struktura rekurencyjna nie ma takiego górnego ograniczenia, struktura może wykonać rekurencję raz, dwa lub miliony razy. Liczba ta będzie się różnić w zależności od `User` i nie będzie znana w czasie kompilacji.
+
+Widzieliśmy odpowiedź z `name`: użyj wskaźnika. Wskaźniki zawsze zajmują bajty `usize`. Na platformie 64-bitowej jest to 8 bajtów. Podobnie jak rzeczywista nazwa "Goku" nie była przechowywana z/wraz z naszym `user`, użycie wskaźnika oznacza, że nasz menedżer nie jest już powiązany z układem pamięci `user`.
+
+```zig
+const std = @import("std");
+
+pub fn main() void {
+	const leto = User{
+		.id = 1,
+		.power = 9001,
+		.manager = null,
+	};
+
+	const duncan = User{
+		.id = 1,
+		.power = 9001,
+    // zmieniono z leto -> &leto
+		.manager = &leto,
+	};
+
+	std.debug.print("{any}\n{any}", .{leto, duncan});
+}
+
+pub const User = struct {
+	id: u64,
+	power: i32,
+  // zmieniono z ?const User -> ?*const User
+	manager: ?*const User,
+};
+```
+
+Być może nigdy nie będziesz potrzebował struktury rekurencyjnej, ale tu nie chodzi o modelowanie danych. Chodzi o zrozumienie wskaźników i modeli pamięci oraz lepsze zrozumienie tego, co robi kompilator.
 
 ---
 
-Muitos desenvolvedores têm dificuldade com ponteiros, pode haver algo evasivo sobre eles. Eles não parecem concretos como um número inteiro, ou uma string ou um `User`. Nada disso precisa estar totalmente claro para você avançar. Mas vale a pena dominar, e não apenas para o Zig. Esses detalhes podem estar ocultos em linguagens como Ruby, Python e JavaScript, e em menor medida em C#, Java e Go, mas ainda estão lá, impactando como você escreve código e como esse código é executado. Então, vá com calma, experimente exemplos, adicione declarações de impressão de depuração para examinar variáveis e seus endereços. Quanto mais você explorar, mais claro ficará.
+Wielu programistów zmaga się ze wskaźnikami, może być w nich coś nieuchwytnego. Nie są one tak konkretne jak liczba całkowita, ciąg znaków czy `User`. Nic z tego nie musi być krystalicznie czyste, abyś mógł iść naprzód. Ale warto je opanować, i to nie tylko dla Ziga. Te szczegóły mogą być ukryte w językach takich jak Ruby, Python i JavaScript, a w mniejszym stopniu C#, Java i Go, ale nadal tam są, wpływając na sposób pisania kodu i jego działania. Nie spiesz się więc, baw się przykładami, dodawaj debugujące instrukcje wypisywania, aby przyjrzeć się zmiennym i ich adresom. Im więcej odkryjesz, tym jaśniejsze stanie się to wszystko.

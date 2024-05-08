@@ -2,7 +2,7 @@
 - control - sprawdzenie (a może jednak kontrola? wykonanie kontrol)
 - slice - wycinek (plasterek nie pasuje mi)
 - enum - enum (wyliczenie nie pasuje mi)
-- optional - typ wyliczeniowy (opcjonal dziwnie brzmi)
+- optional - typ opcjonalny (opcjonal dziwnie brzmi, a może opcjonalny?)
 - string - ciąg znaków (ale łańcuch znaków można skracać do łańcuch i używać w literał łańcuchowy)
 - baked into - dodane? (wypieczone dziwnie brzmi)
 - tagged union - tagowana unia
@@ -12,3 +12,9 @@
 - null-terminated - zakończony wartością null (zakończony nullem? terminowany nullem?)
 - check - sprawdzenie (kontrola dziwnie brzmi)
 - case - rozmiar znaku
+- caller - wywoływacz
+- to Zig - dla Ziga
+- struct - struktura
+- entire point of error - cała istota błędu
+- prints - wypisuje
+- mutable - mutowalny
