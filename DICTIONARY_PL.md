@@ -26,3 +26,4 @@
 - recursive - rekursywny
 - following the code - podążając za kodem
 - generics - generyki
+- runtime - czas wykonania

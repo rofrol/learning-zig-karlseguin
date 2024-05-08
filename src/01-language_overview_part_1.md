@@ -284,7 +284,7 @@ end += 1;
 const b = a[1..end];
 ```
 
-`b` jest teraz prawidłowym wycinkiem, a konkretnie jego typem jest `[]const i32`. Można zauważyć, że długość wycinka nie jest częścią typu, ponieważ długość jest właściwością runtime, a typy są zawsze w pełni znane w czasie kompilacji. Podczas tworzenia wycinka możemy pominąć górną granicę, aby utworzyć wycinek do końca tego, co kroimy (tablicy lub wycinka), np. `const c = b[2...]`;.
+`b` jest teraz prawidłowym wycinkiem, a konkretnie jego typem jest `[]const i32`. Można zauważyć, że długość wycinka nie jest częścią typu, ponieważ długość jest właściwością czasu wykonania, a typy są zawsze w pełni znane w czasie kompilacji. Podczas tworzenia wycinka możemy pominąć górną granicę, aby utworzyć wycinek do końca tego, co kroimy (tablicy lub wycinka), np. `const c = b[2...]`;.
 
 > Gdybyśmy zrobili `const end: usize = 4` bez inkrementacji, to `1...end` stałoby się znaną w czasie kompilacji długością dla `b`, a tym samym utworzyłoby wskaźnik do tablicy, a nie wycinek. Uważam, że jest to trochę mylące, ale nie jest to coś, co pojawia się zbyt często i nie jest zbyt trudne do opanowania. Chciałbym pominąć to w tym momencie, ale nie mogłem znaleźć uczciwego sposobu na uniknięcie tego szczegółu.
 
