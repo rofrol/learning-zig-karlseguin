@@ -63,3 +63,4 @@
 - multiline - wieloliniowy
 - rough edge - nieoszlifowana krawędź
 - expose - eksponować
+- output - wyjście (dane wyjściowe?)
