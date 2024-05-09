@@ -1,6 +1,6 @@
 # Kodowanie w Zigu
 
-Ponieważ znaczna część języka została już omówiona, zamierzamy zakończyć sprawy, powracając do kilku tematów i przyglądając się kilku bardziej praktycznym aspektom korzystania z Zig. W ten sposób wprowadzimy więcej standardowej biblioteki i przedstawimy mniej trywialne fragmenty kodu.
+Ponieważ znaczna część języka została już omówiona, zamierzamy zakończyć sprawy, powracając do kilku tematów i przyglądając się kilku bardziej praktycznym aspektom korzystania z Ziga. W ten sposób wprowadzimy więcej standardowej biblioteki i przedstawimy mniej trywialne fragmenty kodu.
 
 ## Zwisające wskaźniki
 
