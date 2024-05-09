@@ -12,30 +12,30 @@ Czy potrafisz odgadnąć, co poniższe wypisze?
 const std = @import("std");
 
 pub fn main() !void {
-	var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-	const allocator = gpa.allocator();
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
 
-	var lookup = std.StringHashMap(User).init(allocator);
-	defer lookup.deinit();
+    var lookup = std.StringHashMap(User).init(allocator);
+    defer lookup.deinit();
 
-	const goku = User{.power = 9001};
+    const goku = User{.power = 9001};
 
-	try lookup.put("Goku", goku);
+    try lookup.put("Goku", goku);
 
   // zwraca opcjonalne, .? spanikowałoby, gdyby "Goku"
   // nie było w naszej hashmapie
-	const entry = lookup.getPtr("Goku").?;
+    const entry = lookup.getPtr("Goku").?;
 
-	std.debug.print("Goku's power is: {d}\n", .{entry.power});
+    std.debug.print("Goku's power is: {d}\n", .{entry.power});
 
   // zwraca prawdę/fałsz w zależności od tego, czy element został usunięty
-	_ = lookup.remove("Goku");
+    _ = lookup.remove("Goku");
 
-	std.debug.print("Goku's power is: {d}\n", .{entry.power});
+    std.debug.print("Goku's power is: {d}\n", .{entry.power});
 }
 
 const User = struct {
-	power: i32,
+    power: i32,
 };
 ```
 
@@ -68,28 +68,28 @@ Inną opcją jest zmiana typu `lookup` z `StringHashMap(User)` na `StringHashMap
 const std = @import("std");
 
 pub fn main() !void {
-	var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-	const allocator = gpa.allocator();
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
 
-	// User -> *const User
-	var lookup = std.StringHashMap(*const User).init(allocator);
-	defer lookup.deinit();
+    // User -> *const User
+    var lookup = std.StringHashMap(*const User).init(allocator);
+    defer lookup.deinit();
 
-	const goku = User{.power = 9001};
+    const goku = User{.power = 9001};
 
-	// goku -> &goku
-	try lookup.put("Goku", &goku);
+    // goku -> &goku
+    try lookup.put("Goku", &goku);
 
-	// getPtr -> get
-	const entry = lookup.get("Goku").?;
+    // getPtr -> get
+    const entry = lookup.get("Goku").?;
 
-	std.debug.print("Goku's power is: {d}\n", .{entry.power});
-	_ = lookup.remove("Goku");
-	std.debug.print("Goku's power is: {d}\n", .{entry.power});
+    std.debug.print("Goku's power is: {d}\n", .{entry.power});
+    _ = lookup.remove("Goku");
+    std.debug.print("Goku's power is: {d}\n", .{entry.power});
 }
 
 const User = struct {
-	power: i32,
+    power: i32,
 };
 ```
 
@@ -108,43 +108,43 @@ const std = @import("std");
 const builtin = @import("builtin");
 
 pub fn main() !void {
-	var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-	const allocator = gpa.allocator();
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
 
-	var lookup = std.StringHashMap(User).init(allocator);
-	defer lookup.deinit();
+    var lookup = std.StringHashMap(User).init(allocator);
+    defer lookup.deinit();
 
   // stdin to std.io.Reader
   // przeciwieństwo std.io.Writer, które już widzieliśmy
-	const stdin = std.io.getStdIn().reader();
+    const stdin = std.io.getStdIn().reader();
 
   // stdout to std.io.Writer
-	const stdout = std.io.getStdOut().writer();
+    const stdout = std.io.getStdOut().writer();
 
-	var i: i32 = 0;
-	while (true) : (i += 1) {
-		var buf: [30]u8 = undefined;
-		try stdout.print("Please enter a name: ", .{});
-		if (try stdin.readUntilDelimiterOrEof(&buf, '\n')) |line| {
-			var name = line;
-			if (builtin.os.tag == .windows) {
+    var i: i32 = 0;
+    while (true) : (i += 1) {
+        var buf: [30]u8 = undefined;
+        try stdout.print("Please enter a name: ", .{});
+        if (try stdin.readUntilDelimiterOrEof(&buf, '\n')) |line| {
+            var name = line;
+            if (builtin.os.tag == .windows) {
         // W systemie Windows linie są zakończone znakiem \r\n.
         // Musimy usunąć \r
-				name = std.mem.trimRight(u8, name, "\r");
-			}
-			if (name.len == 0) {
-				break;
-			}
-			try lookup.put(name, .{.power = i});
-		}
-	}
+                name = std.mem.trimRight(u8, name, "\r");
+            }
+            if (name.len == 0) {
+                break;
+            }
+            try lookup.put(name, .{.power = i});
+        }
+    }
 
-	const has_leto = lookup.contains("Leto");
-	std.debug.print("{any}\n", .{has_leto});
+    const has_leto = lookup.contains("Leto");
+    std.debug.print("{any}\n", .{has_leto});
 }
 
 const User = struct {
-	power: i32,
+    power: i32,
 };
 ```
 
@@ -155,7 +155,7 @@ W kodzie rozróżniana jest wielkość liter, ale bez względu na to, jak idealn
 
 var it = lookup.iterator();
 while (it.next()) |kv| {
-	std.debug.print("{s} == {any}\n", .{kv.key_ptr.*, kv.value_ptr.*});
+    std.debug.print("{s} == {any}\n", .{kv.key_ptr.*, kv.value_ptr.*});
 }
 ```
 
@@ -198,11 +198,11 @@ Jedynym rozwiązaniem jest samodzielne zwolnienie kluczy. W tym momencie prawdop
 //   defer lookup.deinit();
 // z:
 defer {
-	var it = lookup.keyIterator();
-	while (it.next()) |key| {
-		allocator.free(key.*);
-	}
-	lookup.deinit();
+    var it = lookup.keyIterator();
+    while (it.next()) |key| {
+        allocator.free(key.*);
+    }
+    lookup.deinit();
 }
 ```
 
@@ -222,61 +222,61 @@ const builtin = @import("builtin");
 const Allocator = std.mem.Allocator;
 
 pub fn main() !void {
-	var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-	const allocator = gpa.allocator();
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
 
-	var arr = std.ArrayList(User).init(allocator);
-	defer {
-		for (arr.items) |user| {
-			user.deinit(allocator);
-		}
-		arr.deinit();
-	}
+    var arr = std.ArrayList(User).init(allocator);
+    defer {
+        for (arr.items) |user| {
+            user.deinit(allocator);
+        }
+        arr.deinit();
+    }
 
   // stdin to std.io.Reader
   // przeciwieństwo std.io.Writer, które już widzieliśmy
-	const stdin = std.io.getStdIn().reader();
+    const stdin = std.io.getStdIn().reader();
 
   // stdout to std.io.Writer
-	const stdout = std.io.getStdOut().writer();
+    const stdout = std.io.getStdOut().writer();
 
-	var i: i32 = 0;
-	while (true) : (i += 1) {
-		var buf: [30]u8 = undefined;
-		try stdout.print("Please enter a name: ", .{});
-		if (try stdin.readUntilDelimiterOrEof(&buf, '\n')) |line| {
-			var name = line;
-			if (builtin.os.tag == .windows) {
+    var i: i32 = 0;
+    while (true) : (i += 1) {
+        var buf: [30]u8 = undefined;
+        try stdout.print("Please enter a name: ", .{});
+        if (try stdin.readUntilDelimiterOrEof(&buf, '\n')) |line| {
+            var name = line;
+            if (builtin.os.tag == .windows) {
         // W systemie Windows linie są zakończone znakiem \r\n.
         // Musimy usunąć \r
-				name = std.mem.trimRight(u8, name, "\r");
-			}
-			if (name.len == 0) {
-				break;
-			}
-			const owned_name = try allocator.dupe(u8, name);
-			try arr.append(.{.name = owned_name, .power = i});
-		}
-	}
+                name = std.mem.trimRight(u8, name, "\r");
+            }
+            if (name.len == 0) {
+                break;
+            }
+            const owned_name = try allocator.dupe(u8, name);
+            try arr.append(.{.name = owned_name, .power = i});
+        }
+    }
 
-	var has_leto = false;
-	for (arr.items) |user| {
-		if (std.mem.eql(u8, "Leto", user.name)) {
-			has_leto = true;
-			break;
-		}
-	}
+    var has_leto = false;
+    for (arr.items) |user| {
+        if (std.mem.eql(u8, "Leto", user.name)) {
+            has_leto = true;
+            break;
+        }
+    }
 
-	std.debug.print("{any}\n", .{has_leto});
+    std.debug.print("{any}\n", .{has_leto});
 }
 
 const User = struct {
-	name: []const u8,
-	power: i32,
+    name: []const u8,
+    power: i32,
 
-	fn deinit(self: User, allocator: Allocator) void {
-		allocator.free(self.name);
-	}
+    fn deinit(self: User, allocator: Allocator) void {
+        allocator.free(self.name);
+    }
 };
 ```
 
@@ -290,19 +290,19 @@ Ponieważ "typ" łańcucha to `[]u8` lub `[]const u8`, `ArrayList(u8)` jest odpo
 const std = @import("std");
 
 pub fn main() !void {
-	var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-	const allocator = gpa.allocator();
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
 
-	var out = std.ArrayList(u8).init(allocator);
-	defer out.deinit();
+    var out = std.ArrayList(u8).init(allocator);
+    defer out.deinit();
 
-	try std.json.stringify(.{
-		.this_is = "an anonymous struct",
-		.above = true,
-		.last_param = "are options",
-	}, .{.whitespace = .indent_2}, out.writer());
+    try std.json.stringify(.{
+        .this_is = "an anonymous struct",
+        .above = true,
+        .last_param = "are options",
+    }, .{.whitespace = .indent_2}, out.writer());
 
-	std.debug.print("{s}\n", .{out.items});
+    std.debug.print("{s}\n", .{out.items});
 }
 ```
 
@@ -312,22 +312,22 @@ W części 1 krótko omówiliśmy `anytype`. Jest to całkiem przydatna forma du
 
 ```zig
 pub const Logger = struct {
-	level: Level,
+    level: Level,
 
   // "błąd" jest zarezerwowany, nazwy wewnątrz @"..." są zawsze
   // traktowane jako identyfikatory
-	const Level = enum {
-		debug,
-		info,
-		@"error",
-		fatal,
-	};
+    const Level = enum {
+        debug,
+        info,
+        @"error",
+        fatal,
+    };
 
-	fn info(logger: Logger, msg: []const u8, out: anytype) !void {
-		if (@intFromEnum(logger.level) <= @intFromEnum(Level.info)) {
-			try out.writeAll(msg);
-		}
-	}
+    fn info(logger: Logger, msg: []const u8, out: anytype) !void {
+        if (@intFromEnum(logger.level) <= @intFromEnum(Level.info)) {
+            try out.writeAll(msg);
+        }
+    }
 };
 ```
 
@@ -342,16 +342,16 @@ Daje nam: _no field or member function named 'writeAll' in 'bool'_. Użycie `wri
 
 ```zig
 pub fn main() !void {
-	var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-	const allocator = gpa.allocator();
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
 
-	var l = Logger{.level = .info};
+    var l = Logger{.level = .info};
 
-	var arr = std.ArrayList(u8).init(allocator);
-	defer arr.deinit();
+    var arr = std.ArrayList(u8).init(allocator);
+    defer arr.deinit();
 
-	try l.info("sever started", arr.writer());
-	std.debug.print("{s}\n", .{arr.items});
+    try l.info("sever started", arr.writer());
+    std.debug.print("{s}\n", .{arr.items});
 }
 ```
 
@@ -363,9 +363,9 @@ Ogromną wadą `anytype` jest dokumentacja. Oto sygnatura funkcji `std.json.stri
 // możesz czytać na małym ekranie.
 
 fn stringify(
-	value: anytype,
-	options: StringifyOptions,
-	out_stream: anytype
+    value: anytype,
+    options: StringifyOptions,
+    out_stream: anytype
 ) @TypeOf(out_stream).Error!void
 ```
 
@@ -379,20 +379,20 @@ Jednym z moich ulubionych zastosowań `anytype` jest sparowanie go z wbudowanymi
 
 ```zig
 fn userFactory(data: anytype) User {
-	const T = @TypeOf(data);
-	return .{
-		.id = if (@hasField(T, "id")) data.id else 0,
-		.power = if (@hasField(T, "power")) data.power else 0,
-		.active  = if (@hasField(T, "active")) data.active else true,
-		.name  = if (@hasField(T, "name")) data.name else "",
-	};
+    const T = @TypeOf(data);
+    return .{
+        .id = if (@hasField(T, "id")) data.id else 0,
+        .power = if (@hasField(T, "power")) data.power else 0,
+        .active  = if (@hasField(T, "active")) data.active else true,
+        .name  = if (@hasField(T, "name")) data.name else "",
+    };
 }
 
 pub const User = struct {
-	id: u64,
-	power: u64,
-	active: bool,
-	name: [] const u8,
+    id: u64,
+    power: u64,
+    active: bool,
+    name: [] const u8,
 };
 ```
 
@@ -414,7 +414,7 @@ Mimo to możemy przynajmniej uzyskać krótki przegląd. Aby uruchomić nasz kod
 const std = @import("std");
 
 pub fn build(b: *std.Build) !void {
-	_ = b;
+    _ = b;
 }
 ```
 
@@ -424,17 +424,17 @@ Każda kompilacja ma domyślny krok "install", który można teraz uruchomić za
 const std = @import("std");
 
 pub fn build(b: *std.Build) !void {
-	const target = b.standardTargetOptions(.{});
-	const optimize = b.standardOptimizeOption(.{});
+    const target = b.standardTargetOptions(.{});
+    const optimize = b.standardOptimizeOption(.{});
 
   // konfiguracja pliku wykonywalnego
-	const exe = b.addExecutable(.{
-		.name = "learning",
-		.target = target,
-		.optimize = optimize,
-		.root_source_file = b.path("learning.zig"),
-	});
-	b.installArtifact(exe);
+    const exe = b.addExecutable(.{
+        .name = "learning",
+        .target = target,
+        .optimize = optimize,
+        .root_source_file = b.path("learning.zig"),
+    });
+    b.installArtifact(exe);
 }
 ```
 
@@ -462,9 +462,9 @@ Aby dodać krok "test", zduplikujesz większość kodu run, który właśnie dod
 
 ```zig
 const tests = b.addTest(.{
-	.target = target,
-	.optimize = optimize,
-	.root_source_file = b.path("learning.zig"),
+    .target = target,
+    .optimize = optimize,
+    .root_source_file = b.path("learning.zig"),
 });
 
 const test_cmd = b.addRunArtifact(tests);
@@ -477,7 +477,7 @@ Nadaliśmy temu krokowi nazwę "test". Uruchomienie `zig build --help` powinno t
 
 ```zig
 test "dummy build test" {
-	try std.testing.expectEqual(false, true);
+    try std.testing.expectEqual(false, true);
 }
 ```
 
@@ -496,12 +496,12 @@ Najpierw utwórz nowy folder o nazwie `calc` i utwórz trzy pliki. Pierwszy to `
 // i typ zwracany!!!
 
 pub fn add(a: anytype, b: @TypeOf(a)) @TypeOf(a) {
-	return a + b;
+    return a + b;
 }
 
 const testing = @import("std").testing;
 test "add" {
-	try testing.expectEqual(@as(i32, 32), add(30, 2));
+    try testing.expectEqual(@as(i32, 32), add(30, 2));
 }
 ``
 
@@ -515,7 +515,7 @@ test {
   // są uwzględniane. Ta magiczna linia kodu
   // spowoduje, że odniesienie do wszystkich zagnieżdżonych kontenerów
   // do wszystkich zagnieżdżonych kontenerów.
-	@import("std").testing.refAllDecls(@This());
+    @import("std").testing.refAllDecls(@This());
 }
 ````
 
@@ -525,19 +525,19 @@ Rozdzielamy to między `calc.zig` i `add.zig`, aby udowodnić, że `zig build` a
 const std = @import("std");
 
 pub fn build(b: *std.Build) !void {
-	const target = b.standardTargetOptions(.{});
-	const optimize = b.standardOptimizeOption(.{});
+    const target = b.standardTargetOptions(.{});
+    const optimize = b.standardOptimizeOption(.{});
 
-	const tests = b.addTest(.{
-		.target = target,
-		.optimize = optimize,
-		.root_source_file = b.path("calc.zig"),
-	});
+    const tests = b.addTest(.{
+        .target = target,
+        .optimize = optimize,
+        .root_source_file = b.path("calc.zig"),
+    });
 
-	const test_cmd = b.addRunArtifact(tests);
-	test_cmd.step.dependOn(b.getInstallStep());
-	const test_step = b.step("test", "Run the tests");
-	test_step.dependOn(&test_cmd.step);
+    const test_cmd = b.addRunArtifact(tests);
+    test_cmd.step.dependOn(b.getInstallStep());
+    const test_step = b.step("test", "Run the tests");
+    test_step.dependOn(&test_cmd.step);
 }
 ```
 
@@ -560,48 +560,48 @@ Będziesz musiał dostosować ścieżkę do `calc.zig`. Teraz musimy dodać ten 
 const std = @import("std");
 
 pub fn build(b: *std.Build) !void {
-	const target = b.standardTargetOptions(.{});
-	const optimize = b.standardOptimizeOption(.{});
+    const target = b.standardTargetOptions(.{});
+    const optimize = b.standardOptimizeOption(.{});
 
-	const calc_module = b.addModule("calc", .{
-		.root_source_file = b.path("PATH_TO_CALC_PROJECT/calc.zig"),
-	});
+    const calc_module = b.addModule("calc", .{
+        .root_source_file = b.path("PATH_TO_CALC_PROJECT/calc.zig"),
+    });
 
-	{
+    {
     // skonfiguruj nasze polecenia "run"
 
-		const exe = b.addExecutable(.{
-			.name = "learning",
-			.target = target,
-			.optimize = optimize,
-			.root_source_file = b.path("learning.zig"),
-		});
+        const exe = b.addExecutable(.{
+            .name = "learning",
+            .target = target,
+            .optimize = optimize,
+            .root_source_file = b.path("learning.zig"),
+        });
     // dodaj to
-		exe.root_module.addImport("calc", calc_module);
-		b.installArtifact(exe);
+        exe.root_module.addImport("calc", calc_module);
+        b.installArtifact(exe);
 
-		const run_cmd = b.addRunArtifact(exe);
-		run_cmd.step.dependOn(b.getInstallStep());
+        const run_cmd = b.addRunArtifact(exe);
+        run_cmd.step.dependOn(b.getInstallStep());
 
-		const run_step = b.step("run", "Start learning!");
-		run_step.dependOn(&run_cmd.step);
-	}
+        const run_step = b.step("run", "Start learning!");
+        run_step.dependOn(&run_cmd.step);
+    }
 
-	{
+    {
     // skonfiguruj nasze polecenie "test"
-		const tests = b.addTest(.{
-			.target = target,
-			.optimize = optimize,
-			.root_source_file = b.path("learning.zig"),
-		});
+        const tests = b.addTest(.{
+            .target = target,
+            .optimize = optimize,
+            .root_source_file = b.path("learning.zig"),
+        });
     // dodaj to
-		tests.root_module.addImport("calc", calc_module);
+        tests.root_module.addImport("calc", calc_module);
 
-		const test_cmd = b.addRunArtifact(tests);
-		test_cmd.step.dependOn(b.getInstallStep());
-		const test_step = b.step("test", "Run the tests");
-		test_step.dependOn(&test_cmd.step);
-	}
+        const test_cmd = b.addRunArtifact(tests);
+        test_cmd.step.dependOn(b.getInstallStep());
+        const test_step = b.step("test", "Run the tests");
+        test_step.dependOn(&test_cmd.step);
+    }
 }
 ```
 
