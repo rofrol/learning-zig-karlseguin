@@ -220,7 +220,7 @@ Wprowadziłem nową składnię, `user.* = .{...}`. To trochę dziwne i nie podob
 
 ## Alokatory
 
-Jedną z podstawowych zasad Ziga jest _brak ukrytych alokacji pamięci_. W zależności od twojego doświadczenia, może to nie brzmieć zbyt szczególnie. Jest to jednak ostry kontrast z tym, co można znaleźć w języku C, gdzie pamięć jest przydzielana za pomocą funkcji `malloc` biblioteki standardowej. W języku C, jeśli chcesz wiedzieć, czy funkcja alokuje pamięć, czy nie, musisz przeczytać źródło i poszukać wywołań funkcji `malloc`.
+Jedną z podstawowych zasad Ziga jest _brak ukrytych alokacji pamięci_. W zależności od twoje praktyki, może to nie brzmieć zbyt szczególnie. Jest to jednak ostry kontrast z tym, co można znaleźć w języku C, gdzie pamięć jest przydzielana za pomocą funkcji `malloc` biblioteki standardowej. W języku C, jeśli chcesz wiedzieć, czy funkcja alokuje pamięć, czy nie, musisz przeczytać źródło i poszukać wywołań funkcji `malloc`.
 
 Zig nie posiada domyślnego alokatora. We wszystkich powyższych przykładach funkcje alokujące pamięć przyjmowały parametr `std.mem.Allocator`. Zgodnie z konwencją, jest to zwykle pierwszy parametr. Cała standardowa biblioteka Ziga i większość bibliotek innych firm wymaga, aby wywołujący podał alokator, jeśli zamierza zaalokować pamięć.
 
