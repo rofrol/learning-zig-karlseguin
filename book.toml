@@ -1,13 +1,13 @@
 [book]
-authors = ["João Kitajima"]
-language = "pt-BR"
+authors = ["Roman Frołow"]
+language = "pl-PL"
 multilingual = false
 src = "src"
-title = "Aprendendo Zig"
-description = "Tradução do livro original publicado por Karl Seguin"
+title = "Nauka Ziga"
+description = "Tłumaczenie oryginalnej książki opublikowanej przez Karla Seguina"
 
 [output.html]
-git-repository-url = "https://github.com/jkitajima/learning-zig-karlseguin"
+git-repository-url = "https://github.com/rofrol/learning-zig-karlseguin"
 git-repository-icon = "fa-github"
 
 [output.html.print]

@@ -1,6 +1,6 @@
 # Nauka Ziga
 
-Witamy w Nauka Ziga, wprowadzeniu do języka programowania Zig. Ten przewodnik ma na celu ułatwienie korzystania z Ziga. Zakłada on wcześniejsze doświadczenie w programowaniu, choć nie w żadnym konkretnym języku.
+Witamy w Nauce Ziga, wprowadzeniu do języka programowania Zig. Ten przewodnik ma na celu ułatwienie korzystania z Ziga. Zakłada on wcześniejsze doświadczenie w programowaniu, choć nie w żadnym konkretnym języku.
 
 Zig jest intensywnie rozwijany i zarówno język Zig, jak i jego standardowa biblioteka stale ewoluują. Niniejszy przewodnik dotyczy najnowszej wersji rozwojowej Ziga. Może się jednak zdarzyć, że część kodu nie będzie zsynchronizowana. Jeśli pobrałeś najnowszą wersję Ziga i masz problemy z uruchomieniem kodu, [zgłoś ten problem](https://github.com/karlseguin/blog/issues) (w języku angielskim).
 
