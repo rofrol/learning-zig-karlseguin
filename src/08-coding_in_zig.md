@@ -6,7 +6,7 @@ Ponieważ znaczna część języka została już omówiona, zamierzamy zakończy
 
 Zaczniemy od przyjrzenia się większej liczbie przykładów zwisających wskaźników. Może się to wydawać dziwną rzeczą, na której należy się skupić, ale jeśli przychodzisz z języka z garbage collectorem, jest to prawdopodobnie największe wyzwanie, z jakim będziesz musiał się zmierzyć.
 
-Czy potrafisz odgadnąć, co pokazują poniższe wyjście?
+Czy potrafisz odgadnąć, co poniższe wypisze?
 
 ```zig
 const std = @import("std");
