@@ -568,7 +568,7 @@ pub fn build(b: *std.Build) !void {
     });
 
     {
-    // skonfiguruj nasze polecenia "run"
+        // skonfiguruj nasze polecenia "run"
 
         const exe = b.addExecutable(.{
             .name = "learning",
@@ -576,7 +576,7 @@ pub fn build(b: *std.Build) !void {
             .optimize = optimize,
             .root_source_file = b.path("learning.zig"),
         });
-    // dodaj to
+        // dodaj to
         exe.root_module.addImport("calc", calc_module);
         b.installArtifact(exe);
 
@@ -588,13 +588,13 @@ pub fn build(b: *std.Build) !void {
     }
 
     {
-    // skonfiguruj nasze polecenie "test"
+        // skonfiguruj nasze polecenie "test"
         const tests = b.addTest(.{
             .target = target,
             .optimize = optimize,
             .root_source_file = b.path("learning.zig"),
         });
-    // dodaj to
+        // dodaj to
         tests.root_module.addImport("calc", calc_module);
 
         const test_cmd = b.addRunArtifact(tests);
@@ -649,7 +649,7 @@ const calc_module = b.addModule("calc", .{
   .root_source_file = b.path("calc/calc.zig"),
 });
 
-// z tym:
+// na to:
 const calc_dep = b.dependency("calc", .{ .target = target, .optimize = optimize});
 const calc_module = calc_dep.module("calc");
 ```
@@ -674,4 +674,4 @@ Słowo ostrzeżenia, zauważyłem, że buforowanie zależności w Zigu jest po a
 
 ---
 
-Omówiliśmy wiele obszarów, badając kilka podstawowych struktur danych i łącząc ze sobą duże fragmenty poprzednich części. Nasz kod stał się nieco bardziej złożony, skupiając się mniej na konkretnej składni i wyglądając bardziej jak prawdziwy kod. Jestem podekscytowany możliwością, że pomimo tej złożoności, kod w większości miał sens. Jeśli nie, nie poddawaj się. Wybierz przykład i złam go, dodaj instrukcje wypisywania, napisz dla niego testy. Zajmij się kodem, stwórz własny, a następnie wróć i przeczytaj te części, które nie miały sensu.
+Omówiliśmy wiele obszarów, badając kilka podstawowych struktur danych i łącząc ze sobą duże fragmenty poprzednich części. Nasz kod stał się nieco bardziej złożony, skupiając się mniej na konkretnej składni i wyglądając bardziej jak prawdziwy kod. Jestem podekscytowany możliwością, że pomimo tej złożoności, kod w większości miał sens. Jeśli nie, nie poddawaj się. Wybierz przykład i złam go, dodaj instrukcje wypisywania, napisz dla jakieś niego testy. Zajmij się kodem, stwórz własny, a następnie wróć i przeczytaj te części, które nie miały sensu.

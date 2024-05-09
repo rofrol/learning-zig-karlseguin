@@ -51,6 +51,7 @@
 - ArrayList - ArrayList
 - primitives and arrays - typy podstawowe (prymitywne?) i tablice
 - hash map - hashmapa (dziwnie brzmi tablia mieszająca)
+- hash - hash
 - ownership - własność - może się mylić z własnością jako cechą (posiadanie?) https://devenv.pl/rust-borrowing-ownership-pozyczanie-wlasnosci/
 - legitimately - zasadnie
 - lookup - wyszukiwanie
