@@ -12,23 +12,23 @@ Poniższy kod tworzy użytkownika o mocy (`power`) 100, a następnie wywołuje f
 const std = @import("std");
 
 pub fn main() void {
-	var user = User{
-		.id = 1,
-		.power = 100,
-	};
+    var user = User{
+        .id = 1,
+        .power = 100,
+    };
 
-  // ta linia została dodana
-	levelUp(user);
-	std.debug.print("User {d} has power of {d}\n", .{user.id, user.power});
+    // ta linia została dodana
+    levelUp(user);
+    std.debug.print("User {d} has power of {d}\n", .{user.id, user.power});
 }
 
 fn levelUp(user: User) void {
-	user.power += 1;
+    user.power += 1;
 }
 
 pub const User = struct {
-	id: u64,
-	power: i32,
+    id: u64,
+    power: i32,
 };
 ```
 
@@ -38,20 +38,20 @@ To była niemiła sztuczka; kod się nie skompiluje: zmienna lokalna nigdy nie j
 const std = @import("std");
 
 pub fn main() void {
-	var user = User{
-		.id = 1,
-		.power = 100,
-	};
-	user.power += 0;
-  // reszta kodu jest taka sama
+    var user = User{
+        .id = 1,
+        .power = 100,
+    };
+    user.power += 0;
+    // reszta kodu jest taka sama
 ```
 
 Teraz otrzymujemy błąd w `levelUp`: _cannot assign to constant_. Widzieliśmy w części 1, że parametry funkcji są stałymi, więc `user.power += 1;` jest nieprawidłowe. Aby naprawić błąd kompilacji, możemy zmienić funkcję `levelUp` na:
 
 ```zig
 fn levelUp(user: User) void {
-	var u = user;
-	u.power += 1;
+    var u = user;
+    u.power += 1;
 }
 ```
 
@@ -85,11 +85,11 @@ Abyś mógł to sprawdzić, chciałbym przedstawić operator adresu: `&`. Jak sa
 
 ```zig
 pub fn main() void {
-	const user = User{
-		.id = 1,
-		.power = 100,
-	};
-	std.debug.print("{*}\n{*}\n{*}\n", .{&user, &user.id, &user.power});
+    const user = User{
+        .id = 1,
+        .power = 100,
+    };
+    std.debug.print("{*}\n{*}\n{*}\n", .{&user, &user.id, &user.power});
 }
 ```
 
@@ -105,14 +105,14 @@ Operator adresu zwraca wskaźnik do wartości. Wskaźnik do wartości jest odrę
 
 ```zig
 pub fn main() void {
-	var user = User{
-		.id = 1,
-		.power = 100,
-	};
-	user.power += 0;
+    var user = User{
+        .id = 1,
+        .power = 100,
+    };
+    user.power += 0;
 
-	const user_p = &user;
-	std.debug.print("{any}\n", .{@TypeOf(user_p)});
+    const user_p = &user;
+    std.debug.print("{any}\n", .{@TypeOf(user_p)});
 }
 ```
 
@@ -120,24 +120,24 @@ Naszym pierwotnym celem było zwiększenie mocy użytkownika o 1 za pomocą funk
 
 ```zig
 pub fn main() void {
-	var user = User{
-		.id = 1,
-		.power = 100,
-	};
-	user.power += 0;
+    var user = User{
+        .id = 1,
+        .power = 100,
+    };
+    user.power += 0;
 
-	// dodano to
-	std.debug.print("main: {*}\n", .{&user});
+    // dodano to
+    std.debug.print("main: {*}\n", .{&user});
 
-	levelUp(user);
-	std.debug.print("User {d} has power of {d}\n", .{user.id, user.power});
+    levelUp(user);
+    std.debug.print("User {d} has power of {d}\n", .{user.id, user.power});
 }
 
 fn levelUp(user: User) void {
-	// dodaj to
-	std.debug.print("levelUp: {*}\n", .{&user});
-	var u = user;
-	u.power += 1;
+    // dodaj to
+    std.debug.print("levelUp: {*}\n", .{&user});
+    var u = user;
+    u.power += 1;
 }
 ```
 
@@ -147,27 +147,27 @@ Jeśli to uruchomisz, otrzymasz dwa różne adresy. Oznacza to, że `user` modyf
 const std = @import("std");
 
 pub fn main() void {
-	var user = User{
-		.id = 1,
-		.power = 100,
-	};
+    var user = User{
+        .id = 1,
+        .power = 100,
+    };
 
-  // już niepotrzebne
-	// user.power += 1;
+    // już niepotrzebne
+    // user.power += 1;
 
-	// user -> &user
-	levelUp(&user);
-	std.debug.print("User {d} has power of {d}\n", .{user.id, user.power});
+    // user -> &user
+    levelUp(&user);
+    std.debug.print("User {d} has power of {d}\n", .{user.id, user.power});
 }
 
 // User -> *User
 fn levelUp(user: *User) void {
-	user.power += 1;
+    user.power += 1;
 }
 
 pub const User = struct {
-	id: u64,
-	power: i32,
+    id: u64,
+    power: i32,
 };
 ```
 
@@ -183,12 +183,12 @@ Najprawdopodobniej napisałbyś `levelUp` jako metodę struktury `User`:
 
 ```zig
 pub const User = struct {
-	id: u64,
-	power: i32,
+    id: u64,
+    power: i32,
 
-	fn levelUp(user: *User) void {
-		user.power += 1;
-	}
+    fn levelUp(user: *User) void {
+        user.power += 1;
+    }
 };
 ```
 
@@ -237,8 +237,8 @@ Ważne jest, aby zrozumieć, że zmienna `user` w `levelUp` sama istnieje w pami
 
 ```zig
 fn levelUp(user: *User) void {
-	std.debug.print("{*}\n{*}\n", .{&user, user});
-	user.power += 1;
+    std.debug.print("{*}\n{*}\n", .{&user, user});
+    user.power += 1;
 }
 ```
 
@@ -254,9 +254,9 @@ Do tej pory nasz `User` był prosty, zawierał dwie liczby całkowite. Łatwo je
 
 ```zig
 pub const User = struct {
-	id: u64,
-	power: i32,
-	name: []const u8,
+    id: u64,
+    power: i32,
+    name: []const u8,
 };
 ```
 
@@ -334,26 +334,26 @@ Z powyższego widać, że płytkie kopiowanie będzie działać. Ponieważ warto
 const std = @import("std");
 
 pub fn main() void {
-	var name = [4]u8{'G', 'o', 'k', 'u'};
-	const user = User{
-		.id = 1,
-		.power = 100,
-		// wytnij to, [4]u8 -> []u8
-		.name = name[0..],
-	};
-	levelUp(user);
-	std.debug.print("{s}\n", .{user.name});
+    var name = [4]u8{'G', 'o', 'k', 'u'};
+    const user = User{
+        .id = 1,
+        .power = 100,
+        // wytnij to, [4]u8 -> []u8
+        .name = name[0..],
+    };
+    levelUp(user);
+    std.debug.print("{s}\n", .{user.name});
 }
 
 fn levelUp(user: User) void {
-	user.name[2] = '!';
+    user.name[2] = '!';
 }
 
 pub const User = struct {
-	id: u64,
-	power: i32,
-	// []const u8 -> []u8
-	name: []u8
+    id: u64,
+    power: i32,
+    // []const u8 -> []u8
+    name: []u8
 };
 ```
 
@@ -369,27 +369,27 @@ Czasami potrzebna jest struktura rekurencyjna. Zachowując nasz istniejący kod,
 const std = @import("std");
 
 pub fn main() void {
-	const leto = User{
-		.id = 1,
-		.power = 9001,
-		.manager = null,
-	};
+    const leto = User{
+        .id = 1,
+        .power = 9001,
+        .manager = null,
+    };
 
-	const duncan = User{
-		.id = 1,
-		.power = 9001,
-		// zmieniono z leto -> &leto
-		.manager = &leto,
-	};
+    const duncan = User{
+        .id = 1,
+        .power = 9001,
+        // zmieniono z leto -> &leto
+        .manager = &leto,
+    };
 
-	std.debug.print("{any}\n{any}", .{leto, duncan});
+    std.debug.print("{any}\n{any}", .{leto, duncan});
 }
 
 pub const User = struct {
-	id: u64,
-	power: i32,
-	// zmieniono z ?const User -> ?*const User
-	manager: ?*const User,
+    id: u64,
+    power: i32,
+    // zmieniono z ?const User -> ?*const User
+    manager: ?*const User,
 };
 ```
 
@@ -405,27 +405,27 @@ Widzieliśmy odpowiedź z `name`: użyj wskaźnika. Wskaźniki zawsze zajmują b
 const std = @import("std");
 
 pub fn main() void {
-	const leto = User{
-		.id = 1,
-		.power = 9001,
-		.manager = null,
-	};
+    const leto = User{
+        .id = 1,
+        .power = 9001,
+        .manager = null,
+    };
 
-	const duncan = User{
-		.id = 1,
-		.power = 9001,
+    const duncan = User{
+        .id = 1,
+        .power = 9001,
     // zmieniono z leto -> &leto
-		.manager = &leto,
-	};
+        .manager = &leto,
+    };
 
-	std.debug.print("{any}\n{any}", .{leto, duncan});
+    std.debug.print("{any}\n{any}", .{leto, duncan});
 }
 
 pub const User = struct {
-	id: u64,
-	power: i32,
-  // zmieniono z ?const User -> ?*const User
-	manager: ?*const User,
+    id: u64,
+    power: i32,
+    // zmieniono z ?const User -> ?*const User
+    manager: ?*const User,
 };
 ```
 

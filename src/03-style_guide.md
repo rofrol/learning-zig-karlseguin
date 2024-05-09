@@ -10,12 +10,12 @@ Zig nie zezwala na zostawienie nieużytych zmiennych. Poniższy przykład daje d
 const std = @import("std");
 
 pub fn main() void {
-	const sum = add(8999, 2);
+    const sum = add(8999, 2);
 }
 
 fn add(a: i64, b: i64) i64 {
-	// zauważ, że to jest a + a, a nie a + b
-	return a + a;
+    // zauważ, że to jest a + a, a nie a + b
+    return a + a;
 }
 ```
 
@@ -25,17 +25,17 @@ Pierwszy błąd wynika z faktu, że `sum` jest _nieużywaną stałą lokalną_. 
 const std = @import("std");
 
 pub fn main() void {
-	_ = add(8999, 2);
+    _ = add(8999, 2);
 
-	// lub
+    // lub
 
-	const sum = add(8999, 2);
-	_ = sum;
+    const sum = add(8999, 2);
+    _ = sum;
 }
 
 fn add(a: i64, b: i64) i64 {
-	_ = b;
-	return a + a;
+    _ = b;
+    return a + a;
 }
 ```
 
@@ -53,12 +53,12 @@ Zig nie pozwala, by jeden identyfikator "ukrywał" inny, używając tej samej na
 
 ```zig
 fn read(stream: std.net.Stream) ![]const u8 {
-	var buf: [512]u8 = undefined;
-	const read = try stream.read(&buf);
-	if (read == 0) {
-		return error.Closed;
-	}
-	return buf[0..read];
+    var buf: [512]u8 = undefined;
+    const read = try stream.read(&buf);
+    if (read == 0) {
+        return error.Closed;
+    }
+    return buf[0..read];
 }
 ```
 
