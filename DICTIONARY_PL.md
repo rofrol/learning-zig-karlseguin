@@ -69,3 +69,5 @@
 - background and experience - praktyka i doświadczenie https://ell.stackexchange.com/questions/134367/study-background-vs-study-experience/134376#134376
 - seasoned programmer - wytrawny programista
 - to start and begin your mastery - ruszyć i rozpocząć mistrzostwo
+- precompiled - prekompilowany
+- to alias - aliasować

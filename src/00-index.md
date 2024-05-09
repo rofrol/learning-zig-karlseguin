@@ -1,43 +1,33 @@
-# Aprendendo Zig
+# Nauka Ziga
 
-Bem-vindo(a) ao livro Aprendendo Zig, uma introdução à linguagem de programação Zig. Este guia tem como objetivo familiarizá-lo(a) com Zig. Ele presume experiência prévia em programação, embora não em uma linguagem específica.
+Witamy w Nauka Ziga, wprowadzeniu do języka programowania Zig. Ten przewodnik ma na celu ułatwienie korzystania z Ziga. Zakłada on wcześniejsze doświadczenie w programowaniu, choć nie w żadnym konkretnym języku.
 
-Zig está em desenvolvimento intenso, e tanto a linguagem quanto a sua biblioteca padrão estão em constante evolução. Este guia se destina à versão de desenvolvimento mais recente do Zig. No entanto, é possível que parte do código esteja desatualizada. Se você baixou a versão mais recente da linguagem Zig e encontrou problemas ao executar algum código, por favor, [relate o problema](https://github.com/karlseguin/blog/issues)[^1].
+Zig jest intensywnie rozwijany i zarówno język Zig, jak i jego standardowa biblioteka stale ewoluują. Niniejszy przewodnik dotyczy najnowszej wersji rozwojowej Ziga. Może się jednak zdarzyć, że część kodu nie będzie zsynchronizowana. Jeśli pobrałeś najnowszą wersję Ziga i masz problemy z uruchomieniem kodu, [zgłoś ten problem](https://github.com/karlseguin/blog/issues) (w języku angielskim).
 
+## Tłumaczenia
 
+- [Chińskie](https://zigcc.github.io/learning-zig/index.html) - przez Jiacai Liu
+- [Rosyjskie](https://github.com/dee0xeed/learning-zig-rus/blob/main/src/ch01.md) - przez dee0xeed
+- [Koreańskie](https://faultnote.github.io/posts/learning-zig/) - przez faultnote
+- [Brazylijskie](https://jkitajima.github.io/learning-zig-karlseguin/) - przez jkitajima
 
-## Traduções
+## Spis treści
 
-- [Chinês](https://zigcc.github.io/learning-zig/index.html) - por Jiacai Liu
-- [Russo](https://github.com/dee0xeed/learning-zig-rus/blob/main/src/ch01.md) - por dee0xeed
-- [Coreano](https://faultnote.github.io/posts/learning-zig/) - por faultnote
+1. [Instalacja Ziga](#instalacja ziga)
+2. [Przegląd języka - część 1](./01-language_overview_part_1.md)
+3. [Przegląd języka - część 2](./02-language_overview_part_2.md)
+4. [Przewodnik po stylach](./03-style_guide.md)
+5. [Wskaźniki](./04-pointers.md)
+6. [Pamięć stosu](./05-stack_memory.md)
+7. [Pamięć sterty i alokatory](./06-heap_memory_and_allocators.md)
+8. [Generyczność (polimorfizm parametryczny)](./07-generics.md)
+9. [Kodowanie w Zigu](./08-coding_in_zig.md)
+10. [Wnioski](./09-conclusion.md)
 
+## Instalacja Ziga
 
+[Strona pobierania](https://ziglang.org/download/) Zig zawiera prekompilowane pliki binarne dla popularnych platform. Na tej stronie znajdziesz pliki binarne dla najnowszej wersji rozwojowej, a także dla głównych wydań. Najnowsza wersja, której dotyczy niniejszy przewodnik, znajduje się na górze strony.
 
+Dla mojego komputera będę pobierał zig-macos-aarch64-0.12.0-dev.2777+2176a73d6.tar.xz. Być może korzystasz z innej platformy lub nowszej wersji. Po rozwinięciu archiwum powinieneś mieć plik binarny `zig` (oprócz innych rzeczy), który będziesz chciał aliasować lub dodać do swojej ścieżki; w zależności od tego, do czego jesteś przyzwyczajony.
 
-## Índice
-
-1. [Instalação](#instalação)
-2. [Visão Geral da Linguagem - Parte 1](./01-language_overview_part_1.md)
-3. [Visão Geral da Linguagem - Parte 2](./02-language_overview_part_2.md)
-4. [Convenções de Estilização](./03-style_guide.md)
-5. [Ponteiros](./04-pointers.md)
-6. [Memória de Pilha](./05-stack_memory.md)
-7. [Memória Dinâmica & Alocadores](./06-heap_memory_and_allocators.md)
-8. [Genéricos (parametrização polimórfica)](./07-generics.md)
-9. [Codificando em Zig](./08-coding_in_zig.md)
-10. [Conclusão](./09-conclusion.md)
-
-
-
-## Instalação
-
-A página de [_download_](https://ziglang.org/download/) do Zig inclui binários pré-compilados para plataformas comuns. Nesta página, você encontrará binários para a versão de desenvolvimento mais recente, bem como para as principais versões. A versão mais recente, seguida por este guia, pode ser encontrada no topo da página.
-
-Para o meu computador, vou baixar **_zig-macos-aarch64-0.12.0-dev.161+6a5463951.tar.xz_**. Você pode estar em uma plataforma diferente ou em uma versão mais recente. Após extrair o arquivo, você deve ter um binário `zig` (além de outras coisas) que desejará criar um alias ou adicionar ao seu caminho; de acordo com o fluxo ao qual está acostumado.
-
-Agora, você deve conseguir executar no terminal os comandos `zig zen` e `zig version` para testar sua configuração.
-
-
-
-[^1]: Relatar o problema em inglês.
+Teraz powinieneś być w stanie uruchomić `zig zen` i `zig version`, aby przetestować swoją konfigurację.
