@@ -9,7 +9,7 @@ Zig jest intensywnie rozwijany i zarówno język Zig, jak i jego standardowa bib
 - [Chińskie](https://zigcc.github.io/learning-zig/index.html) - przez Jiacai Liu
 - [Rosyjskie](https://github.com/dee0xeed/learning-zig-rus/blob/main/src/ch01.md) - przez dee0xeed
 - [Koreańskie](https://faultnote.github.io/posts/learning-zig/) - przez faultnote
-- [Brazylijskie](https://jkitajima.github.io/learning-zig-karlseguin/) - przez jkitajima
+- [Brazylijskie](https://jkitajima.github.io/learning-zig-karlseguin/) - przez João Kitajima
 
 ## Spis treści
 
