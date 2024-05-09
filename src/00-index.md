@@ -13,7 +13,7 @@ Zig jest intensywnie rozwijany i zarówno język Zig, jak i jego standardowa bib
 
 ## Spis treści
 
-1. [Instalacja Ziga](#instalacja ziga)
+1. [Instalacja Ziga](#instalacja-ziga)
 2. [Przegląd języka - część 1](./01-language_overview_part_1.md)
 3. [Przegląd języka - część 2](./02-language_overview_part_2.md)
 4. [Przewodnik po stylach](./03-style_guide.md)
