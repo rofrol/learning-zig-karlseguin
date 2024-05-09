@@ -94,7 +94,7 @@ fn List(comptime T: type) type {
 
 Powyższa struktura jest prawie identyczna z naszą `IntList`, z wyjątkiem tego, że `i64` zostało zastąpione przez `T`. To `T` może wydawać się wyjątkowe, ale to tylko nazwa zmiennej. Mogliśmy ją nazwać `item_type`. Jednakże, zgodnie z konwencją nazewnictwa Ziga, zmienne typu `type` są PascalCase.
 
-> Na dobre i na złe, używanie pojedynczej litery do reprezentowania parametru typu jest znacznie starsze niż Zig. `T` jest powszechną wartością domyślną w większości języków, ale można spotkać się z odmianami specyficznymi dla kontekstu, takimi jak hash mapy używające `K` i `V` dla klucza i wartości jako typów parametrów.
+> Na dobre i na złe, używanie pojedynczej litery do reprezentowania parametru typu jest znacznie starsze niż Zig. `T` jest powszechną wartością domyślną w większości języków, ale można spotkać się z odmianami specyficznymi dla kontekstu, takimi jak hashmapy używające `K` i `V` dla klucza i wartości jako typów parametrów.
 
 Jeśli nie jesteś pewien naszego szkieletu, rozważ dwa miejsca, w których używamy `T`: `items: []T i allocator.alloc(T, 4)`. Gdy będziemy chcieli użyć tego typu generycznego, utworzymy jego instancję przy użyciu:
 
@@ -166,7 +166,7 @@ fn List(comptime T: type) type {
 }
 ```
 
-Nasza funkcja `init` zwraca `List(T)`, a nasze funkcje `deinit` i `add` pobierają `List(T)` i `*List(T)`. W naszej prostej klasie jest to w porządku, ale w przypadku dużych struktur danych pisanie pełnej nazwy ogólnej może stać się nieco uciążliwe, zwłaszcza jeśli mamy wiele parametrów typu (np. hash mapa, która przyjmuje oddzielny `type` dla swojego klucza i wartości). Wbudowana funkcja `@This()` zwraca najbardziej wewnętrzny `type`, z którego została wywołana. Najprawdopodobniej nasza funkcja `List(T)` zostałaby zapisana jako:
+Nasza funkcja `init` zwraca `List(T)`, a nasze funkcje `deinit` i `add` pobierają `List(T)` i `*List(T)`. W naszej prostej klasie jest to w porządku, ale w przypadku dużych struktur danych pisanie pełnej nazwy ogólnej może stać się nieco uciążliwe, zwłaszcza jeśli mamy wiele parametrów typu (np. hashmapa, która przyjmuje oddzielny `type` dla swojego klucza i wartości). Wbudowana funkcja `@This()` zwraca najbardziej wewnętrzny `type`, z którego została wywołana. Najprawdopodobniej nasza funkcja `List(T)` zostałaby zapisana jako:
 
 ```zig
 fn List(comptime T: type) type {

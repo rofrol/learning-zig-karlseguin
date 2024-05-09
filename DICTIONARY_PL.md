@@ -48,4 +48,5 @@
 - writer - writer (pisarz dziwnie brzmi)
 - ArrayList - ArrayList
 - primitives and arrays - typy podstawowe (prymitywne?) i tablice
-- hash map - hash mapa (dziwnie brzmi tablia mieszająca)
+- hash map - hashmapa (dziwnie brzmi tablia mieszająca)
+- ownership - posiadanie
