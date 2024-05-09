@@ -1,3 +1,4 @@
+- array - tablica
 - control flow - przepływ sterowania
 - control - sprawdzenie (wykonanie kontrol brzmi dziwnie)
 - slice - wycinek (plasterek nie pasuje mi)
@@ -32,7 +33,7 @@
 - generic type - typ generyczny
 - typical generic - typowy generyk
 - dot syntax - składnia kropkowa
-- runtime - czas wykonania
+- runtime - czas wykonania, runtime
 - self-documenting - samodokumentujący
 - garbage collector - garbage collector
 - deduplicate - deuduplikować
@@ -41,6 +42,7 @@
 - pop off stack - zdjąć ze stosu
 - segfault - naruszenie ochrony pamięci (zamiennie z segfault)
 - invalid - nieważne (nieprawidłowy to bardziej incorrect. inwalid jak walidacja?)
+- to invalid - unieważnić
 - scope - zakres
 - `user` outlives its scope - `user` przeżyje (żyje dłużej niż) swój zakres
 - reference - referencja
@@ -49,4 +51,15 @@
 - ArrayList - ArrayList
 - primitives and arrays - typy podstawowe (prymitywne?) i tablice
 - hash map - hashmapa (dziwnie brzmi tablia mieszająca)
-- ownership - posiadanie
+- ownership - własność - może się mylić z własnością jako cechą (posiadanie?) https://devenv.pl/rust-borrowing-ownership-pozyczanie-wlasnosci/
+- legitimately - zasadnie
+- lookup - wyszukiwanie
+- The code is case sensitive - W kodzie rozróżniana jest wielkość liter
+- encapsulation - enkapsulacja (hermetyzacja?)
+- properties - właściwości
+- duck-typing - duck-typing
+- logger - logger (rejestrator? rejestrowacz?)
+- correctly typed function - prawidłowo otypowana funkcja
+- multiline - wieloliniowy
+- rough edge - nieoszlifowana krawędź
+- expose - eksponować

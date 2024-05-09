@@ -1,14 +1,12 @@
-# Programando em Zig
+# Kodowanie w Zig
 
-Com grande parte da linguagem agora abordada, vamos concluir revisando alguns tópicos e explorando alguns aspectos mais práticos do uso do Zig. Ao fazer isso, vamos introduzir mais da biblioteca padrão e apresentar trechos de código menos triviais.
+Ponieważ znaczna część języka została już omówiona, zamierzamy zakończyć sprawy, powracając do kilku tematów i przyglądając się kilku bardziej praktycznym aspektom korzystania z Zig. W ten sposób wprowadzimy więcej standardowej biblioteki i przedstawimy mniej trywialne fragmenty kodu.
 
+## Zwisające wskaźniki
 
+Zaczniemy od przyjrzenia się większej liczbie przykładów zwisających wskaźników. Może się to wydawać dziwną rzeczą, na której należy się skupić, ale jeśli przychodzisz z języka garbage collectorem, jest to prawdopodobnie największe wyzwanie, z jakim będziesz musiał się zmierzyć.
 
-## Ponteiros pendurados/soltos _(dangling pointers)_
-
-Vamos começar examinando mais exemplos de ponteiros pendurados. Isso pode parecer algo estranho para focar, mas se você estiver vindo de uma linguagem com coleta de lixo, isso provavelmente será o maior desafio que você enfrentará.
-
-Você consegue descobrir qual será a saída do seguinte código?
+Czy potrafisz odgadnąć, co pokazują poniższe dane wyjściowe?
 
 ```zig
 const std = @import("std");
@@ -24,13 +22,13 @@ pub fn main() !void {
 
 	try lookup.put("Goku", goku);
 
-    // retorna um opcional, .? iria levantar um erro caso "Goku"
-    // não estivesse em nosso dicionário (hashmap)
+  // zwraca opcjonalne, .? spanikowałoby, gdyby "Goku"
+  // nie było w naszej hashmapie
 	const entry = lookup.getPtr("Goku").?;
 
 	std.debug.print("Goku's power is: {d}\n", .{entry.power});
 
-    // retorna verdadeiro/falso dependendo se o item foi removido ou não
+  // zwraca prawdę/fałsz w zależności od tego, czy element został usunięty
 	_ = lookup.remove("Goku");
 
 	std.debug.print("Goku's power is: {d}\n", .{entry.power});
@@ -41,30 +39,30 @@ const User = struct {
 };
 ```
 
-Ao executar isto, recebi como resultado:
+Kiedy to uruchomiłem, otrzymałem:
 
 ```
 Goku's power is: 9001
 Goku's power is: -1431655766
 ```
 
-Este código introduz o `std.StringHashMap` genérico do Zig, que é uma versão especializada do `std.AutoHashMap` com o tipo de chave definido como `[]const u8`. Mesmo que você não tenha certeza do que está acontecendo, é uma boa suposição que a minha saída está relacionada ao fato de que nosso segundo `print` ocorre após o `remove` da entrada de `lookup`. Comente a chamada para `remove`, e a saída será normal.
+Ten kod wprowadza generyczną `std.StringHashMap` Ziga, która jest wyspecjalizowaną wersją `std.AutoHashMap` z typem klucza ustawionym na `[]const u8`. Nawet jeśli nie jesteś w 100% pewien, co się dzieje, to dobrze jest zgadnąć, że moje wyjście odnosi się do faktu, że nasz drugi `print` ma miejsce po usunięciu wpisu z `lookup`. Wykreśl wywołanie `remove`, a wynik będzie normalny.
 
-A chave para entender o código acima é estar ciente de onde os dados/memória existem, ou, em outras palavras, quem é o proprietário. Lembre-se de que os argumentos do Zig são passados por valor, ou seja, passamos uma cópia [superficial] do valor. O `User` em nosso `lookup` não é a mesma memória referenciada por `goku`. Nosso código acima tem dois usuários, cada um com seu próprio proprietário. `goku` é de propriedade do `main`, e sua cópia é de propriedade de `lookup`.
+Kluczem do zrozumienia powyższego kodu jest świadomość tego, gdzie istnieją dane/pamięć lub, mówiąc inaczej, kto jest ich _właścicielem_. Pamiętaj, że argumenty Ziga są przekazywane przez wartość, to znaczy przekazujemy [płytką] kopię wartości. `User` w naszym `lookup` nie jest tą samą pamięcią, do której odwołuje się `goku`. Nasz powyższy kod ma **dwóch** użytkowników, każdy z własnym właścicielem. `goku` jest własnością `main`, a jego kopia jest własnością `lookup`.
 
-O método `getPtr` retorna um ponteiro para o valor no mapa, em nosso caso, ele retorna um `*User`. Aqui está o problema, `remove` torna nosso ponteiro de `entry` inválido. Neste exemplo, a proximidade de `getPtr` e `remove` torna o problema um pouco óbvio. Mas não é difícil imaginar código chamando `remove` sem saber que uma referência à entrada está sendo mantida em outro lugar.
+Metoda `getPtr` zwraca wskaźnik do wartości w mapie, w naszym przypadku zwraca `*User`. W tym tkwi problem, `remove` sprawia, że nasz wskaźnik `entry` jest nieważny. W tym przykładzie bliskość `getPtr` i `remove` sprawia, że problem jest dość oczywisty. Nietrudno jednak wyobrazić sobie kod wywołujący `remove` bez świadomości, że referencja do wpisu jest przechowywana gdzie indziej.
 
-> Quando escrevi este exemplo, não tinha certeza do que aconteceria. Era possível que `remove` fosse implementado definindo uma marcação interna, adiando a remoção real até um evento posterior. Se esse fosse o caso, o código acima poderia ter "funcionado" em nossos casos simples, mas teria falhado com um uso mais complicado. Isso soa aterrorizantemente difícil de depurar.
+> Kiedy pisałem ten przykład, nie byłem pewien, co się stanie. Możliwe było zaimplementowanie `remove` poprzez ustawienie wewnętrznej flagi, opóźniając faktyczne usunięcie do późniejszego zdarzenia. Gdyby tak było, powyższy przykład mógłby "zadziałać" w naszych prostych przypadkach, ale zawiódłby przy bardziej skomplikowanym użyciu. Brzmi to przerażająco trudno do debugowania.
 
-Além de não chamar `remove`, podemos corrigir isso de algumas maneiras diferentes. A primeira é que poderíamos usar `get` em vez de `getPtr`. Isso retornaria um `User` em vez de um `*User` e, portanto, retornaria uma cópia do valor em `lookup`. Teríamos então três `Users`.
+Oprócz nie wywoływania `remove`, możemy to naprawić na kilka różnych sposobów. Pierwszym z nich jest użycie `get` zamiast `getPtr`. Zwróciłoby to `User` zamiast `*User`, a tym samym zwróciłoby kopię wartości w `lookup`. Mielibyśmy wtedy trzech `User`.
 
-1. O original `goku`, vinculado à função.
-2. A cópia em `lookup`, de propriedade do `lookup`.
-3. E uma cópia de nossa cópia, `entry`, também vinculada à função.
+1. Nasz oryginalny `goku`, powiązany z funkcją.
+2. Kopia w `lookup`, będącą własnością `lookup`.
+3. Oraz kopia naszej kopii, `entry`, również powiązana z funkcją.
 
-Como `entry` seria agora sua própria cópia independente do usuário, removê-lo de `lookup` não o invalidaria.
+Ponieważ `entry` byłby teraz własną, niezależną kopią użytkownika, usunięcie go z `lookup` nie spowodowałoby jego unieważnienia.
 
-Outra opção é alterar o tipo de `lookup` de `StringHashMap(User)` para `StringHashMap(*const User)`. Este código funciona:
+Inną opcją jest zmiana typu `lookup` z `StringHashMap(User)` na `StringHashMap(*const User)`. Ten kod działa:
 
 ```zig
 const std = @import("std");
@@ -95,17 +93,15 @@ const User = struct {
 };
 ```
 
-Existem várias sutilezas no código acima. Em primeiro lugar, agora temos um único `User`, o `goku`. O valor em `lookup` e `entry` são ambas referências ao `goku`. Nossa chamada para `remove` ainda remove o valor de nosso `lookup`, mas esse valor é apenas o endereço de `user`, não é o `user` em si. Se tivéssemos mantido `getPtr`, obteríamos um `**User` inválido, inválido por causa do `remove`. Em ambas as soluções, tivemos que usar `get` em vez de `getPtr`, mas neste caso, estamos apenas copiando o endereço, não o `User` completo. Para objetos grandes, isso pode fazer uma diferença significativa.
+Powyższy kod zawiera kilka subtelności. Po pierwsze, mamy teraz jednego `User`, `goku`. Wartość w `lookup` i `entry` są obie referencjami do `goku`. Nasze wywołanie `remove` nadal usuwa wartość z naszego `lookup`, ale ta wartość jest tylko adresem `user`, nie jest samym `user`. Gdybyśmy pozostali przy `getPtr`, otrzymalibyśmy nieprawidłowy `**User`, nieważny z powodu `remove`. W obu rozwiązaniach musieliśmy użyć `get` zamiast `getPtr`, ale w tym przypadku kopiujemy tylko adres, a nie pełnego `User`. W przypadku dużych obiektów może to być znacząca różnica.
 
-Com tudo em uma única função e um valor pequeno como `User`, isso ainda parece um problema criado artificialmente. Precisamos de um exemplo que torne a propriedade dos dados uma preocupação imediata.
+Ze wszystkim w jednej funkcji i małą wartością, taką jak `User`, nadal wydaje się to sztucznie stworzonym problemem. Potrzebujemy przykładu, który zasadnie sprawi, że własność danych stanie się bezpośrednim problemem.
 
+## Własność (ownership)
 
+Uwielbiam hashmapy, ponieważ są one czymś, co wszyscy znają i czego wszyscy używają. Mają one również wiele różnych zastosowań, z których większość prawdopodobnie doświadczyłeś na własnej skórze. Chociaż mogą być używane jako krótkotrwałe wyszukiwania, często są długotrwałe, a zatem wymagają równie długotrwałych wartości.
 
-## Propriedade _(ownership)_
-
-Eu adoro mapas de hash porque são algo que todos conhecem e usam. Eles também têm muitos casos de uso diferentes, a maioria dos quais você provavelmente experimentou em primeira mão. Embora possam ser usados para pesquisas de curta duração, muitas vezes são de longa duração e, portanto, exigem valores igualmente duradouros.
-
-Este código preenche nosso mapa (`lookup`) com nomes que você insere no terminal. Um nome vazio interrompe o loop do prompt. Finalmente, ele detecta se "Leto" foi um dos nomes fornecidos.
+Ten kod wypełnia nasz `lookup` nazwami wprowadzanymi w terminalu. Pusta nazwa zatrzymuje pętlę zachęty. Na koniec wykrywa, czy "Leto" było jednym z podanych nazw.
 
 ```zig
 const std = @import("std");
@@ -118,11 +114,11 @@ pub fn main() !void {
 	var lookup = std.StringHashMap(User).init(allocator);
 	defer lookup.deinit();
 
-	// stdin é um std.io.Reader
-	// o oposto de um std.io.Writer, que já vimos
+  // stdin to std.io.Reader
+  // przeciwieństwo std.io.Writer, które już widzieliśmy
 	const stdin = std.io.getStdIn().reader();
 
-	// stdout é um std.io.Writer
+  // stdout to std.io.Writer
 	const stdout = std.io.getStdOut().writer();
 
 	var i: i32 = 0;
@@ -132,8 +128,8 @@ pub fn main() !void {
 		if (try stdin.readUntilDelimiterOrEof(&buf, '\n')) |line| {
 			var name = line;
 			if (builtin.os.tag == .windows) {
-				// No Windows as linhas são terminadas com \r\n.
-				// Então temos que remover o \r
+        // W systemie Windows linie są zakończone znakiem \r\n.
+        // Musimy usunąć \r
 				name = std.mem.trimRight(u8, name, "\r");
 			}
 			if (name.len == 0) {
@@ -152,10 +148,10 @@ const User = struct {
 };
 ```
 
-O código é sensível a maiúsculas e minúsculas, mas não importa o quão perfeitamente digitamos "Leto", `contains` sempre retorna `false`. Vamos depurar isso iterando através de `lookup` e exibindo as chaves e valores:
+W kodzie rozróżniana jest wielkość liter, ale bez względu na to, jak idealnie wpiszemy "Leto", `contains` zawsze zwraca `false`. Zdebugujmy to, iterując przez `lookup` i zrzucając klucze i wartości:
 
 ```zig
-// Acrescente este código após a iteração do "while"
+// Umieść ten kod po pętli while
 
 var it = lookup.iterator();
 while (it.next()) |kv| {
@@ -163,7 +159,7 @@ while (it.next()) |kv| {
 }
 ```
 
-Esse padrão de iterador é comum em Zig e depende da sinergia entre `while` e tipos opcionais. Nosso item do iterador retorna ponteiros para a chave e o valor, por isso os desreferenciamos com `.*` para acessar o valor real em vez do endereço. A saída dependerá do que você inserir, mas eu obtive:
+Ten wzorzec iteratora jest powszechny w Zigu i opiera się na synergii między typami `while` i `optional`. Nasz iterator zwraca wskaźniki do naszego klucza i wartości, dlatego dereferencjonujemy je za pomocą `.*`, aby uzyskać dostęp do rzeczywistej wartości, a nie adresu. Wynik będzie zależał od tego, co wprowadzisz, ale mam:
 
 ```
 Please enter a name: Paul
@@ -179,28 +175,28 @@ Please enter a name:
 false
 ```
 
-Os valores parecem estar corretos, mas não as chaves. Se você não tem certeza do que está acontecendo, provavelmente é minha culpa. Antes, intencionalmente, desviei sua atenção. Eu disse que os mapas de hash são frequentemente de longa duração e, portanto, exigem valores de longa duração. A verdade é que eles exigem valores e chaves de longa duração! Observe que `buf` é definido dentro do nosso loop `while`. Quando chamamos o `put`, estamos dando ao nosso mapa de hash uma chave que tem uma vida útil muito mais curta do que o próprio mapa de hash. Mover `buf` para fora do loop `while` resolve nosso problema de tempo de vida, mas esse buffer é reutilizado em cada iteração. Ainda não funcionará porque estamos mutando os dados da chave subjacente.
+Wartości wyglądają w porządku, ale nie klucze. Jeśli nie jesteś pewien, co się dzieje, to prawdopodobnie moja wina. Wcześniej celowo źle skierowałem twoją uwagę. Powiedziałem, że mapy hash są często długotrwałe, a zatem wymagają długotrwałych _wartości_. Prawda jest taka, że wymagają one zarówno długotrwałych wartości, **jak i** długotrwałych kluczy! Zauważ, że `buf` jest zdefiniowany wewnątrz naszej pętli `while`. Kiedy wywołujemy `put`, dajemy naszej hashmapie klucz, który ma znacznie krótszy czas życia niż sama hashmapa. Przeniesienie `buf` _poza_ pętlę `while` rozwiązuje nasz problem z czasem życia, ale ten bufor jest ponownie wykorzystywany w każdej iteracji. Nadal nie będzie działać, ponieważ mutujemy podstawowe dane klucza.
 
-Para o código acima, há realmente apenas uma solução: nosso `lookup` deve assumir a propriedade das chaves. Precisamos adicionar uma linha e alterar outra:
+Dla naszego powyższego kodu istnieje tylko jedno rozwiązanie: nasz `lookup` musi przejąć klucze na własność. Musimy dodać jedną linię i zmienić inną:
 
 ```zig
-// substitua o "lookup.put" existente por estas duas linhas
+// zastąpić istniejący lookup.put tymi dwoma liniami
 const owned_name = try allocator.dupe(u8, name);
 
 // name -> owned_name
 try lookup.put(owned_name, .{.power = i});
 ```
 
-`dupe` é um método de `std.mem.Allocator` que ainda não vimos antes. Ele aloca uma duplicata do valor fornecido. O código agora funciona porque nossas chaves, agora no heap, têm uma vida útil mais longa que `lookup`. Na verdade, fizemos um trabalho bom demais em estender a vida dessas strings: introduzimos vazamentos de memória.
+`dupe` to metoda `std.mem.Allocator`, której wcześniej nie widzieliśmy. Alokuje ona duplikat podanej wartości. Kod teraz działa, ponieważ nasze klucze, znajdujące się teraz na stercie, przeżywają `lookup`. W rzeczywistości wykonaliśmy zbyt dobrą robotę, wydłużając czas życia tych łańcuchów: wprowadziliśmy wycieki pamięci.
 
-Você pode ter pensado que, quando chamamos `lookup.deinit`, nossas chaves e valores seriam liberados para nós. Mas não há uma solução única que `StringHashMap` poderia usar. Primeiro, as chaves podem ser literais de string, que não podem ser liberadas. Segundo, elas podem ter sido criadas com um alocador diferente. Finalmente, embora mais avançado, há casos legítimos em que as chaves podem não ser de propriedade do mapa de hash.
+Można by pomyśleć, że kiedy wywołamy `lookup.deinit`, nasze klucze i wartości zostaną dla nas zwolnione. Ale nie ma jednego uniwersalnego rozwiązania, którego `StringHashMap` mógłby użyć. Po pierwsze, klucze mogą być literałami łańcuchowymi, których nie można zwolnić. Po drugie, mogły one zostać utworzone przy użyciu innego alokatora. Wreszcie, choć bardziej zaawansowane, istnieją uzasadnione przypadki, w których klucze mogą nie być własnością hashmapy.
 
-A única solução é liberar as chaves por nós mesmos. Neste ponto, provavelmente faria sentido criar nosso próprio tipo `UserLookup` e encapsular essa lógica de limpeza em nossa função `deinit`. Vamos manter as coisas bagunçadas:
+Jedynym rozwiązaniem jest samodzielne zwolnienie kluczy. W tym momencie prawdopodobnie sensowne byłoby utworzenie własnego typu `UserLookup` i enkapsulacja logiki czyszczenia w naszej funkcji `deinit`. Zachowamy bałagan:
 
 ```zig
-// substitua:
+// zastąpimy istniejące:
 //   defer lookup.deinit();
-// por:
+// z:
 defer {
 	var it = lookup.keyIterator();
 	while (it.next()) |key| {
@@ -210,17 +206,15 @@ defer {
 }
 ```
 
-Nossa lógica de `defer`, a primeira que vimos com um bloco, libera cada chave e, em seguida, desinicializa `lookup`. Estamos usando `keyIterator` para iterar apenas sobre as chaves. O valor do iterador é um ponteiro para a entrada da chave no mapa de hash, um `*[]const u8`. Queremos liberar o valor real, já que é isso que alocamos via `dupe`, então desreferenciamos o valor usando `.*`.
+Nasza logika `defer`, pierwsza, jaką widzieliśmy z blokiem, zwalnia każdy klucz, a następnie deinicjalizuje `lookup`. Używamy `keyIterator` tylko do iteracji kluczy. Wartość iteratora jest wskaźnikiem do wpisu klucza w hashmapie, `*[]const u8`. Chcemy zwolnić rzeczywistą wartość, ponieważ to właśnie ją zaalokowaliśmy za pomocą `dupe`, więc dereferencjonujemy wartość za pomocą `.*`.
 
-Eu prometo, terminamos de falar sobre ponteiros pendentes e gerenciamento de memória. O que discutimos ainda pode estar pouco claro ou muito abstrato. Está tudo bem revisitar isso quando você tiver um problema mais prático para resolver. Dito isso, se você planeja escrever algo não trivial, é quase certo que precisará dominar esse tópico. Quando se sentir preparado, sugiro que pegue o exemplo do loop de prompt e brinque com ele por conta própria. Introduza um tipo `UserLookup` que encapsule toda a gestão de memória que tivemos que fazer. Tente ter valores `*User` em vez de `User`, criando os usuários no heap e liberando-os como fizemos com as chaves. Escreva testes que cubram sua nova estrutura, usando o `std.testing.allocator` para garantir que não está vazando memória.
-
-
+Obiecuję, że skończyliśmy rozmawiać o zwisających wskaźnikach i zarządzaniu pamięcią. To, co omówiliśmy, może być nadal niejasne lub zbyt abstrakcyjne. Dobrze jest wrócić do tego tematu, gdy będziesz miał bardziej praktyczny problem do rozwiązania. To powiedziawszy, jeśli planujesz napisać coś nietrywialnego, jest to coś, co prawie na pewno będziesz musiał opanować. Kiedy poczujesz się na siłach, zachęcam do skorzystania z przykładu pętli zachęty i pobawienia się nią na własną rękę. Wprowadź typ `UserLookup`, który enkapsuluje całe zarządzanie pamięcią, które musieliśmy wykonać. Wypróbuj wartości `*User` zamiast `User`, tworząc użytkowników na stercie i zwalniając ich tak, jak zrobiliśmy to z kluczami. Napisz testy obejmujące nową strukturę, używając `std.testing.allocator`, aby upewnić się, że nie wycieka żadna pamięć.
 
 ## ArrayList
 
-Você ficará feliz em saber que pode esquecer sobre nosso `IntList` e a alternativa genérica que criamos. Zig possui uma implementação adequada de array dinâmico: `std.ArrayList(T)`.
+Będziesz zadowolony wiedząc, że możesz zapomnieć o naszej `IntList` i generycznej alternatywie, którą stworzyliśmy. Zig ma odpowiednią implementację dynamicznej tablicy: `std.ArrayList(T)`.
 
-É algo bastante padrão, mas é uma estrutura de dados tão comumente necessária e utilizada que vale a pena vê-la em ação:
+To dość standardowa rzecz, ale jest to tak powszechnie potrzebna i używana struktura danych, że warto zobaczyć ją w akcji:
 
 ```zig
 const std = @import("std");
@@ -239,11 +233,11 @@ pub fn main() !void {
 		arr.deinit();
 	}
 
-	// stdin é um std.io.Reader
-	// o oposto de um std.io.Writer, que já vimos
+  // stdin to std.io.Reader
+  // przeciwieństwo std.io.Writer, które już widzieliśmy
 	const stdin = std.io.getStdIn().reader();
 
-	// stdout é um std.io.Writer
+  // stdout to std.io.Writer
 	const stdout = std.io.getStdOut().writer();
 
 	var i: i32 = 0;
@@ -253,8 +247,8 @@ pub fn main() !void {
 		if (try stdin.readUntilDelimiterOrEof(&buf, '\n')) |line| {
 			var name = line;
 			if (builtin.os.tag == .windows) {
-				// No Windows as linhas são terminadas com \r\n.
-				// Temos que remover o \r
+        // W systemie Windows linie są zakończone znakiem \r\n.
+        // Musimy usunąć \r
 				name = std.mem.trimRight(u8, name, "\r");
 			}
 			if (name.len == 0) {
@@ -286,11 +280,11 @@ const User = struct {
 };
 ```
 
-Acima está uma reprodução do nosso código de hash map, mas usando um `ArrayList(User)`. Todas as mesmas regras de tempo de vida e gerenciamento de memória se aplicam. Observe que ainda estamos criando um `dupe` do nome e ainda estamos liberando cada nome antes de desinicializar (`deinit`) o `ArrayList`.
+Powyżej znajduje się reprodukcja naszego kodu mapy hash, ale przy użyciu `ArrayList(User)`. Obowiązują te same zasady dotyczące czasu życia i zarządzania pamięcią. Zauważ, że nadal tworzymy duplikat nazwy i nadal zwalniamy każdą nazwę przed `deinit` `ArrayList`.
 
-Este é um bom momento para destacar que Zig não possui propriedades ou campos privados. Você pode ver isso quando acessamos `arr.items` para iterar pelos valores. A razão para não ter propriedades é eliminar uma fonte de surpresas. Em Zig, se parece com um acesso a campo, é um acesso a campo. Pessoalmente, acho que a falta de campos privados é um erro, mas certamente é algo com o qual podemos lidar. Tenho usado o prefixo de sublinhado nos campos para sinalizar "uso interno apenas".
+To dobry moment, aby podkreślić, że Zig nie ma właściwości (properties) lub pól prywatnych. Widać to, gdy uzyskujemy dostęp do `arr.items`, aby iterować po wartościach. Powodem braku właściwości jest wyeliminowanie źródła niespodzianek. W Zigu, jeśli coś wygląda jak dostęp do pola, to jest to dostęp do pola. Osobiście uważam, że brak prywatnych pól jest błędem, ale z pewnością jest to coś, co możemy obejść. Zacząłem poprzedzać pola podkreśleniem, aby zasygnalizować "tylko do użytku wewnętrznego".
 
-Porque a string "type" é uma `[]u8` ou `[]const u8`, um `ArrayList(u8)` é o tipo apropriado para um construtor de strings, como o `StringBuilder` do .NET ou o `strings.Builder` do Go. Na verdade, você frequentemente usará isso quando uma função receber um `Writer` e você quiser uma string. Anteriormente, vimos um exemplo que usava `std.json.stringify` para imprimir JSON no stdout. Aqui está como você usaria um `ArrayList(u8)` para armazená-lo em uma variável:
+Ponieważ "typ" łańcucha to `[]u8` lub `[]const u8`, `ArrayList(u8)` jest odpowiednim typem dla konstruktora łańcuchów, takiego jak `StringBuilder` .NET lub `strings.Builder` w Go. W rzeczywistości często będziesz go używać, gdy funkcja pobiera `Writer` i chcesz uzyskać ciąg znaków. Wcześniej widzieliśmy przykład którym używał `std.json.stringify` do wyprowadzenia JSON na wyjście stdout. Oto jak można użyć `ArrayList(u8)` do wyprowadzenia go do zmiennej:
 
 ```zig
 const std = @import("std");
@@ -312,18 +306,16 @@ pub fn main() !void {
 }
 ```
 
-
-
 ## Anytype
 
-Na parte 1, falamos brevemente sobre `anytype`. É uma forma bastante útil de duck-typing em tempo de compilação. Aqui está um logger simples:
+W części 1 krótko omówiliśmy `anytype`. Jest to całkiem przydatna forma duck-typingu w czasie kompilacji. Oto prosty logger:
 
 ```zig
 pub const Logger = struct {
 	level: Level,
 
-	// "error" é reservado, nomes dentro de @"..." sempre serão
-	// tratados como identificadores
+  // "błąd" jest zarezerwowany, nazwy wewnątrz @"..." są zawsze
+  // traktowane jako identyfikatory
 	const Level = enum {
 		debug,
 		info,
@@ -339,14 +331,14 @@ pub const Logger = struct {
 };
 ```
 
-O parâmetro de saída (`out`) de nossa função `info` tem o tipo `anytype`. Isso significa que nosso `Logger` pode registrar mensagens em qualquer estrutura que tenha um método `writeAll` aceitando um `[]const u8` e retornando um `!void`. Isso não é uma característica em tempo de execução. A verificação de tipo ocorre em tempo de compilação e, para cada tipo usado, uma função corretamente tipada é criada. Se tentarmos chamar `info` com um tipo que não tenha todas as funções necessárias (neste caso, apenas `writeAll`), receberemos um erro de compilação:
+Parametr `out` naszej funkcji `info` ma typ `anytype`. Oznacza to, że nasz `Logger` może rejestrować komunikaty do dowolnej struktury, która ma metodę `writeAll` akceptującą `[]const u8` i zwracającą `!void`. Nie jest to funkcja czasu wykonania. Sprawdzanie typu odbywa się w czasie kompilacji i dla każdego używanego typu tworzona jest prawidłowo otypowana funkcja. Jeśli spróbujemy wywołać `info` z typem, który nie ma wszystkich niezbędnych funkcji (w tym przypadku tylko `writeAll`), otrzymamy błąd kompilacji:
 
 ```zig
 var l = Logger{.level = .info};
 try l.info("sever started", true);
 ```
 
-Dando-nos: nenhum campo ou função de membro chamado "writeAll" em "bool" _(no field or member function named 'writeAll' in 'bool')_. Usar o `writer` de um `ArrayList(u8)` funciona:
+Daje nam: _no field or member function named 'writeAll' in 'bool'_. Użycie `writer` na `ArrayList(u8)` działa:
 
 ```zig
 pub fn main() !void {
@@ -363,12 +355,12 @@ pub fn main() !void {
 }
 ```
 
-Uma grande desvantagem do `anytype` é a documentação. Aqui está a assinatura da função `std.json.stringify` que usamos algumas vezes:
+Ogromną wadą `anytype` jest dokumentacja. Oto sygnatura funkcji `std.json.stringify`, której używaliśmy kilka razy:
 
 ```zig
-// Eu ODEIO definições de função em várias linhas
-// Mas farei uma exceção para o guia
-// visto que você pode estar lendo em uma tela pequena.
+// **Nienawidzę** wieloliniowych definicji funkcji
+// Ale zrobię wyjątek dla przewodnika, który
+// możesz czytać na małym ekranie.
 
 fn stringify(
 	value: anytype,
@@ -377,15 +369,13 @@ fn stringify(
 ) @TypeOf(out_stream).Error!void
 ```
 
-O primeiro parâmetro, `value: anytype`, é meio óbvio. É o valor a ser serializado e pode ser qualquer coisa (na verdade, há algumas coisas que o serializador JSON do Zig não pode serializar). Podemos supor que `out_stream` é onde escrever o JSON, mas sua suposição é tão boa quanto a minha sobre quais métodos ela precisa implementar. A única maneira de descobrir é ler o código-fonte ou, alternativamente, passar um valor fictício e usar os erros do compilador como nossa documentação. Isso é algo que pode ser aprimorado com geradores automáticos de documentação melhores. Mas, não pela primeira vez, eu gostaria que o Zig tivesse interfaces.
-
-
+Pierwszy parametr,` value: anytype`, jest dość oczywisty. Jest to wartość do serializacji i może to być cokolwiek (w rzeczywistości istnieją pewne rzeczy, których serializator JSON Ziga nie może serializować). Możemy zgadywać, że `out_stream` jest _miejscem_ zapisu JSON, ale równie dobrze można zgadywać, jakie metody musi zaimplementować. Jedynym sposobem, aby się tego dowiedzieć, jest przeczytanie kodu źródłowego lub, alternatywnie, przekazanie fikcyjnej wartości i użycie błędów kompilatora jako naszej dokumentacji. Jest to coś, co może ulec poprawie dzięki lepszym automatycznym generatorom dokumentów. Ale nie po raz pierwszy żałuję, że Zig nie ma interfejsów.
 
 ## @TypeOf
 
-Nas partes anteriores, usamos `@TypeOf` para nos ajudar a examinar o tipo de várias variáveis. A partir do nosso uso, você poderia pensar que ele retorna o nome do tipo como uma string. No entanto, dado que é uma função PascalCase, você deve saber melhor: ela retorna um tipo (`type`).
+W poprzednich częściach użyliśmy `@TypeOf`, aby pomóc nam zbadać typ różnych zmiennych. Na podstawie naszego użycia można by pomyśleć, że zwraca ona nazwę typu jako ciąg znaków. Jednak biorąc pod uwagę, że jest to funkcja PascalCase, powinieneś wiedzieć lepiej: zwraca ona typ.
 
-Uma das minhas utilizações favoritas de `anytype` é combiná-la com as funções internas `@TypeOf` e `@hasField` para escrever ajudantes de teste. Embora todo tipo `User` que vimos tenha sido muito simples, peço que você imagine uma estrutura mais complexa com muitos campos. Em muitos de nossos testes, precisamos de um `User`, mas queremos especificar apenas os campos relevantes para o teste. Vamos criar uma `userFactory`:
+Jednym z moich ulubionych zastosowań `anytype` jest sparowanie go z wbudowanymi funkcjami `@TypeOf` i `@hasField` do pisania pomocników testowych. Chociaż każdy typ `User`, który widzieliśmy, był bardzo prosty, poproszę cię o wyobrażenie sobie bardziej złożonej struktury z wieloma polami. W wielu naszych testach potrzebujemy `User`, ale chcemy określić tylko pola istotne dla testu. Stwórzmy więc `userFactory`:
 
 ```zig
 fn userFactory(data: anytype) User {
@@ -406,19 +396,17 @@ pub const User = struct {
 };
 ```
 
-Um usuário padrão pode ser criado chamando `userFactory(.{})`, ou podemos substituir campos específicos com `userFactory(.{.id = 100, .active = false})`. É um pequeno padrão, mas eu realmente gosto dele. Também é um bom passo inicial para o mundo da metaprogramação.
+Domyślny użytkownik może zostać utworzony przez wywołanie `userFactory(.{})` lub możemy nadpisać określone pola za pomocą `userFactory(.{.id = 100, .active = false})`. To mały wzorzec, ale naprawdę mi się podoba. To także miły krok w świat metaprogramowania.
 
-Mais comumente, `@TypeOf` é combinado com `@typeInfo`, que retorna um `std.builtin.Type`. Este é um poderoso sindicato rotulado que descreve totalmente um tipo. A função `std.json.stringify` usa recursivamente isso no valor (`value`) fornecido para descobrir como serializá-lo.
-
-
+Częściej `@TypeOf` jest łączone z `@typeInfo`, które zwraca `std.builtin.Type`. Jest to potężny tagowany związek, który w pełni opisuje typ. Funkcja `std.json.stringify` rekurencyjnie używa tego na dostarczonej `value`, aby dowiedzieć się, jak ją serializować.
 
 ## Zig Build
 
-Se você leu este guia inteiro esperando obter insights sobre a configuração de projetos mais complexos, com várias dependências e vários destinos, você está prestes a ficar desapontado. O Zig possui um sistema de construção poderoso, tanto que um número crescente de projetos não relacionados ao Zig está fazendo uso dele, como o libsodium. Infelizmente, todo esse poder significa que, para necessidades mais simples, ele não é o mais fácil de usar ou entender.
+Jeśli przeczytałeś cały ten przewodnik, czekając na wgląd w konfigurowanie bardziej złożonych projektów, z wieloma zależnościami i różnymi celami, będziesz rozczarowany. Zig ma potężny system kompilacji, tak bardzo, że coraz więcej projektów innych niż Zig korzysta z niego, takich jak libsodium. Niestety, cała ta moc oznacza, że dla prostszych potrzeb nie jest on najłatwiejszy w użyciu ani zrozumieniu.
 
-> A verdade é que eu não entendo bem o sistema de construção do Zig o suficiente para explicá-lo.
+> Prawda jest taka, że nie rozumiem systemu kompilacji Ziga wystarczająco dobrze, aby go wyjaśnić.
 
-Ainda assim, podemos pelo menos ter uma visão geral breve. Para executar nosso código Zig, usamos `zig run learning.zig`. Uma vez, também usamos `zig test learning.zig` para executar um teste. Os comandos `run` e `test` são bons para brincar, mas é o comando `build` que você precisará para algo mais complexo. O comando `build` depende de um arquivo `build.zig` com o ponto de entrada `build` especial. Aqui está um esqueleto:
+Mimo to możemy przynajmniej uzyskać krótki przegląd. Aby uruchomić nasz kod Zig, użyliśmy `zig run learning.zig`. Raz użyliśmy również `zig test learning.zig`, aby uruchomić test. Polecenia `run` i `test` są dobre do zabawy, ale to polecenie `build` będzie potrzebne do wszystkiego, co bardziej złożone. Polecenie `build` opiera się na pliku `build.zig` ze specjalnym punktem wejścia `build`. Oto szkielet:
 
 ```zig
 // build.zig
@@ -430,7 +418,7 @@ pub fn build(b: *std.Build) !void {
 }
 ```
 
-Cada compilação possui uma etapa padrão de "instalação", que você pode agora executar com `zig build install`, mas como nosso arquivo está principalmente vazio, você não obterá artefatos significativos. Precisamos informar à nossa compilação sobre o ponto de entrada do nosso programa, que está em `learning.zig`:
+Każda kompilacja ma domyślny krok "install", który można teraz uruchomić za pomocą `zig build install`, ale ponieważ nasz plik jest w większości pusty, nie otrzymamy żadnych znaczących artefaktów. Musimy powiedzieć naszemu `build` o punkcie wejścia naszego programu, który znajduje się w `learning.zig`:
 
 ```zig
 const std = @import("std");
@@ -439,27 +427,27 @@ pub fn build(b: *std.Build) !void {
 	const target = b.standardTargetOptions(.{});
 	const optimize = b.standardOptimizeOption(.{});
 
-	// executável de configuração
+  // konfiguracja pliku wykonywalnego
 	const exe = b.addExecutable(.{
 		.name = "learning",
 		.target = target,
 		.optimize = optimize,
-		.root_source_file = .{ .path = "learning.zig" },
+		.root_source_file = b.path("learning.zig"),
 	});
 	b.installArtifact(exe);
 }
 ```
 
-Agora, se você executar `zig build install`, obterá um binário em `./zig-out/bin/learning`. Usar os destinos e otimizações padrão nos permite substituir o padrão usando argumentos de linha de comando. Por exemplo, para construir uma versão otimizada para o tamanho do nosso programa para Windows, faríamos:
+Teraz, jeśli uruchomisz `zig build install`, otrzymasz plik binarny w `./zig-out/bin/learning`. Korzystanie ze standardowych celów i optymalizacji pozwala nam zastąpić wartości domyślne jako argumenty wiersza poleceń. Na przykład, aby zbudować zoptymalizowaną pod kątem rozmiaru wersję naszego programu dla systemu Windows, wykonalibyśmy następujące polecenie:
 
 ```
 zig build install -Doptimize=ReleaseSmall -Dtarget=x86_64-windows-gnu
 ```
 
-Um executável geralmente terá dois passos adicionais, além do "install" padrão: "run" e "test". Uma biblioteca pode ter um único passo "test". Para uma execução básica sem argumentos, precisamos adicionar quatro linhas ao final de nosso arquivo build.zig:
+Plik wykonywalny często ma dwa dodatkowe kroki, poza domyślnym "install": "run" i "test". Biblioteka może mieć pojedynczy krok "test". Aby uzyskać podstawowy `run` bez argumentów, musimy dodać cztery linie na końcu naszej kompilacji:
 
 ```zig
-// adicionar depois: b.installArtifact(exe);
+// dodajemy po: b.installArtifact(exe);
 
 const run_cmd = b.addRunArtifact(exe);
 run_cmd.step.dependOn(b.getInstallStep());
@@ -468,24 +456,24 @@ const run_step = b.step("run", "Start learning!");
 run_step.dependOn(&run_cmd.step);
 ```
 
-Isso cria duas dependências por meio das duas chamadas para `dependOn`. A primeira associa nosso novo comando "run" ao passo de instalação incorporado. A segunda associa o passo "run" ao nosso recém-criado comando "run". Você pode estar se perguntando por que precisa de um comando `run` além de um passo `run`. Eu acredito que essa separação existe para dar suporte a configurações mais complicadas: passos que dependem de vários comandos ou comandos que são usados em vários passos. Se você executar `zig build --help` e rolar para o topo, verá nosso novo passo "run". Agora você pode executar o programa executando `zig build run`.
+Tworzy to dwie zależności poprzez dwa wywołania `dependOn`. Pierwsza wiąże nasze nowe polecenie `run` z wbudowanym krokiem instalacji. Druga wiąże krok "run" z naszym nowo utworzonym poleceniem "run". Być może zastanawiasz się, dlaczego potrzebujesz zarówno polecenia run, jak i kroku run. Uważam, że ta separacja istnieje, aby wspierać bardziej skomplikowane konfiguracje: kroki, które zależą od wielu poleceń lub poleceń, które są używane w wielu krokach. Jeśli uruchomisz `zig build --help` i przewiniesz do góry, zobaczysz nasz nowy krok "run". Możesz teraz uruchomić program, wykonując polecenie `zig build run`.
 
-Para adicionar um passo "test", você duplicará a maior parte do código `run` que acabamos de adicionar, mas em vez de `b.addExecutable`, você iniciará as coisas com `b.addTest`:
+Aby dodać krok "test", zduplikujesz większość kodu run, który właśnie dodaliśmy, ale zamiast `b.addExecutable`, rozpoczniesz wszystko od `b.addTest`:
 
 ```zig
 const tests = b.addTest(.{
 	.target = target,
 	.optimize = optimize,
-	.root_source_file = .{ .path = "learning.zig" },
+	.root_source_file = b.path("learning.zig"),
 });
 
 const test_cmd = b.addRunArtifact(tests);
 test_cmd.step.dependOn(b.getInstallStep());
-const test_step = b.step("test", "Run the tests");
+const test_step = b.step("test", "Uruchom testy");
 test_step.dependOn(&test_cmd.step);
 ```
 
-Nomeamos esse passo como "test". Executar `zig build --help` agora deve mostrar outro passo disponível, "test". Como não temos nenhum teste, é difícil dizer se isso está funcionando ou não. No arquivo `learning.zig`, adicione o seguinte:
+Nadaliśmy temu krokowi nazwę "test". Uruchomienie `zig build --help` powinno teraz pokazać kolejny dostępny krok, "test". Ponieważ nie mamy żadnych testów, trudno powiedzieć, czy to działa, czy nie. W pliku `learning.zig` dodajemy:
 
 ```zig
 test "dummy build test" {
@@ -493,21 +481,19 @@ test "dummy build test" {
 }
 ```
 
-Agora, ao executar `zig build test`, você deve obter uma falha no teste. Se corrigir o teste e executar `zig build test` novamente, você não obterá nenhuma saída. Por padrão, o executor de testes do Zig só produz saída em caso de falha. Use `zig build test --summary all` se, assim como eu, você sempre quiser um resumo, seja para indicar sucesso ou falha.
+Teraz, po uruchomieniu testu `zig build`, powinien pojawić się komunikat o niepowodzeniu testu. Jeśli naprawisz test i ponownie uruchomisz `zig build test`, nie otrzymasz żadnych danych wyjściowych. Domyślnie program uruchamiający testy Ziga generuje dane wyjściowe tylko w przypadku niepowodzenia. Użyj `zig build test --summary all` jeśli, tak jak ja, zawsze chcesz otrzymać podsumowanie.
 
-Essa é a configuração mínima necessária para começar. Mas fique tranquilo sabendo que, se precisar construir algo, Zig provavelmente pode lidar com isso. Por fim, você pode, e provavelmente deve, usar `zig init-exe` ou `zig init-lib` dentro do diretório do seu projeto para que o Zig crie um arquivo `build.zig` bem documentado para você.
+Jest to minimalna konfiguracja potrzebna do rozpoczęcia pracy. Możesz jednak spać spokojnie, wiedząc, że jeśli zajdzie potrzeba jej zbudowania, Zig prawdopodobnie sobie z tym poradzi. Wreszcie, możesz i prawdopodobnie powinieneś użyć `zig init` w katalogu głównym projektu, aby Zig utworzył dla ciebie dobrze udokumentowany plik build.zig.
 
+## Zależności od stron trzecich
 
+Wbudowany menedżer pakietów Ziga jest stosunkowo nowy i w związku z tym ma wiele nieoszlifowanych krawędzi. Chociaż jest miejsce na ulepszenia, jest on użyteczny tak jak jest. Istnieją dwie części, którym musimy się przyjrzeć: tworzenie pakietu i korzystanie z pakietów. Przejdziemy przez to w całości.
 
-## Dependências de bibliotecas de terceiros
+Najpierw utwórz nowy folder o nazwie `calc` i utwórz trzy pliki. Pierwszy to `add.zig`, z następującą zawartością:
 
-O sistema de gerenciamento de pacotes embutido no Zig é relativamente novo e, como consequência, possui algumas arestas ásperas. Embora haja espaço para melhorias, ele é utilizável como está. Existem duas partes que precisamos examinar: criar um pacote e usar pacotes. Vamos passar por isso em detalhes.
-
-Primeiro, crie uma nova pasta chamada `calc` e crie três arquivos. O primeiro é `add.zig`, com o seguinte conteúdo:
-
-```zig
-// Ah, uma lição oculta, veja o tipo de b
-// e o tipo de retorno!!
+````zig
+// O, ukryta lekcja, spójrz na typ b
+// i typ zwracany!!!
 
 pub fn add(a: anytype, b: @TypeOf(a)) @TypeOf(a) {
 	return a + b;
@@ -517,23 +503,23 @@ const testing = @import("std").testing;
 test "add" {
 	try testing.expectEqual(@as(i32, 32), add(30, 2));
 }
-```
+``
 
-É um pouco bobo, um pacote inteiro apenas para somar dois valores, mas isso nos permitirá focar no aspecto do empacotamento. Em seguida, adicionaremos outro igualmente bobo: `calc.zig`:
+To trochę głupie, cały pakiet tylko po to, by dodać dwie wartości, ale pozwoli nam skupić się na aspekcie pakowania. Następnie dodamy równie głupi pakiet: `calc.zig`:
 
 ```zig
 pub const add = @import("add.zig").add;
 
 test {
-    // Por padrão, apenas testes em um determinado arquivo
-    // são incluídos. Esta linha de código mágica irá
-    // causar uma referência para todos os contêineres
-    // que serão testados.
+  // Domyślnie, tylko testy w określonym pliku
+  // są uwzględniane. Ta magiczna linia kodu
+  // spowoduje, że odniesienie do wszystkich zagnieżdżonych kontenerów
+  // do wszystkich zagnieżdżonych kontenerów.
 	@import("std").testing.refAllDecls(@This());
 }
-```
+````
 
-Estamos dividindo isso entre `calc.zig` e `add.zig` para mostrar que o comando `zig build` automaticamente compilará e empacotará todos os arquivos do nosso projeto. Finalmente, podemos adicionar um `build.zig`:
+Rozdzielamy to między `calc.zig` i `add.zig`, aby udowodnić, że `zig build` automatycznie zbuduje i spakuje wszystkie pliki naszego projektu. Na koniec możemy dodać `build.zig`:
 
 ```zig
 const std = @import("std");
@@ -545,7 +531,7 @@ pub fn build(b: *std.Build) !void {
 	const tests = b.addTest(.{
 		.target = target,
 		.optimize = optimize,
-		.root_source_file = .{ .path = "calc.zig" },
+		.root_source_file = b.path("calc.zig"),
 	});
 
 	const test_cmd = b.addRunArtifact(tests);
@@ -555,44 +541,71 @@ pub fn build(b: *std.Build) !void {
 }
 ```
 
-Isso é tudo uma repetição do que vimos na seção anterior. Com isso, você pode executar `zig build test --summary all`.
+To wszystko jest powtórzeniem tego, co widzieliśmy w poprzedniej sekcji. W ten sposób można uruchomić `zig build test --summary all`.
 
-De volta ao nosso projeto de aprendizado (`learning`) e ao nosso arquivo `build.zig` anteriormente criado. Vamos começar adicionando nosso `calc` local como uma dependência. Precisamos fazer três adições. Primeiro, vamos criar um módulo apontando para o nosso `calc.zig`:
+Wracamy do naszego projektu `learning` i wcześniej utworzonego `build.zig`. Zaczniemy od dodania naszego lokalnego `calc` jako zależności. Musimy wprowadzić trzy dodatki. Po pierwsze, utworzymy moduł wskazujący na nasz `calc.zig`:
 
 ```zig
-// Você pode colocar isto próximo ao tipo da
-// função, antes da chamada para "addExecutable".
+// Można go umieścić w górnej części funkcji build
+// funkcji, przed wywołaniem addExecutable.
 
 const calc_module = b.addModule("calc", .{
-	.source_file = .{ .path = "CAMINHO_PARA_O_PROJETO_CALC/calc.zig" },
+  .root_source_file = b.path("PATH_TO_CALC_PROJECT/calc.zig"),
 });
 ```
 
-Você precisará ajustar o caminho para `calc.zig`. Agora, precisamos adicionar este módulo tanto para a variável `exe` quanto para `tests`:
+Będziesz musiał dostosować ścieżkę do `calc.zig`. Teraz musimy dodać ten moduł do naszych istniejących zmiennych `exe` i `tests`. Ponieważ nasz `build.zig` staje się coraz bardziej zajęty, postaramy się trochę uporządkować rzeczy:
 
 ```zig
-const exe = b.addExecutable(.{
-	.name = "learning",
-	.target = target,
-	.optimize = optimize,
-	.root_source_file = .{ .path = "learning.zig" },
-});
-// adicione isto
-exe.addModule("calc", calc_module);
-b.installArtifact(exe);
+const std = @import("std");
 
-....
+pub fn build(b: *std.Build) !void {
+	const target = b.standardTargetOptions(.{});
+	const optimize = b.standardOptimizeOption(.{});
 
-const tests = b.addTest(.{
-	.target = target,
-	.optimize = optimize,
-	.root_source_file = .{ .path = "learning.zig" },
-});
-// adicione isto
-tests.addModule("calc", calc_module);
+	const calc_module = b.addModule("calc", .{
+		.root_source_file = b.path("PATH_TO_CALC_PROJECT/calc.zig"),
+	});
+
+	{
+    // skonfiguruj nasze polecenia "run"
+
+		const exe = b.addExecutable(.{
+			.name = "learning",
+			.target = target,
+			.optimize = optimize,
+			.root_source_file = b.path("learning.zig"),
+		});
+    // dodaj to
+		exe.root_module.addImport("calc", calc_module);
+		b.installArtifact(exe);
+
+		const run_cmd = b.addRunArtifact(exe);
+		run_cmd.step.dependOn(b.getInstallStep());
+
+		const run_step = b.step("run", "Start learning!");
+		run_step.dependOn(&run_cmd.step);
+	}
+
+	{
+    // skonfiguruj nasze polecenie "test"
+		const tests = b.addTest(.{
+			.target = target,
+			.optimize = optimize,
+			.root_source_file = b.path("learning.zig"),
+		});
+    // dodaj to
+		tests.root_module.addImport("calc", calc_module);
+
+		const test_cmd = b.addRunArtifact(tests);
+		test_cmd.step.dependOn(b.getInstallStep());
+		const test_step = b.step("test", "Run the tests");
+		test_step.dependOn(&test_cmd.step);
+	}
+}
 ```
 
-De dentro do projeto, agora você é capaz de usar `@import("calc")`:
+Z poziomu projektu możesz teraz `@import("calc")`:
 
 ```zig
 const calc = @import("calc");
@@ -600,68 +613,65 @@ const calc = @import("calc");
 calc.add(1, 2);
 ```
 
-Adicionar uma dependência remota exige um pouco mais de esforço. Primeiro, precisamos voltar ao projeto `calc` e definir um módulo. Você pode pensar que o projeto em si é um módulo, mas um projeto pode expor vários módulos, então precisamos criá-lo explicitamente. Usamos o mesmo `addModule`, mas descartamos o valor de retorno. Simplesmente chamar o `addModule` é suficiente para definir o módulo que outros projetos poderão importar.
+Dodanie zdalnej zależności wymaga nieco więcej wysiłku. Najpierw musimy wrócić do projektu `calc` i zdefiniować moduł. Można by pomyśleć, że sam projekt jest modułem, ale projekt może eksponować wiele modułów, więc musimy go jawnie utworzyć. Używamy tego samego `addModule`, ale odrzucamy wartość zwracaną. Samo wywołanie `addModule` wystarczy, aby zdefiniować moduł, który inne projekty będą mogły zaimportować.
 
 ```zig
 _ = b.addModule("calc", .{
-	.source_file = .{ .path = "calc.zig" },
+  .root_source_file = b.path("calc.zig"),
 });
 ```
 
-Esta é a única alteração que precisamos fazer em nossa biblioteca. Por ser um exercício de ter uma dependência remota, eu enviei este projeto `calc` para o GitHub para que possamos importá-lo para o nosso projeto de aprendizado. Ele está disponível em https://github.com/karlseguin/calc.zig.
+To jedyna zmiana, jaką musimy wprowadzić w naszej bibliotece. Ponieważ jest to ćwiczenie polegające na posiadaniu zdalnej zależności, przesłałem ten projekt `calc` na Github, abyśmy mogli zaimportować go do naszego projektu edukacyjnego. Jest on dostępny pod adresem https://github.com/karlseguin/calc.zig.
 
-De volta ao nosso projeto de aprendizado, precisamos de um novo arquivo, `build.zig.zon`. "ZON" significa _Zig Object Notation_ e permite que dados Zig sejam expressos em um formato legível por humanos e que esse formato legível por humanos seja transformado em código Zig. O conteúdo do `build.zig.zon` será:
+W naszym projekcie edukacyjnym potrzebujemy nowego pliku, `build.zig.zon`. "ZON" oznacza Zig Object Notation i umożliwia wyrażanie danych Ziga w formacie czytelnym dla człowieka oraz przekształcanie tego formatu w kod Ziga. Zawartość `build.zig.zon` będzie następująca:
 
-```
+```zon
 .{
   .name = "learning",
   .paths = .{""},
   .version = "0.0.0",
   .dependencies = .{
     .calc = .{
-      .url = "https://github.com/karlseguin/calc.zig/archive/e43c576da88474f6fc6d971876ea27effe5f7572.tar.gz",
+      .url = "https://github.com/karlseguin/calc.zig/archive/d1881b689817264a5644b4d6928c73df8cf2b193.tar.gz",
       .hash = "12ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
     },
   },
 }
 ```
 
-Há dois valores questionáveis neste arquivo, o primeiro é `e43c576da88474f6fc6d971876ea27effe5f7572` dentro da `url`. Este é simplesmente o hash do commit do git. O segundo é o valor de `hash`. Até onde eu sei, atualmente não há uma ótima maneira de determinar qual deve ser esse valor, então usamos um valor fictício por enquanto.
+W tym pliku znajdują się dwie wątpliwe wartości, pierwsza to `d1881b689817264a5644b4d6928c73df8cf2b193` w adresie `url`. Jest to po prostu git commit hash. Drugi to wartość `hash`. O ile mi wiadomo, obecnie nie ma dobrego sposobu na określenie, jaka powinna być ta wartość, więc na razie używamy wartości fikcyjnej.
 
-Para usar essa dependência, precisamos fazer uma alteração em nosso `build.zig`:
+Aby użyć tej zależności, musimy dokonać jednej zmiany w naszym `build.zig`:
 
 ```zig
-// substitua isto:
+// zamień to:
 const calc_module = b.addModule("calc", .{
-	.source_file = .{ .path = "calc/calc.zig" },
+  .root_source_file = b.path("calc/calc.zig"),
 });
 
-// por isso:
-const calc_dep = b.dependency("calc", .{.target = target,.optimize = optimize});
+// z tym:
+const calc_dep = b.dependency("calc", .{ .target = target, .optimize = optimize});
 const calc_module = calc_dep.module("calc");
 ```
 
-Em `build.zig.zon`, nomeamos a dependência como `calc`, e é essa dependência que estamos carregando aqui. De dentro dessa dependência, estamos pegando o módulo chamado `calc`, que é o que nomeamos no `build.zig` do `calc`.
+W `build.zig.zon` nazwaliśmy zależność `calc` i jest to zależność, którą ładujemy tutaj. Z poziomu tej zależności pobieramy moduł `calc`, który został nazwany w `build.zig` w `calc`.
 
-Se você tentar executar `zig build test`, deve ver um erro:
+Jeśli spróbujesz uruchomić `zig build test`, powinieneś zobaczyć błąd:
 
 ```
-error: hash mismatch:
-expected:
-12ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,
+hash mismatch: manifest declares
+122053da05e0c9348d91218ef015c8307749ef39f8e90c208a186e5f444e818672da
 
-found:
-122053da05e0c9348d91218ef015c8307749ef39f8e90c208a186e5f444e818672d4
+but the fetched package has
+122036b1948caa15c2c9054286b3057877f7b152a5102c9262511bf89554dc836ee5
 ```
 
-Copie e cole o hash correto de volta no `build.zig.zon` e tente executar `zig build test` novamente. Agora, tudo deve estar funcionando.
+Skopiuj i wklej poprawny hash z powrotem do `build.zig.zon` i spróbuj ponownie uruchomić `zig build test`. Wszystko powinno teraz działać.
 
-Pode parecer um pouco complicado, e espero que as coisas se tornem mais simples. Mas, na maior parte, é algo que você pode copiar e colar de outros projetos e, uma vez configurado, você pode prosseguir.
+Wydaje się, że to dużo i mam nadzieję, że wszystko zostanie usprawnione. Ale jest to głównie coś, co można skopiować i wkleić z innych projektów, a po skonfigurowaniu można przejść dalej.
 
-Um aviso, descobri que o cache de dependências do Zig é bastante agressivo. Se você tentar atualizar uma dependência, mas Zig não parece detectar a mudança... bom, eu costumo apagar a pasta `zig-cache` do projeto, bem como `~/.cache/zig`.
-
-
+Słowo ostrzeżenia, zauważyłem, że buforowanie zależności w Zigu jest po agresywnej stronie. Jeśli próbujesz zaktualizować zależność, ale Zig wydaje się nie wykrywać zmiany...cóż, wyrzucam folder `zig-cache` projektu, a także `~/.cache/zig`.
 
 ---
 
-Cobrimos muitos tópicos, explorando algumas estruturas de dados fundamentais e reunindo grandes partes das seções anteriores. Nosso código ficou um pouco mais complexo, concentrando-se menos na sintaxe específica e parecendo mais com código real. Estou animado com a possibilidade de que, apesar dessa complexidade, o código tenha feito sentido na maior parte. Se não fez, não desista. Escolha um exemplo, introduza erros, adicione instruções de impressão, escreva alguns testes para ele. Mexa diretamente com o código, criando o seu, e depois volte para ler as partes que não fizeram sentido inicialmente.
+Omówiliśmy wiele obszarów, badając kilka podstawowych struktur danych i łącząc ze sobą duże fragmenty poprzednich części. Nasz kod stał się nieco bardziej złożony, skupiając się mniej na konkretnej składni i wyglądając bardziej jak prawdziwy kod. Jestem podekscytowany możliwością, że pomimo tej złożoności, kod w większości miał sens. Jeśli nie, nie poddawaj się. Wybierz przykład i złam go, dodaj instrukcje wypisywania, napisz dla niego testy. Zajmij się kodem, stwórz własny, a następnie wróć i przeczytaj te części, które nie miały sensu.
