@@ -1,30 +1,28 @@
-# Memória Dinâmica & Alocadores
+# Pamięć sterty i alokatory
 
-Tudo o que vimos até agora foi restrito pela necessidade de um tamanho definido antecipadamente. Arrays sempre têm um comprimento conhecido em tempo de compilação (na verdade, o comprimento faz parte do tipo). Todas as nossas strings foram literais de string, que têm um comprimento conhecido em tempo de compilação.
+Wszystko, co do tej pory widzieliśmy, było ograniczone przez wymaganie z góry określonego rozmiaru. Tablice zawsze mają znaną w czasie kompilacji długość (w rzeczywistości długość jest częścią typu). Wszystkie nasze ciągi były literałami łańcuchowymi, które mają znaną w czasie kompilacji długość.
 
-Além disso, as duas estratégias de gerenciamento de memória que vimos, dados globais e a pilha de chamadas, embora simples e eficientes, são limitadas. Nenhuma delas pode lidar com dados de tamanho dinâmico e ambas são rígidas em relação aos períodos de vida dos dados.
+Co więcej, dwa rodzaje strategii zarządzania pamięcią, które widzieliśmy, dane globalne i stos wywołań, choć proste i wydajne, są ograniczające. Żadna z nich nie radzi sobie z danymi o dynamicznym rozmiarze i obie są sztywne w odniesieniu do czasu życia danych.
 
-Esta parte está dividida em dois temas. O primeiro é uma visão geral do nosso terceiro espaço de memória, o heap. O outro é a abordagem direta, mas única, do Zig para o gerenciamento de memória no heap. Mesmo que você esteja familiarizado com a memória do heap, digamos, ao usar o `malloc` do C, você vai querer ler a primeira parte, pois ela é bastante específica para o Zig.
+Ta część podzielona jest na dwa tematy. Pierwszym z nich jest ogólny przegląd naszego trzeciego obszaru pamięci, sterty. Drugi to proste, ale unikalne podejście Ziga do zarządzania pamięcią sterty. Nawet jeśli jesteś zaznajomiony z pamięcią sterty, powiedzmy z używania `malloc` w C, będziesz chciał przeczytać pierwszą część, ponieważ jest ona dość specyficzna dla Ziga.
 
+## Sterta (heap)
 
+Sterta jest trzecim i ostatnim obszarem pamięci do naszej dyspozycji. W porównaniu do danych globalnych i stosu wywołań, sterta to trochę dziki zachód: wszystko jest dozwolone. W szczególności, w ramach sterty możemy tworzyć pamięć w czasie wykonywania o znanym rozmiarze i mieć pełną kontrolę nad jej żywotnością.
 
-## Memória dinâmica _(heap)_
+Stos wywołań jest niesamowity ze względu na prosty i przewidywalny sposób zarządzania danymi (poprzez wypychanie i wyskakiwanie ramek stosu). Zaleta ta jest jednocześnie wadą: czas życia danych jest powiązany z ich miejscem na stosie wywołań. Sterta jest dokładnym przeciwieństwem. Nie ma wbudowanego cyklu życia, więc nasze dane mogą żyć tak długo lub tak krótko, jak to konieczne. Ta zaleta jest również jej wadą: nie ma wbudowanego cyklu życia, więc jeśli nie zwolnimy danych, nikt tego nie zrobi.
 
-O heap é a terceira e última área de memória à nossa disposição. Em comparação com os dados globais e a pilha de chamadas, o heap é um pouco como o "oeste selvagem": tudo é permitido. Especificamente, dentro do heap, podemos criar memória em tempo de execução com um tamanho conhecido em tempo de execução e ter controle total sobre o tempo de vida dessa memória.
-
-A pilha de chamadas é incrível devido à maneira simples e previsível como ela gerencia dados (empilhando e desempilhando frames de pilha). Esse benefício também é uma desvantagem: os dados têm uma vida útil vinculada ao seu lugar na pilha de chamadas. O heap é exatamente o oposto. Ele não possui um ciclo de vida embutido, então nossos dados podem viver pelo tempo que for necessário. E esse benefício é sua desvantagem: ele não possui um ciclo de vida embutido, então se não liberarmos a memória, ninguém o fará.
-
-Vamos ver um exemplo:
+Spójrzmy na przykład:
 
 ```zig
 const std = @import("std");
 
 pub fn main() !void {
-    // falaremos sobre alocadores na sequência
+  // wkrótce porozmawiamy o alokatorach
 	var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 	const allocator = gpa.allocator();
 
-	// ** as próximas duas linhas são as importantes **
+  // ** Następne dwie linie są najważniejsze **
 	var arr = try allocator.alloc(usize, try getRandomCount());
 	defer allocator.free(arr);
 
@@ -36,27 +34,25 @@ pub fn main() !void {
 
 fn getRandomCount() !u8 {
 	var seed: u64 = undefined;
-	try std.os.getrandom(std.mem.asBytes(&seed));
+	try std.posix.getrandom(std.mem.asBytes(&seed));
 	var random = std.rand.DefaultPrng.init(seed);
 	return random.random().uintAtMost(u8, 5) + 5;
 }
 ```
 
-Em breve abordaremos os alocadores do Zig; por enquanto, saiba que o `allocator` é um `std.mem.Allocator`. Estamos utilizando dois de seus métodos: `alloc` e `free`. Porque estamos chamando `allocator.alloc` com um `try`, sabemos que pode falhar. Atualmente, o único erro possível é `OutOfMemory`. Seus parâmetros em sua maioria nos dizem como ele funciona: ele quer um tipo (`T`) e um contador e, em caso de sucesso, retorna uma fatia de `[]T`. Essa alocação acontece em tempo de execução - precisa ser assim, nosso contador só é conhecido em tempo de execução.
+Wkrótce zajmiemy się alokatorami Zig, na razie wiedz, że `allocator` to `std.mem.Allocator`. Używamy dwóch jego metod: `alloc` i `free`. Ponieważ wywołujemy `allocator.alloc` z `try`, wiemy, że może się to nie udać. Obecnie jedynym możliwym błędem jest `OutOfMemory`. Jego parametry w większości mówią nam, jak to działa: wymaga typu (T), a także liczby, a po powodzeniu zwraca wycinek []T. Ta alokacja odbywa się w czasie wykonywania - musi, nasza liczba jest znana tylko w czasie wykonywania.
 
-Como regra geral, cada `alloc` terá um `free` correspondente. Enquanto `alloc` aloca memória, `free` a libera. Não deixe este código simples limitar sua imaginação. Este padrão comum de `try alloc` + `defer free` é utilizado com frequência, e por uma boa razão: liberar próximo ao local da alocação é relativamente à prova de falhas. Mas igualmente comum é alocar em um lugar enquanto libera em outro. Como mencionamos anteriormente, o heap não possui gerenciamento de ciclo de vida embutido. Você pode alocar memória em um manipulador de HTTP e liberá-la em uma thread de segundo plano, duas partes completamente separadas do código.
-
-
+Zgodnie z ogólną zasadą, każdy `alloc` będzie miał odpowiadający mu `free`. Tam gdzie `alloc` alokuje pamięć, `free` ją zwalnia. Nie pozwól, aby ten prosty kod ograniczał twoją wyobraźnię. Ten wzorzec `try alloc` + `defer free` jest powszechny i nie bez powodu: zwalnianie w pobliżu miejsca alokacji jest stosunkowo niezawodne. Ale równie powszechne jest przydzielanie w jednym miejscu i zwalnianie w innym. Jak powiedzieliśmy wcześniej, sterta nie ma wbudowanego zarządzania cyklem życia. Możesz przydzielić pamięć w programie obsługi HTTP i zwolnić ją w wątku tła, dwóch całkowicie oddzielnych częściach kodu.
 
 ## defer & errdefer
 
-Em uma pequena digressão, o código acima introduziu um novo recurso da linguagem: `defer`, que executa o código ou bloco fornecido na saída do escopo. "Saída do escopo" inclui alcançar o final do escopo ou retornar do escopo. `defer` não está estritamente relacionado a alocadores ou gerenciamento de memória; você pode usá-lo para executar qualquer código. Mas o uso acima é comum.
+W ramach odskoczni, powyższy kod wprowadził nową funkcję językową: `defer`, która wykonuje dany kod lub blok po wyjściu z zakresu. "Wyjście z zakresu" obejmuje osiągnięcie końca zakresu lub powrót z zakresu. `defer` nie jest ściśle związany z alokatorami lub zarządzaniem pamięcią; można go użyć do wykonania dowolnego kodu. Ale powyższe użycie jest powszechne.
 
-O _defer_ do Zig é semelhante ao do Go, com uma diferença importante. No Zig, o _defer_ será executado no final de seu escopo contêiner. No Go, o _defer_ é executado no final da função contêiner. A abordagem do Zig provavelmente é menos surpreendente, a menos que você seja um desenvolvedor Go.
+`defer` w Zig jest podobny do `defer` w Go, z jedną istotną różnicą. W Zig, `defer` zostanie uruchomiony na końcu zakresu zawierającego. W Go, `defer` jest uruchamiany na końcu funkcji zawierającej. Podejście Zig jest prawdopodobnie mniej zaskakujące, chyba że jesteś programistą Go.
 
-Um parente do `defer` é o `errdefer`, que de forma semelhante executa o código ou bloco fornecido na saída do escopo, mas apenas quando um erro é retornado. Isso é útil ao fazer configurações mais complexas e ter que desfazer uma alocação anterior por causa de um erro.
+Krewnym `defer` jest `errdefer`, który podobnie wykonuje dany kod lub blok na wyjściu z zakresu, ale tylko wtedy, gdy zwrócony zostanie błąd. Jest to przydatne podczas wykonywania bardziej złożonej konfiguracji i konieczności cofnięcia poprzedniej alokacji z powodu błędu.
 
-O exemplo a seguir é um salto em complexidade. Ele apresenta tanto o `errdefer` quanto um padrão comum que envolve alocar em `init` e liberar em `deinit`:
+Poniższy przykład stanowi skok w złożoność. Pokazuje zarówno `errdefer`, jak i powszechny wzorzec, w którym `init` alokuje, a `deinit` zwalnia:
 
 ```zig
 const std = @import("std");
@@ -71,7 +67,7 @@ pub const Game = struct {
 		var players = try allocator.alloc(Player, player_count);
 		errdefer allocator.free(players);
 
-		// armazena as 10 movimentações mais recentes por jogador
+    // przechowaj 10 ostatnich ruchów dla każdego gracza
 		var history = try allocator.alloc(Move, player_count * 10);
 
 		return .{
@@ -89,19 +85,17 @@ pub const Game = struct {
 };
 ```
 
-Espero que isso destaque duas coisas. Primeiro, a utilidade do `errdefer`. Sob condições normais, `players` é alocado em `init` e liberado em `deinit`. Mas há um caso limite quando a inicialização de `history` falha. Neste caso e apenas neste caso, precisamos desfazer a alocação de `players`.
+Mam nadzieję, że podkreśla to dwie rzeczy. Po pierwsze, przydatność `errdefer`. W normalnych warunkach `players` są alokowani w `init` i zwalniani w `deinit`. Istnieje jednak przypadek brzegowy, gdy inicjalizacja `history` nie powiedzie się. W tym i tylko w tym przypadku musimy cofnąć alokację `players`.
 
-O segundo aspecto digno de nota neste código é que o ciclo de vida de nossas duas fatias alocadas dinamicamente, `players` e `history`, é baseado na lógica de nossa aplicação. Não há uma regra que dite quando `deinit` deve ser chamado ou quem deve chamá-lo. Isso é bom, porque nos dá tempos de vida arbitrários, mas é ruim porque podemos estragar as coisas ao nunca chamar `deinit` ou chamá-lo mais de uma vez.
+Drugim godnym uwagi aspektem tego kodu jest to, że cykl życia naszych dwóch dynamicznie alokowanych wycinków, `players` i `history`, opiera się na logice naszej aplikacji. Nie ma reguły, która dyktowałaby, kiedy `deinit` musi zostać wywołany lub kto musi go wywołać. Jest to dobre, ponieważ daje nam arbitralne czasy życia, ale złe, ponieważ możemy to zepsuć, nigdy nie wywołując `deinit` lub wywołując go więcej niż raz.
 
-> Os nomes `init` e `deinit` não são especiais. Eles são apenas o que a biblioteca padrão do Zig usa e o que a comunidade adotou. Em alguns casos, incluindo na biblioteca padrão, são usados `open` e `close`, ou outros nomes mais apropriados.
+> Nazwy init i `deinit` nie są niczym specjalnym. Są po prostu tym, czego używa standardowa biblioteka Zig i tym, co przyjęła społeczność. W niektórych przypadkach, w tym w bibliotece standardowej, używane są nazwy open i close lub inne bardziej odpowiednie nazwy.
 
+## Podwójne zwolnienie i wycieki pamięci
 
+Powyżej wspomniałem, że nie ma żadnych zasad określających, kiedy coś musi zostać zwolnione. Ale to nie do końca prawda, istnieje kilka ważnych zasad, po prostu nie są one egzekwowane, z wyjątkiem własnej skrupulatności.
 
-## Liberação dupla _(double free)_ & Vazamento de memória _(memory leak)_
-
-Logo acima, mencionei que não há regras que determinam quando algo deve ser liberado. Mas isso não é totalmente verdade; há algumas regras importantes, apenas não são impostas, exceto pela sua própria meticulosidade.
-
-A primeira regra é que você não pode liberar a mesma memória duas vezes.
+Pierwszą zasadą jest to, że nie można zwolnić tej samej pamięci dwa razy.
 
 ```zig
 const std = @import("std");
@@ -114,13 +108,13 @@ pub fn main() !void {
 	allocator.free(arr);
 	allocator.free(arr);
 
-	std.debug.print("Isto não será impresso\n", .{});
+	std.debug.print("This won't get printed\n", .{});
 }
 ```
 
-A última linha deste código é profética, ela não será impressa. Isso ocorre porque liberamos a mesma memória duas vezes. Isso é conhecido como double-free e não é válido. Isso pode parecer simples o suficiente para evitar, mas em projetos grandes com ciclos de vida complexos, pode ser difícil rastrear.
+Ostatnia linia tego kodu jest prorocza, _nie zostanie_ wypisana. Dzieje się tak, ponieważ dwukrotnie zwalniamy tę samą pamięć. Jest to znane jako podwójne zwolnienie i nie jest prawidłowe. Może się to wydawać dość proste do uniknięcia, ale w dużych projektach o złożonym czasie życia może być trudne do wyśledzenia.
 
-A segunda regra é que você não pode liberar a memória da qual você não tem uma referência. Isso pode parecer óbvio, mas nem sempre fica claro quem é responsável por liberá-lo. O seguinte cria uma nova string em minúsculas:
+Druga zasada mówi, że nie można zwalniać pamięci, do której nie mamy referencji. Może się to wydawać oczywiste, ale nie zawsze jest jasne, kto jest odpowiedzialny za jej zwolnienie. Poniższa instrukcja tworzy nowy ciąg znaków pisany małymi literami:
 
 ```zig
 const std = @import("std");
@@ -140,44 +134,42 @@ fn allocLower(allocator: Allocator, str: []const u8) ![]const u8 {
 }
 ```
 
-O código acima é permitido. Mas o seguinte não é:
+Powyższy kod jest w porządku. Ale następujące użycie nie jest:
 
 ```zig
-// Neste caso, especificamente, nós deveríamos ter usado "std.ascii.eqlIgnoreCase"
+// Dla tego konkretnego kodu, powinniśmy byli użyć std.ascii.eqlIgnoreCase
 fn isSpecial(allocator: Allocator, name: [] const u8) !bool {
 	const lower = try allocLower(allocator, name);
 	return std.mem.eql(u8, lower, "admin");
 }
 ```
 
-Isso é um vazamento de memória. A memória criada em `allocLower` nunca é liberada. Além disso, uma vez que `isSpecial` retorna, ela nunca pode ser liberada. Em linguagens com coletores de lixo, quando os dados se tornam inacessíveis, eventualmente serão liberados pelo coletor de lixo. Mas no código acima, uma vez que `isSpecial` retorna, perdemos nossa única referência à memória alocada, a variável `lower`. A memória está perdida até que nosso processo seja encerrado. Nossa função pode vazar apenas alguns bytes, mas se for um processo de longa execução e essa função for chamada repetidamente, isso se acumulará e eventualmente ficaremos sem memória.
+To jest wyciek pamięci. Pamięć utworzona w funkcji `allocLower` nigdy nie jest zwalniana. Nie tylko to, ale po zwróceniu `isSpecial` nigdy nie może zostać zwolniona. W językach z garbage collectorami, gdy dane stają się nieosiągalne, zostaną ostatecznie zwolnione przez garbage collector. Ale w powyższym kodzie, gdy zwraca `isSpecial`, tracimy nasze jedyne referencję do przydzielonej pamięci, zmiennej `lower`. Pamięć zniknie, dopóki nasz proces nie zakończy działania. Z naszej funkcji może wycieknąć tylko kilka bajtów, ale jeśli jest to długo działający proces i funkcja ta jest wywoływana wielokrotnie, będzie się to sumować i ostatecznie zabraknie nam pamięci.
 
-Pelo menos no caso de dupla liberação, teremos uma falha grave. Vazamentos de memória podem ser insidiosos. Não é apenas que a causa raiz pode ser difícil de identificar. Vazamentos muito pequenos ou vazamentos em código executado raramente podem ser ainda mais difíceis de detectar. Esse é um problema tão comum que o Zig fornece ajuda, como veremos ao falar sobre alocadores.
+Przynajmniej w przypadku podwójnego zwolnienia, otrzymamy twardy crash. Wycieki pamięci mogą być podstępne. Nie chodzi tylko o to, że główna przyczyna może być trudna do zidentyfikowania. Naprawdę małe wycieki lub wycieki w rzadko wykonywanym kodzie mogą być jeszcze trudniejsze do wykrycia. Jest to tak powszechny problem, że Zig zapewnia pomoc, którą zobaczymy podczas omawiania alokatorów.
 
+## tworzenie i niszczenie
 
-
-## Criar _(create)_ & destruir _(destroy)_
-
-O método `alloc` do `std.mem.Allocator` retorna uma fatia com o comprimento que foi passado como o segundo parâmetro. Se você deseja um único valor, usará `create` e `destroy` em vez de `alloc` e `free`. Algumas partes atrás, ao aprender sobre ponteiros, criamos um `User` e tentamos incrementar seu `power`. Aqui está a versão funcional baseada no heap desse código usando `create`:
+Metoda `alloc` z `std.mem.Allocator` zwraca wycinek o długości przekazanej jako drugi parametr. Jeśli chcesz uzyskać pojedynczą wartość, użyj `create` i `destroy` zamiast `alloc` i `free`. Kilka części temu, gdy uczyliśmy się o wskaźnikach, stworzyliśmy `User` i próbowaliśmy zwiększyć jego moc. Oto działająca wersja tego kodu oparta na stercie, wykorzystująca `create`:
 
 ```zig
 const std = @import("std");
 
 pub fn main() !void {
-	// novamente, iremos falar sobre alocadores em breve!
+  // ponownie, wkrótce porozmawiamy o alokatorach!
 	var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 	const allocator = gpa.allocator();
 
-	// criar um usuário (User) na memória dinâmica (heap)
+  // utworzenie User na stercie
 	var user = try allocator.create(User);
 
-	// liberar a memória alocada para o usuário ao final deste escopo
+  // zwolnienie pamięci przydzielonej dla user na końcu tego zakresu
 	defer allocator.destroy(user);
 
 	user.id = 1;
 	user.power = 100;
 
-	// linha adicionada
+  // ta linia została dodana
 	levelUp(user);
 	std.debug.print("User {d} has power of {d}\n", .{user.id, user.power});
 }
@@ -192,9 +184,9 @@ pub const User = struct {
 };
 ```
 
-O método `create` recebe um único parâmetro, o tipo (`T`). Ele retorna um ponteiro para esse tipo ou um erro, ou seja, `!*T`. Talvez você esteja se perguntando o que aconteceria se criássemos nosso usuário (`user`), mas não definíssemos o `id` e/ou `power`. Isso é como definir esses campos como indefinidos e o comportamento é, bom, indefinido.
+Metoda `create` przyjmuje pojedynczy parametr, typ (`T`). Zwraca wskaźnik do tego typu lub błąd, czyli `!*T`. Być może zastanawiasz się, co by się stało, gdybyśmy utworzyli naszego `user`, ale nie ustawili `id` i/lub `powe`. To tak, jakbyśmy ustawili te pola na `undefined`, a zachowanie jest, cóż, niezdefiniowane.
 
-Quando exploramos ponteiros pendurados, tivemos uma função que retornava incorretamente o endereço do usuário local:
+Kiedy badaliśmy zwisające wskaźniki, mieliśmy funkcję, która niepoprawnie zwracała adres lokalnego użytkownika:
 
 ```zig
 pub const User = struct {
@@ -203,18 +195,19 @@ pub const User = struct {
 			.id = id,
 			.power = power,
 		};
-		// isto é um ponteiro pendurado/solto (dangling pointer)
+    // to jest zwisający wskaźnik
 		return &user;
 	}
 };
 ```
 
-Neste caso, teria feito mais sentido retornar um `User`. Mas, às vezes, você desejará que uma função retorne um ponteiro para algo que ela cria. Você fará isso quando quiser que um tempo de vida seja livre da rigidez da pilha de chamadas. Para resolver nosso ponteiro pendurado acima, poderíamos ter usado o `create`:
+W tym przypadku bardziej sensowne byłoby zwrócenie `User`. Ale czasami _będziesz_ chciał, aby funkcja zwróciła wskaźnik do czegoś, co utworzyła. Zrobisz to, gdy chcesz, aby czas życia był wolny od sztywności stosu wywołań. Aby rozwiązać problem zwisającego wskaźnika powyżej, mogliśmy użyć `create`:
 
 ```zig
-// nosso tipo de retorno mudou, agora que "init" pode falhar nós mudamos: *User -> !*User
+// nasz typ zwracany uległ zmianie, ponieważ init może teraz zawieść
+// *User -> !*User
 fn init(allocator: std.mem.Allocator, id: u64, power: i32) !*User{
-	var user = try allocator.create(User);
+	const user = try allocator.create(User);
 	user.* = .{
 		.id = id,
 		.power = power,
@@ -223,81 +216,75 @@ fn init(allocator: std.mem.Allocator, id: u64, power: i32) !*User{
 }
 ```
 
-Eu introduzi uma nova sintaxe, `user.* = .{...}`. É um pouco estranho, e eu não adoro, mas você verá isso. O lado direito é algo que você já viu: é um inicializador de estrutura com um tipo inferido. Poderíamos ter sido explícitos e usado: `user.* = User{...}`. O lado esquerdo, `user.*`, é como desreferenciamos um ponteiro. `&` pega um `T` e nos dá `*T`. `.*` é o oposto, aplicado a um valor do tipo `*T`, nos dá `T`. Lembre-se de que `create` retorna um `!*User`, então nosso usuário é do tipo `*User`.
+Wprowadziłem nową składnię, `user.* = .{...}`. To trochę dziwne i nie podoba mi się to, ale zobaczysz to. Prawa strona jest czymś, co już widzieliście: jest to inicjalizator struktury z wywnioskowanym typem. Mogliśmy być jawni i użyć: `user.* = User{...}`. Lewa strona, `user.*`, jest sposobem na dereferencję wskaźnika. `&` pobiera `T` i daje nam `*T`. `.*` jest przeciwieństwem, zastosowane do wartości typu `*T` daje nam `T`. Pamiętaj, że `create` zwraca `!*User`, więc nasz użytkownik jest typu `*User`.
 
+## Alokatory
 
+Jedną z podstawowych zasad Ziga jest _brak ukrytych alokacji pamięci_. W zależności od twojego doświadczenia, może to nie brzmieć zbyt szczególnie. Jest to jednak ostry kontrast z tym, co można znaleźć w języku C, gdzie pamięć jest przydzielana za pomocą funkcji `malloc` biblioteki standardowej. W języku C, jeśli chcesz wiedzieć, czy funkcja alokuje pamięć, czy nie, musisz przeczytać źródło i poszukać wywołań funkcji `malloc`.
 
-## Alocadores
+Zig nie posiada domyślnego alokatora. We wszystkich powyższych przykładach funkcje alokujące pamięć przyjmowały parametr `std.mem.Allocator`. Zgodnie z konwencją, jest to zwykle pierwszy parametr. Cała standardowa biblioteka Ziga i większość bibliotek innych firm wymaga, aby wywołujący podał alokator, jeśli zamierza zaalokować pamięć.
 
-Um dos princípios fundamentais do Zig é a ausência de alocações de memória ocultas _("No hidden memory allocations")_. Dependendo da sua experiência, isso pode não parecer tão especial. Mas é um contraste acentuado com o que você encontrará em C, onde a memória é alocada com a função `malloc` da biblioteca padrão. Em C, se você quiser saber se uma função aloca memória ou não, precisa ler o código-fonte e procurar chamadas para `malloc`.
-
-Zig não possui um alocador padrão. Em todos os exemplos acima, as funções que alocavam memória recebiam um parâmetro `std.mem.Allocator`. Por convenção, este é geralmente o primeiro parâmetro. Toda a biblioteca padrão do Zig, e a maioria das bibliotecas de terceiros, exigem que o chamador forneça um alocador se pretender alocar memória.
-
-Essa explicitação pode se apresentar de duas formas. Em casos simples, o alocador é fornecido em cada chamada de função. Existem muitos exemplos disso, mas `std.fmt.allocPrint` é um que você provavelmente precisará mais cedo ou mais tarde. É semelhante ao `std.debug.print` que usamos, mas aloca e retorna uma string em vez de escrevê-la em stderr:
+Ta jawność może przybrać jedną z dwóch form. W prostych przypadkach, alokator jest dostarczany przy każdym wywołaniu funkcji. Istnieje wiele takich przykładów, ale `std.fmt.allocPrint` jest jednym z nich, który prawdopodobnie będzie potrzebny prędzej czy później. Jest on podobny do `std.debug.print`, którego używaliśmy, ale alokuje i zwraca ciąg znaków zamiast zapisywać go do `stderr`:
 
 ```zig
 const say = std.fmt.allocPrint(allocator, "It's over {d}!!!", .{user.power});
 defer allocator.free(say);
 ```
 
-A outra forma é quando um alocador é passado para `init` e, em seguida, é usado internamente pelo objeto. Vimos isso acima com nossa estrutura `Game`. Isso é menos explícito, já que você forneceu ao objeto um alocador para usar, mas você não sabe quais chamadas de método realmente vão alocar. Essa abordagem é mais prática para objetos de longa duração.
+Inną formą jest sytuacja, w której alokator jest przekazywany do `init`, a następnie używany wewnętrznie przez obiekt. Widzieliśmy to powyżej z naszą strukturą `Game`. Jest to mniej jednoznaczne, ponieważ przekazałeś obiektowi alokator do użycia, ale nie wiesz, które wywołania metod faktycznie dokonają alokacji. Podejście to jest bardziej praktyczne w przypadku długotrwałych obiektów.
 
-A vantagem de injetar o alocador não é apenas a explicitação, mas também a flexibilidade. `std.mem.Allocator` é uma interface que fornece as funções `alloc`, `free`, `create` e `destroy`, junto com algumas outras. Até agora, só vimos o `std.heap.GeneralPurposeAllocator`, mas outras implementações estão disponíveis na biblioteca padrão ou como bibliotecas de terceiros.
+Zaletą wstrzykiwania alokatora jest nie tylko jawność, ale także elastyczność. `std.mem.Allocator` to interfejs, który udostępnia funkcje `alloc`, free, `create` i `destroy`, a także kilka innych. Do tej pory widzieliśmy tylko `std.heap.GeneralPurposeAllocator`, ale inne implementacje są dostępne w bibliotece standardowej lub jako biblioteki stron trzecich.
 
-> Zig não tem uma sintaxe elegante para criar interfaces. Um padrão para comportamento de vida de interface são uniões marcadas, embora isso seja relativamente restrito em comparação com interfaces verdadeiras. Outros padrões surgiram e são usados em toda a biblioteca padrão, como no caso de `std.mem.Allocator`. Se você estiver interessado, eu publiquei uma [postagem à parte no blog explicando interfaces](https://www.openmymind.net/Zig-Interfaces/).
+> Zig nie ma ładnego cukru składniowego do tworzenia interfejsów. Jednym ze wzorców zachowania podobnego do interfejsu są unie tagowane, choć jest to stosunkowo ograniczone w porównaniu do prawdziwych interfejsów. Inne wzorce pojawiły się i są używane w całej bibliotece standardowej, na przykład w `std.mem.Allocator`. Jeśli jesteś zainteresowany, napisałem [osobny wpis na blogu wyjaśniający interfejsy](https://www.openmymind.net/Zig-Interfaces/).
 
-Se você estiver construindo uma biblioteca, é melhor aceitar um `std.mem.Allocator` e permitir que os usuários da sua biblioteca decidam qual implementação de alocador usar. Caso contrário, você precisará escolher o alocador correto e, como veremos, essas escolhas não são mutuamente exclusivas. Pode haver boas razões para criar diferentes alocadores dentro do seu programa.
+Jeśli tworzysz bibliotekę, najlepiej jest zaakceptować `std.mem.Allocator` i pozwolić użytkownikom biblioteki zdecydować, której implementacji alokatora użyć. W przeciwnym razie będziesz musiał wybrać odpowiedni alokator, a jak zobaczymy, nie wykluczają się one wzajemnie. Mogą istnieć dobre powody do tworzenia różnych alokatorów w programie.
 
+## Alokator ogólnego przeznaczenia (GeneralPurposeAllocator)
 
-
-## Alocador de uso geral
-
-Como o nome indica, o `std.heap.GeneralPurposeAllocator` é um alocador versátil "de uso geral", seguro para threads, que pode servir como o alocador principal de sua aplicação. Para muitos programas, este será o único alocador necessário. No início do programa, um alocador é criado e passado para as funções que o precisam. O código de exemplo do meu servidor HTTP é um bom exemplo:
+Jak sama nazwa wskazuje, `std.heap.GeneralPurposeAllocator` jest `alokatorem` "ogólnego przeznaczenia", bezpiecznym dla wątków, który może służyć jako główny alokator aplikacji. Dla wielu programów będzie to jedyny potrzebny alokator. Podczas uruchamiania programu, alokator jest tworzony i przekazywany do funkcji, które go potrzebują. Przykładowy kod z mojej biblioteki serwera HTTP jest dobrym przykładem:
 
 ```zig
 const std = @import("std");
 const httpz = @import("httpz");
 
 pub fn main() !void {
-    // criar nosso alocador para uso geral
+  // utworzenie naszego alokatora ogólnego przeznaczenia
 	var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 
-	// retornar um "std.mem.Allocator" do alocador criado
+  // pobieramy z niego std.mem.Allocator
 	const allocator = gpa.allocator();
 
-	// passar nosso alocador para funções e bibliotecas que necessitem dele
+  // przekazujemy nasz alokator do funkcji i bibliotek, które go wymagają
 	var server = try httpz.Server().init(allocator, .{.port = 5882});
 
 	var router = server.router();
 	router.get("/api/user/:id", getUser);
 
-	// bloquear o fluxo de execução (thread) atual
+  // blokuje bieżący wątek
 	try server.listen();
 }
 ```
 
-Criamos o `GeneralPurposeAllocator`, obtemos um `std.mem.Allocator` dele e o passamos para a função `init` do servidor HTTP. Em um projeto mais complexo, o alocador seria passado para várias partes do código, cada uma delas possivelmente o passando para suas próprias funções, objetos e dependências.
+Tworzymy alokator `GeneralPurposeAllocator`, pobieramy z niego `std.mem.Allocator` i przekazujemy go do funkcji `init` serwera HTTP. W bardziej złożonym projekcie `alocator` byłby przekazywany do wielu części kodu, z których każda mogłaby przekazywać go do własnych funkcji, obiektów i zależności.
 
-Você pode notar que a sintaxe em torno da criação de `gpa` é um pouco estranha. O que é isso: `GeneralPurposeAllocator(.{}){}`? São todas coisas que já vimos antes, apenas juntas. `std.heap.GeneralPurposeAllocator` é uma função e, como está usando PascalCase, sabemos que ela retorna um tipo. (Vamos falar mais sobre genéricos na próxima parte). Sabendo que ela retorna um tipo, talvez esta versão mais explícita seja mais fácil de entender:
+Można zauważyć, że składnia wokół tworzenia `gpa` jest nieco dziwna. Co to jest: `GeneralPurposeAllocator(.{}){}`? To wszystko rzeczy, które widzieliśmy już wcześniej, tylko rozbite razem. `std.heap.GeneralPurposeAllocator` jest funkcją, a ponieważ używa `PascalCase`, wiemy, że zwraca typ. (Porozmawiamy więcej o generykach w następnej części). Wiedząc, że zwraca typ, być może ta bardziej jawna wersja będzie łatwiejsza do rozszyfrowania:
 
 ```zig
 const T = std.heap.GeneralPurposeAllocator(.{});
 var gpa = T{};
 
-// é o mesmo que:
+// to to samo co:
 
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 ```
 
-Talvez você ainda tenha dúvidas sobre o significado de `.{} `. Isso também é algo que já vimos antes: é um inicializador de estrutura com um tipo implícito. Qual é o tipo e onde estão os campos? O tipo é `std.heap.general_purpose_allocator.Config`, embora ele não seja diretamente exposto assim, que é uma razão pela qual não somos explícitos. Nenhum campo é definido porque a estrutura `Config` define padrões, que estaremos usando. Este é um padrão comum com configurações/opções. Na verdade, vemos isso novamente algumas linhas abaixo quando passamos `. {.port = 5882}` para o `init`. Neste caso, estamos usando o valor padrão para todos os campos, exceto um, a porta.
-
-
+Być może nadal nie jesteś pewien znaczenia `.{}`. Jest to również coś, co widzieliśmy wcześniej: jest to inicjalizator struktury z niejawnym typem. Jaki jest typ i gdzie znajdują się pola? Typem jest` std.heap.general_purpose_allocator.Config`, chociaż nie jest on bezpośrednio eksponowany w ten sposób, co jest jednym z powodów, dla których nie jesteśmy jednoznaczni. Żadne pola nie są ustawione, ponieważ struktura `Config` definiuje wartości domyślne, których będziemy używać. Jest to powszechny wzorzec konfiguracji / opcji. W rzeczywistości widzimy to ponownie kilka linijek niżej, kiedy przekazujemy `.{.port = 5882}` do `init`. W tym przypadku używamy wartości domyślnej dla wszystkich pól z wyjątkiem jednego - portu.
 
 ## std.testing.allocator
 
-Espero que você tenha ficado suficientemente preocupado quando falamos sobre vazamentos de memória e, em seguida, ansioso para aprender mais quando mencionei que o Zig poderia ajudar. Essa ajuda vem do `std.testing.allocator`, que é um `std.mem.Allocator`. Atualmente, ele é implementado usando o `GeneralPurposeAllocator` com integração adicional no test runner do Zig, mas isso é um detalhe de implementação. O importante é que se usarmos `std.testing.allocator` em nossos testes, podemos detectar a maioria dos vazamentos de memória.
+Mam nadzieję, że byłeś wystarczająco zaniepokojony, gdy rozmawialiśmy o wyciekach pamięci, a następnie chętny, aby dowiedzieć się więcej, gdy wspomniałem, że Zig może pomóc. Pomoc ta pochodzi z `std.testing.allocator`, który jest `std.mem.Allocator`. Obecnie jest on zaimplementowany przy użyciu `GeneralPurposeAllocator` z dodatkową integracją z runnerem testowym Ziga, ale to szczegół implementacji. Ważną rzeczą jest to, że jeśli użyjemy `std.testing.allocator` w naszych testach, możemy wychwycić większość wycieków pamięci.
 
-Você provavelmente já está familiarizado com arrays dinâmicos, frequentemente chamados de ArrayLists. Em muitas linguagens de programação dinâmicas, todos os arrays são arrays dinâmicos. Os arrays dinâmicos suportam um número variável de elementos. Zig tem um ArrayList genérico adequado, mas criaremos um especificamente para armazenar inteiros e demonstrar a detecção de vazamentos:
+Prawdopodobnie znasz już tablice dynamiczne, często nazywane ArrayListami. W wielu językach programowania dynamicznego wszystkie tablice są tablicami dynamicznymi. Tablice dynamiczne obsługują zmienną liczbę elementów. Zig ma odpowiednią ogólną ArrayListę, ale stworzymy ją specjalnie do przechowywania liczb całkowitych i zademonstrowania wykrywania wycieków:
 
 ```zig
 pub const IntList = struct {
@@ -322,12 +309,12 @@ pub const IntList = struct {
 		const len = self.items.len;
 
 		if (pos == len) {
-		    // ficamos sem espaço
-		    // cria-se um novo "slice" duas vezes maior
+      // zabrakło nam miejsca
+      // utwórz nowy wycinek, który jest dwa razy większy
 			var larger = try self.allocator.alloc(i64, len * 2);
 
-            // copiamos os items que adicionamos previamente para o nosso novo espaço
-            @memcpy(larger[0..len], self.items);
+      // skopiuj elementy, które wcześniej dodaliśmy do naszej nowej przestrzeni
+			@memcpy(larger[0..len], self.items);
 
 			self.items = larger;
 		}
@@ -338,7 +325,7 @@ pub const IntList = struct {
 };
 ```
 
-A parte interessante ocorre em `add` quando `pos == len`, indicando que preenchemos nosso array atual e precisamos criar um maior. Podemos usar `IntList` da seguinte forma:
+Interesująca część dzieje się w `add`, gdy `pos == len`, wskazując, że zapełniliśmy naszą obecną tablicę i musimy utworzyć większą. Możemy użyć `IntList` w następujący sposób:
 
 ```zig
 const std = @import("std");
@@ -359,12 +346,12 @@ pub fn main() !void {
 }
 ```
 
-O código é executado e imprime o resultado correto. No entanto, mesmo que tenhamos chamado `deinit` em `list`, há um vazamento de memória. Não se preocupe se você não percebeu, porque vamos escrever um teste e usar `std.testing.allocator`:
+Kod działa i drukuje prawidłowy wynik. Jednakże, mimo że _wywołaliśmy_ `deinit` na liście, wystąpił wyciek pamięci. Nic się nie stało, że tego nie zauważyłeś, ponieważ zamierzamy napisać test i użyć `std.testing.allocator`:
 
 ```zig
 const testing = std.testing;
 test "IntList: add" {
-    // aqui estamos usando "testing.allocator"!
+	// Używamy tutaj testing.allocator!
 	var list = try IntList.init(testing.allocator);
 	defer list.deinit();
 
@@ -381,9 +368,9 @@ test "IntList: add" {
 }
 ```
 
-> O `@as` é uma função nativa do Zig que realiza coerção de tipo. Se você está se perguntando por que nosso teste teve que usar tantos deles, você não está sozinho. Tecnicamente, é porque o segundo parâmetro, o "atual", é convertido para o primeiro, o "esperado". No código acima, nossos "esperados" são todos do tipo `comptime_int`, o que causa problemas. Muitos, eu incluso, consideram esse [comportamento estranho e infeliz](https://github.com/ziglang/zig/issues/4437).
+> `@as` to wbudowana funkcja, która wykonuje wymuszanie typów. Jeśli zastanawiasz się, dlaczego nasz test musiał użyć tak wielu z nich, nie jesteś jedyny. Technicznie rzecz biorąc, dzieje się tak dlatego, że drugi parametr, "rzeczywisty", jest wymuszany na pierwszym, "oczekiwanym". W powyższym przykładzie wszystkie "oczekiwane" to `comptime_int`, co powoduje problemy. Wiele osób, w tym ja, uważa to za [dziwne i niefortunne zachowanie](https://github.com/ziglang/zig/issues/4437).
 
-Se você está acompanhando, coloque o teste no mesmo arquivo que `IntList` e `main`. Os testes em Zig geralmente são escritos no mesmo arquivo, frequentemente próximo ao código que estão testando. Quando usamos `zig test learning.zig` para executar nosso teste, obtemos uma falha incrível:
+Jeśli jesteś na bieżąco, umieść test w tym samym pliku co `IntList` i `main`. Testy Ziga są zwykle pisane w tym samym pliku, często w pobliżu kodu, który testują. Kiedy używamy `zig test learning.zig` do uruchomienia naszego testu, otrzymujemy niesamowitą porażkę:
 
 ```
 Test [1/1] test.IntList: add... [gpa] (err): memory address 0x101154000 leaked:
@@ -403,29 +390,27 @@ Test [1/1] test.IntList: add... [gpa] (err): memory address 0x101154000 leaked:
   try list.add(@intCast(i+10));
 ```
 
-Temos múltiplos vazamentos de memória. Felizmente, o alocador de teste nos diz exatamente onde a memória com vazamento foi alocada. Você consegue identificar o vazamento agora? Se não, lembre-se de que, em geral, cada `alloc` deve ter um `free` correspondente. Nosso código chama `free` uma vez, em `deinit`. No entanto, `alloc` é chamado uma vez em `init` e, em seguida, toda vez que `add` é chamado e precisamos de mais espaço. Toda vez que alocamos mais espaço, precisamos liberar o `self.items` anterior:
+Mamy wiele wycieków pamięci. Na szczęście alokator testowy mówi nam dokładnie, gdzie przydzielono wyciekającą pamięć. Czy jesteś teraz w stanie zauważyć wyciek? Jeśli nie, pamiętaj, że generalnie każda `aloc` powinna mieć odpowiadające jej zwolnienie. Nasz kod wywołuje `free` raz, w `deinit`. Jednak `alloc` jest wywoływane raz w `init`, a następnie za każdym razem, gdy wywoływane jest `add` i potrzebujemy więcej miejsca. Za każdym razem, gdy `alloc`ujemy więcej miejsca, musimy `free` poprzednie `self.items`:
 
 ```zig
-// código existente
+// istniejący kod
 var larger = try self.allocator.alloc(i64, len * 2);
 @memcpy(larger[0..len], self.items);
 
-// código adicionado
-// liberação das alocações feitas
+// Dodany kod
+// zwolnienie poprzedniej alokacji
 self.allocator.free(self.items);
 ```
 
-Adicionando esta última linha, após copiar os elementos para nosso `slice` maior, resolve o problema. Se você executar `zig test learning.zig`, não deverá haver erros.
-
-
+Dodanie tej ostatniej linii, po skopiowaniu elementów do naszego wycinka `larger`, rozwiązuje problem. Jeśli uruchomisz `zig test learning.zig`, nie powinien pojawić się żaden błąd.
 
 ## ArenaAllocator
 
-O `GeneralPurposeAllocator` é uma escolha padrão razoável porque funciona bem em todos os casos possíveis. No entanto, dentro de um programa, você pode se deparar com padrões de alocação que podem se beneficiar de alocadores mais especializados. Um exemplo é a necessidade de um estado de curta duração que pode ser descartado quando o processamento for concluído. "Parseadores" frequentemente têm tal requisito. Uma função de análise básica pode se parecer com:
+Alokator GeneralPurposeAllocator jest rozsądnym domyślnym rozwiązaniem, ponieważ działa dobrze we wszystkich możliwych przypadkach. Jednak w ramach programu można napotkać wzorce alokacji, które mogą skorzystać z bardziej wyspecjalizowanych alokatorów. Jednym z przykładów jest potrzeba krótkotrwałego stanu, który można wyrzucić po zakończeniu przetwarzania. Parsery często mają takie wymagania. Szkieletowa funkcja `parse` może wyglądać następująco:
 
 ```zig
 fn parse(allocator: Allocator, input: []const u8) !Something {
-	var state = State{
+	const state = State{
 		.buf = try allocator.alloc(u8, 512),
 		.nesting = try allocator.alloc(NestType, 10),
 	};
@@ -436,39 +421,41 @@ fn parse(allocator: Allocator, input: []const u8) !Something {
 }
 ```
 
-Embora isso não seja muito difícil de gerenciar, `parseInternal` pode precisar de outras alocações de curta duração que precisarão ser liberadas. Como alternativa, poderíamos criar um ArenaAllocator que nos permite liberar todas as alocações de uma só vez:
+Chociaż nie jest to zbyt trudne w zarządzaniu, `parseInternal` może potrzebować innych krótkotrwałych alokacji, które będą musiały zostać zwolnione. Alternatywnie możemy utworzyć ArenaAllocator, który pozwoli nam zwolnić wszystkie alokacje za jednym razem:
 
 ```zig
 fn parse(allocator: Allocator, input: []const u8) !Something {
-	// criar um "ArenaAllocator" do alocador providenciado
+  // utworzenie ArenaAllocator z dostarczonego alokatora
 	var arena = std.heap.ArenaAllocator.init(allocator);
 
-	// isto irá liberar qualquer coisa criada desta arena de memória
+  // spowoduje to zwolnienie wszystkiego, co zostało utworzone z tej areny
 	defer arena.deinit();
 
-    // criar um "std.mem.Allocator" da arena, este será o alocador que iremos utilizados internamente
+  // utworzenie std.mem.Allocator z areny, będzie to
+  // alokator, którego użyjemy wewnętrznie
 	const aa = arena.allocator();
 
-	var state = State{
-		// aqui usamos "aa"!
+	const state = State{
+    // używamy tutaj aa!
 		.buf = try aa.alloc(u8, 512),
 
-		// aqui usamos "aa"!
+    // używamy tutaj aa!
 		.nesting = try aa.alloc(NestType, 10),
 	};
 
-	// estamos passando "aa" aqui, então garantimos que quaisquer outras alocações ocorrerão dentro da arena de memória criada
+  // przekazujemy tutaj aa, więc mamy gwarancję, że
+  // każda inna alokacja będzie w naszej arenie
 	return parseInternal(aa, state, input);
 }
 ```
 
-O `ArenaAllocator` recebe um alocador filho, neste caso o alocador que foi passado para `init`, e cria um novo `std.mem.Allocator`. Quando este novo alocador é usado para alocar ou criar memória, não precisamos chamar `free` ou `destroy`. Tudo será liberado quando chamarmos `deinit` na `arena`. Na verdade, o `free` e `destroy` de um `ArenaAllocator` não fazem nada.
+`ArenaAllocator` pobiera alokator potomny, w tym przypadku alokator, który został przekazany do `init`, i tworzy nowy `std.mem.Allocator`. Kiedy ten nowy alokator jest używany do alokacji lub tworzenia pamięci, nie musimy wywoływać `free` ani `destroy`. Wszystko zostanie zwolnione, gdy wywołamy `deinit` na `arena`. W rzeczywistości, `free` i `destroy` alokatora ArenaAllocator nie robią nic.
 
-O `ArenaAllocator` deve ser usado com cuidado. Como não há maneira de liberar alocações individuais, é necessário ter certeza de que o `deinit` da arena será chamado dentro de um crescimento de memória razoável. Curiosamente, esse conhecimento pode ser interno ou externo. Por exemplo, em nosso esqueleto acima, fazer uso de um ArenaAllocator faz sentido dentro do Parser, já que os detalhes do tempo de vida do estado são uma questão interna.
+`ArenaAllocator` musi być używany ostrożnie. Ponieważ nie ma sposobu na zwolnienie poszczególnych alokacji, musisz mieć pewność, że `deinit` areny zostanie wywołany w rozsądnym przyroście pamięci. Co ciekawe, wiedza ta może być wewnętrzna lub zewnętrzna. Na przykład w naszym powyższym szkielecie wykorzystanie ArenaAllocator ma sens z poziomu Parsera, ponieważ szczegóły dotyczące czasu życia stanu są kwestią wewnętrzną.
 
-> Alocadores como o `ArenaAllocator`, que têm um mecanismo para liberar todas as alocações anteriores, podem quebrar a regra de que cada alocação (`alloc`) deve ter uma liberação (`free`) correspondente. No entanto, se você receber um `std.mem.Allocator`, não deve fazer suposições sobre a implementação por de baixo.
+> Alokatory takie jak ArenaAllocator, które mają mechanizm zwalniania wszystkich poprzednich alokacji, mogą łamać zasadę, że każda `aloc` powinna mieć odpowiadające jej zwolnienie. Jeśli jednak otrzymasz `std.mem.Allocator`, nie powinieneś przyjmować żadnych założeń dotyczących jego implementacji.
 
-O mesmo não pode ser dito para a nossa `IntList`. Ela pode ser usada para armazenar 10 ou 10 milhões de valores. Pode ter uma vida útil medida em milissegundos ou semanas. Ela não está em posição de decidir o tipo de alocador a ser usado. É o código que faz uso de `IntList` que tem esse conhecimento. Originalmente, gerenciamos nossa `IntList` assim:
+Tego samego nie można powiedzieć o naszej liście `IntList`. Może ona służyć do przechowywania 10 lub 10 milionów wartości. Może mieć żywotność mierzoną w milisekundach lub tygodniach. Nie jest w stanie zdecydować, jakiego typu alokatora użyć. To kod korzystający z `IntList` posiada tę wiedzę. Pierwotnie zarządzaliśmy naszą listą `IntList` w następujący sposób:
 
 ```zig
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
@@ -478,34 +465,32 @@ var list = try IntList.init(allocator);
 defer list.deinit();
 ```
 
-Poderíamos ter optado por fornecer um `ArenaAllocator`:
+Zamiast tego mogliśmy zdecydować się na dostarczenie ArenaAllocator:
 
 ```zig
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 const allocator = gpa.allocator();
 
 var arena = std.heap.ArenaAllocator.init(allocator);
-defer arena.deinit();
+odroczyć arena.deinit();
 const aa = arena.allocator();
 
 var list = try IntList.init(aa);
 
-// Honestamente, estou em dúvida se devemos ou não chamar "list.deinit"
-// Tecnicamente, não precisamos visto que utilizamos "defer" na chamada acima para "arena.deinit()" arena.deinit() above.
+// Szczerze mówiąc, jestem rozdarty co do tego, czy powinniśmy wywoływać list.deinit.
+// Technicznie rzecz biorąc, nie musimy tego robić, ponieważ powyżej wywołaliśmy defer arena.deinit().
 defer list.deinit();
 
 ...
 ```
 
-Não precisamos alterar a `IntList`, pois ela lida apenas com um `std.mem.Allocator`. E se a `IntList` internamente criasse sua própria arena, isso também funcionaria. Não há motivo para você não criar uma arena dentro de uma arena.
+Nie musimy zmieniać `IntList`, ponieważ zajmuje się ona tylko `std.mem.Allocator`. A gdyby `IntList` wewnętrznie tworzyła własną arenę, to też by działało. Nie ma powodu, dla którego nie można utworzyć areny wewnątrz areny.
 
-Como último exemplo rápido, o servidor HTTP que mencionei acima expõe um alocador de arena na `Response`. Assim que a resposta é enviada, a arena é limpa. A vida útil previsível da arena (do início ao fim da solicitação) a torna uma opção eficiente. Eficiente em termos de desempenho e facilidade de uso.
-
-
+Jako ostatni szybki przykład, serwer HTTP, o którym wspomniałem powyżej, udostępnia alokator areny w `Response`. Po wysłaniu odpowiedzi arena jest czyszczona. Przewidywalny czas życia areny (od początku do końca żądania) sprawia, że jest to efektywna opcja. Efektywną pod względem wydajności i łatwości użytkowania.
 
 ## FixedBufferAllocator
 
-O último alocador que vamos examinar é o `std.heap.FixedBufferAllocator`, que aloca memória a partir de um buffer (ou seja, `[]u8`) que fornecemos. Este alocador tem dois benefícios principais. Primeiro, uma vez que toda a memória que poderia ser usada é criada antecipadamente, ele é rápido. Segundo, ele limita naturalmente quanto de memória pode ser alocado. Esse limite rígido também pode ser visto como uma desvantagem. Outra desvantagem é que `free` e `destroy` só funcionarão no último item alocado/criado (pense em uma pilha). Chamar `free` em uma alocação que não é a última é seguro, mas não fará nada.
+Ostatnim alokatorem, któremu się przyjrzymy, jest `std.heap.FixedBufferAllocator`, który alokuje pamięć z dostarczonego przez nas bufora (tj. `[]u8`). Alokator ten ma dwie główne zalety. Po pierwsze, ponieważ cała pamięć, której mógłby użyć, jest tworzona z góry, jest szybki. Po drugie, naturalnie ogranicza ilość pamięci, która może zostać przydzielona. Ten twardy limit może być również postrzegany jako wada. Kolejną wadą jest to, że `free` i `destroy` działają tylko na ostatnio przydzielonym/utworzonym elemencie (pomyśl o stosie). Zwolnienie nieostatniej alokacji jest bezpieczne, ale nic nie da.
 
 ```zig
 const std = @import("std");
@@ -513,6 +498,8 @@ const std = @import("std");
 pub fn main() !void {
 	var buf: [150]u8 = undefined;
 	var fa = std.heap.FixedBufferAllocator.init(&buf);
+
+	// spowoduje to zwolnienie całej pamięci przydzielonej za pomocą tego alokatora
 	defer fa.reset();
 
 	const allocator = fa.allocator();
@@ -523,11 +510,15 @@ pub fn main() !void {
 		.last_param = "are options",
 	}, .{.whitespace = .indent_2});
 
+  // Możemy zwolnić tę alokację, ale ponieważ wiemy, że nasz alokator jest
+  // FixedBufferAllocator, możemy polegać na powyższym `defer fa.reset()`.
+	defer allocator.free(json);
+
 	std.debug.print("{s}\n", .{json});
 }
 ```
 
-O código acima imprime:
+The above prints:
 
 ```
 {
@@ -537,19 +528,17 @@ O código acima imprime:
 }
 ```
 
-Mas mude nosso `buf` para ser um `[120]u8` e você obterá um erro de `OutOfMemory`.
+Ale zmień nasz `buf` na `[120]u8`, a otrzymasz błąd `OutOfMemory`.
 
-Um padrão comum com `FixedBufferAllocators` e, em menor grau, com `ArenaAllocators`, é usar `reset` neles e reutilizá-los. Isso libera todas as alocações anteriores e permite que o alocador seja reutilizado.
-
-
+Powszechnym wzorcem dla alokatorów FixedBufferAllocator, i w mniejszym stopniu ArenaAllocator, jest ich resetowanie i ponowne użycie. Zwalnia to wszystkie poprzednie alokacje i pozwala na ponowne użycie alokatora.
 
 ---
 
-Ao não ter um alocador padrão, Zig é tanto transparente quanto flexível em relação às alocações. A interface `std.mem.Allocator` é poderosa, permitindo que alocadores especializados envolvam os mais gerais, como vimos com o `ArenaAllocator`.
+Nie posiadając domyślnego alokatora, Zig jest zarówno przejrzysty, jak i elastyczny w odniesieniu do alokacji. Interfejs `std.mem.Allocator` jest potężny, umożliwiając wyspecjalizowanym alokatorom zawijanie bardziej ogólnych, jak widzieliśmy w przypadku `ArenaAllocator`.
 
-De maneira mais geral, o poder e as responsabilidades associadas às alocações de heap são esperançosamente evidentes. A capacidade de alocar memória de tamanho arbitrário com uma vida útil arbitrária é essencial para a maioria dos programas.
+Ogólnie rzecz biorąc, moc i związane z nią obowiązki alokacji na stercie są, miejmy nadzieję, oczywiste. Możliwość alokacji pamięci o dowolnym rozmiarze i dowolnym czasie życia jest niezbędna dla większości programów.
 
-No entanto, devido à complexidade que vem com a memória dinâmica, é bom ficar de olho em alternativas. Por exemplo, acima usamos `std.fmt.allocPrint`, mas a biblioteca padrão também possui um `std.fmt.bufPrint`. Este último recebe um _buffer_ em vez de um alocador:
+Jednak ze względu na złożoność związaną z pamięcią dynamiczną, powinieneś mieć oko otwarte na alternatywy. Na przykład powyżej użyliśmy `std.fmt.allocPrint`, ale biblioteka standardowa ma również `std.fmt.bufPrint`. Ta ostatnia pobiera bufor zamiast alokatora:
 
 ```zig
 const std = @import("std");
@@ -564,11 +553,13 @@ pub fn main() !void {
 }
 ```
 
-Essa API transfere a responsabilidade do gerenciamento de memória para o chamador. Se tivéssemos um `name` mais longo ou um `buf` menor, nosso `bufPrint` poderia retornar um erro `NoSpaceLeft`. Mas existem muitos cenários em que um aplicativo possui limites conhecidos, como um comprimento máximo de nome. Nesses casos, `bufPrint` é mais seguro e rápido.
+Ten interfejs API przenosi ciężar zarządzania pamięcią na wywołującego. Gdybyśmy mieli dłuższą `name` lub mniejszy `buf`, nasz `bufPrint` mógłby zwrócić błąd `NoSpaceLeft`. Istnieje jednak wiele scenariuszy, w których aplikacja ma znane ograniczenia, takie jak maksymalna długość nazwy. W takich przypadkach `bufPrint` jest bezpieczniejszy i szybszy.
 
-Outra possível alternativa para alocações dinâmicas é transmitir dados para um `std.io.Writer`. Assim como nosso `Allocator`, `Writer` é uma interface implementada por muitos tipos, como arquivos. Acima, usamos `stringifyAlloc` para serializar JSON em uma string alocada dinamicamente. Poderíamos ter usado `stringify` e fornecido um `Writer`:
+Inną możliwą alternatywą dla dynamicznych alokacji jest strumieniowe przesyłanie danych do `std.io.Writer`. Podobnie jak nasz `Allocator`, `Writer` jest interfejsem implementowanym przez wiele typów, takich jak pliki. Powyżej użyliśmy `stringifyAlloc` do serializacji JSON do dynamicznie alokowanego ciągu znaków. Mogliśmy użyć `stringify` i dostarczyć `Writer`:
 
 ```zig
+const std = @import("std");
+
 pub fn main() !void {
 	const out = std.io.getStdOut();
 
@@ -580,8 +571,8 @@ pub fn main() !void {
 }
 ```
 
-> Enquanto alocadores são frequentemente fornecidos como o primeiro parâmetro de uma função, os `writers` geralmente são os últimos. ಠ_ಠ
+> Podczas gdy alokatory są często podawane jako pierwszy parametr funkcji, `writer` są zwykle ostatnimi. ಠ_ಠ
 
-Em muitos casos, envolver nosso _writer_ em um `std.io.BufferedWriter` proporcionaria um bom impulso de desempenho.
+W wielu przypadkach zawinięcie naszego writera w `std.io.BufferedWriter` dałoby niezły wzrost wydajności.
 
-O objetivo não é eliminar todas as alocações dinâmicas. Isso não funcionaria, já que essas alternativas só fazem sentido em casos específicos. Mas agora você tem muitas opções à sua disposição. Desde frames de pilha até um alocador de propósito geral, e todas as coisas intermediárias, como buffers estáticos, writers de streaming e alocadores especializados.
+Celem nie jest wyeliminowanie wszystkich dynamicznych alokacji. To nie zadziała, ponieważ te alternatywy mają sens tylko w określonych przypadkach. Ale teraz masz do dyspozycji wiele opcji. Od ramek stosu po alokator ogólnego przeznaczenia i wszystko pomiędzy, takie jak bufory statyczne, zapisy strumieniowe i wyspecjalizowane alokatory.

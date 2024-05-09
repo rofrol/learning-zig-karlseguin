@@ -41,3 +41,6 @@
 - invalid - nieważne (nieprawidłowy to bardziej incorrect. inwalid jak walidacja?)
 - scope - zakres
 - `user` outlives its scope - `user` przeżyje (żyje dłużej niż) swój zakres
+- reference - referencja
+- child allocator - alokator potomny
+- writer - writer (pisarz dziwnie brzmi)
