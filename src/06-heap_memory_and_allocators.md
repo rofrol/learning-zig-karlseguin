@@ -18,25 +18,25 @@ Spójrzmy na przykład:
 const std = @import("std");
 
 pub fn main() !void {
-  // wkrótce porozmawiamy o alokatorach
-	var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-	const allocator = gpa.allocator();
+    // wkrótce porozmawiamy o alokatorach
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
 
-  // ** Następne dwie linie są najważniejsze **
-	var arr = try allocator.alloc(usize, try getRandomCount());
-	defer allocator.free(arr);
+    // ** Następne dwie linie są najważniejsze **
+    var arr = try allocator.alloc(usize, try getRandomCount());
+    defer allocator.free(arr);
 
-	for (0..arr.len) |i| {
-		arr[i] = i;
-	}
-	std.debug.print("{any}\n", .{arr});
+    for (0..arr.len) |i| {
+        arr[i] = i;
+    }
+    std.debug.print("{any}\n", .{arr});
 }
 
 fn getRandomCount() !u8 {
-	var seed: u64 = undefined;
-	try std.posix.getrandom(std.mem.asBytes(&seed));
-	var random = std.rand.DefaultPrng.init(seed);
-	return random.random().uintAtMost(u8, 5) + 5;
+    var seed: u64 = undefined;
+    try std.posix.getrandom(std.mem.asBytes(&seed));
+    var random = std.rand.DefaultPrng.init(seed);
+    return random.random().uintAtMost(u8, 5) + 5;
 }
 ```
 
@@ -59,29 +59,29 @@ const std = @import("std");
 const Allocator = std.mem.Allocator;
 
 pub const Game = struct {
-	players: []Player,
-	history: []Move,
-	allocator: Allocator,
+    players: []Player,
+    history: []Move,
+    allocator: Allocator,
 
-	fn init(allocator: Allocator, player_count: usize) !Game {
-		var players = try allocator.alloc(Player, player_count);
-		errdefer allocator.free(players);
+    fn init(allocator: Allocator, player_count: usize) !Game {
+        var players = try allocator.alloc(Player, player_count);
+        errdefer allocator.free(players);
 
-    // przechowaj 10 ostatnich ruchów dla każdego gracza
-		var history = try allocator.alloc(Move, player_count * 10);
+        // przechowaj 10 ostatnich ruchów dla każdego gracza
+        var history = try allocator.alloc(Move, player_count * 10);
 
-		return .{
-			.players = players,
-			.history = history,
-			.allocator = allocator,
-		};
-	}
+        return .{
+            .players = players,
+            .history = history,
+            .allocator = allocator,
+        };
+    }
 
-	fn deinit(game: Game) void {
-		const allocator = game.allocator;
-		allocator.free(game.players);
-		allocator.free(game.history);
-	}
+    fn deinit(game: Game) void {
+        const allocator = game.allocator;
+        allocator.free(game.players);
+        allocator.free(game.history);
+    }
 };
 ```
 
@@ -101,14 +101,14 @@ Pierwszą zasadą jest to, że nie można zwolnić tej samej pamięci dwa razy.
 const std = @import("std");
 
 pub fn main() !void {
-	var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-	const allocator = gpa.allocator();
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
 
-	var arr = try allocator.alloc(usize, 4);
-	allocator.free(arr);
-	allocator.free(arr);
+    var arr = try allocator.alloc(usize, 4);
+    allocator.free(arr);
+    allocator.free(arr);
 
-	std.debug.print("This won't get printed\n", .{});
+    std.debug.print("This won't get printed\n", .{});
 }
 ```
 
@@ -121,16 +121,16 @@ const std = @import("std");
 const Allocator = std.mem.Allocator;
 
 fn allocLower(allocator: Allocator, str: []const u8) ![]const u8 {
-	var dest = try allocator.alloc(u8, str.len);
+    var dest = try allocator.alloc(u8, str.len);
 
-	for (str, 0..) |c, i| {
-		dest[i] = switch (c) {
-			'A'...'Z' => c + 32,
-			else => c,
-		};
-	}
+    for (str, 0..) |c, i| {
+        dest[i] = switch (c) {
+            'A'...'Z' => c + 32,
+            else => c,
+        };
+    }
 
-	return dest;
+    return dest;
 }
 ```
 
@@ -139,8 +139,8 @@ Powyższy kod jest w porządku. Ale następujące użycie nie jest:
 ```zig
 // Dla tego konkretnego kodu, powinniśmy byli użyć std.ascii.eqlIgnoreCase
 fn isSpecial(allocator: Allocator, name: [] const u8) !bool {
-	const lower = try allocLower(allocator, name);
-	return std.mem.eql(u8, lower, "admin");
+    const lower = try allocLower(allocator, name);
+    return std.mem.eql(u8, lower, "admin");
 }
 ```
 
@@ -156,31 +156,31 @@ Metoda `alloc` z `std.mem.Allocator` zwraca wycinek o długości przekazanej jak
 const std = @import("std");
 
 pub fn main() !void {
-  // ponownie, wkrótce porozmawiamy o alokatorach!
-	var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-	const allocator = gpa.allocator();
+    // ponownie, wkrótce porozmawiamy o alokatorach!
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
 
-  // utworzenie User na stercie
-	var user = try allocator.create(User);
+    // utworzenie User na stercie
+    var user = try allocator.create(User);
 
-  // zwolnienie pamięci przydzielonej dla user na końcu tego zakresu
-	defer allocator.destroy(user);
+    // zwolnienie pamięci przydzielonej dla user na końcu tego zakresu
+    defer allocator.destroy(user);
 
-	user.id = 1;
-	user.power = 100;
+    user.id = 1;
+    user.power = 100;
 
-  // ta linia została dodana
-	levelUp(user);
-	std.debug.print("User {d} has power of {d}\n", .{user.id, user.power});
+    // ta linia została dodana
+    levelUp(user);
+    std.debug.print("User {d} has power of {d}\n", .{user.id, user.power});
 }
 
 fn levelUp(user: *User) void {
-	user.power += 1;
+    user.power += 1;
 }
 
 pub const User = struct {
-	id: u64,
-	power: i32,
+    id: u64,
+    power: i32,
 };
 ```
 
@@ -190,14 +190,14 @@ Kiedy badaliśmy zwisające wskaźniki, mieliśmy funkcję, która niepoprawnie 
 
 ```zig
 pub const User = struct {
-	fn init(id: u64, power: i32) *User{
-		var user = User{
-			.id = id,
-			.power = power,
-		};
-    // to jest zwisający wskaźnik
-		return &user;
-	}
+    fn init(id: u64, power: i32) *User{
+        var user = User{
+            .id = id,
+            .power = power,
+        };
+        // to jest zwisający wskaźnik
+        return &user;
+    }
 };
 ```
 
@@ -207,12 +207,12 @@ W tym przypadku bardziej sensowne byłoby zwrócenie `User`. Ale czasami _będzi
 // nasz typ zwracany uległ zmianie, ponieważ init może teraz zawieść
 // *User -> !*User
 fn init(allocator: std.mem.Allocator, id: u64, power: i32) !*User{
-	const user = try allocator.create(User);
-	user.* = .{
-		.id = id,
-		.power = power,
-	};
-	return user;
+    const user = try allocator.create(User);
+    user.* = .{
+        .id = id,
+        .power = power,
+    };
+    return user;
 }
 ```
 
@@ -248,20 +248,20 @@ const std = @import("std");
 const httpz = @import("httpz");
 
 pub fn main() !void {
-  // utworzenie naszego alokatora ogólnego przeznaczenia
-	var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    // utworzenie naszego alokatora ogólnego przeznaczenia
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 
-  // pobieramy z niego std.mem.Allocator
-	const allocator = gpa.allocator();
+    // pobieramy z niego std.mem.Allocator
+    const allocator = gpa.allocator();
 
-  // przekazujemy nasz alokator do funkcji i bibliotek, które go wymagają
-	var server = try httpz.Server().init(allocator, .{.port = 5882});
+    // przekazujemy nasz alokator do funkcji i bibliotek, które go wymagają
+    var server = try httpz.Server().init(allocator, .{.port = 5882});
 
-	var router = server.router();
-	router.get("/api/user/:id", getUser);
+    var router = server.router();
+    router.get("/api/user/:id", getUser);
 
-  // blokuje bieżący wątek
-	try server.listen();
+    // blokuje bieżący wątek
+    try server.listen();
 }
 ```
 
@@ -288,40 +288,40 @@ Prawdopodobnie znasz już tablice dynamiczne, często nazywane ArrayListami. W w
 
 ```zig
 pub const IntList = struct {
-	pos: usize,
-	items: []i64,
-	allocator: Allocator,
+    pos: usize,
+    items: []i64,
+    allocator: Allocator,
 
-	fn init(allocator: Allocator) !IntList {
-		return .{
-			.pos = 0,
-			.allocator = allocator,
-			.items = try allocator.alloc(i64, 4),
-		};
-	}
+    fn init(allocator: Allocator) !IntList {
+        return .{
+            .pos = 0,
+            .allocator = allocator,
+            .items = try allocator.alloc(i64, 4),
+        };
+    }
 
-	fn deinit(self: IntList) void {
-		self.allocator.free(self.items);
-	}
+    fn deinit(self: IntList) void {
+        self.allocator.free(self.items);
+    }
 
-	fn add(self: *IntList, value: i64) !void {
-		const pos = self.pos;
-		const len = self.items.len;
+    fn add(self: *IntList, value: i64) !void {
+        const pos = self.pos;
+        const len = self.items.len;
 
-		if (pos == len) {
-      // zabrakło nam miejsca
-      // utwórz nowy wycinek, który jest dwa razy większy
-			var larger = try self.allocator.alloc(i64, len * 2);
+        if (pos == len) {
+            // zabrakło nam miejsca
+            // utwórz nowy wycinek, który jest dwa razy większy
+            var larger = try self.allocator.alloc(i64, len * 2);
 
-      // skopiuj elementy, które wcześniej dodaliśmy do naszej nowej przestrzeni
-			@memcpy(larger[0..len], self.items);
+            // skopiuj elementy, które wcześniej dodaliśmy do naszej nowej przestrzeni
+            @memcpy(larger[0..len], self.items);
 
-			self.items = larger;
-		}
+            self.items = larger;
+        }
 
-		self.items[pos] = value;
-		self.pos = pos + 1;
-	}
+        self.items[pos] = value;
+        self.pos = pos + 1;
+    }
 };
 ```
 
@@ -332,17 +332,17 @@ const std = @import("std");
 const Allocator = std.mem.Allocator;
 
 pub fn main() !void {
-	var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-	const allocator = gpa.allocator();
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
 
-	var list = try IntList.init(allocator);
-	defer list.deinit();
+    var list = try IntList.init(allocator);
+    defer list.deinit();
 
-	for (0..10) |i| {
-		try list.add(@intCast(i));
-	}
+    for (0..10) |i| {
+        try list.add(@intCast(i));
+    }
 
-	std.debug.print("{any}\n", .{list.items[0..list.pos]});
+    std.debug.print("{any}\n", .{list.items[0..list.pos]});
 }
 ```
 
@@ -351,20 +351,20 @@ Kod działa i drukuje prawidłowy wynik. Jednakże, mimo że _wywołaliśmy_ `de
 ```zig
 const testing = std.testing;
 test "IntList: add" {
-	// Używamy tutaj testing.allocator!
-	var list = try IntList.init(testing.allocator);
-	defer list.deinit();
+    // Używamy tutaj testing.allocator!
+    var list = try IntList.init(testing.allocator);
+    defer list.deinit();
 
-	for (0..5) |i| {
-		try list.add(@intCast(i+10));
-	}
+    for (0..5) |i| {
+        try list.add(@intCast(i+10));
+    }
 
-	try testing.expectEqual(@as(usize, 5), list.pos);
-	try testing.expectEqual(@as(i64, 10), list.items[0]);
-	try testing.expectEqual(@as(i64, 11), list.items[1]);
-	try testing.expectEqual(@as(i64, 12), list.items[2]);
-	try testing.expectEqual(@as(i64, 13), list.items[3]);
-	try testing.expectEqual(@as(i64, 14), list.items[4]);
+    try testing.expectEqual(@as(usize, 5), list.pos);
+    try testing.expectEqual(@as(i64, 10), list.items[0]);
+    try testing.expectEqual(@as(i64, 11), list.items[1]);
+    try testing.expectEqual(@as(i64, 12), list.items[2]);
+    try testing.expectEqual(@as(i64, 13), list.items[3]);
+    try testing.expectEqual(@as(i64, 14), list.items[4]);
 }
 ```
 
@@ -410,14 +410,14 @@ Alokator GeneralPurposeAllocator jest rozsądnym domyślnym rozwiązaniem, ponie
 
 ```zig
 fn parse(allocator: Allocator, input: []const u8) !Something {
-	const state = State{
-		.buf = try allocator.alloc(u8, 512),
-		.nesting = try allocator.alloc(NestType, 10),
-	};
-	defer allocator.free(state.buf);
-	defer allocator.free(state.nesting);
+    const state = State{
+        .buf = try allocator.alloc(u8, 512),
+        .nesting = try allocator.alloc(NestType, 10),
+    };
+    defer allocator.free(state.buf);
+    defer allocator.free(state.nesting);
 
-	return parseInternal(allocator, state, input);
+    return parseInternal(allocator, state, input);
 }
 ```
 
@@ -425,27 +425,27 @@ Chociaż nie jest to zbyt trudne w zarządzaniu, `parseInternal` może potrzebow
 
 ```zig
 fn parse(allocator: Allocator, input: []const u8) !Something {
-  // utworzenie ArenaAllocator z dostarczonego alokatora
-	var arena = std.heap.ArenaAllocator.init(allocator);
+    // utworzenie ArenaAllocator z dostarczonego alokatora
+    var arena = std.heap.ArenaAllocator.init(allocator);
 
-  // spowoduje to zwolnienie wszystkiego, co zostało utworzone z tej areny
-	defer arena.deinit();
+   // spowoduje to zwolnienie wszystkiego, co zostało utworzone z tej areny
+    defer arena.deinit();
 
-  // utworzenie std.mem.Allocator z areny, będzie to
-  // alokator, którego użyjemy wewnętrznie
-	const aa = arena.allocator();
+    // utworzenie std.mem.Allocator z areny, będzie to
+    // alokator, którego użyjemy wewnętrznie
+    const aa = arena.allocator();
 
-	const state = State{
-    // używamy tutaj aa!
-		.buf = try aa.alloc(u8, 512),
+    const state = State{
+        // używamy tutaj aa!
+        .buf = try aa.alloc(u8, 512),
 
-    // używamy tutaj aa!
-		.nesting = try aa.alloc(NestType, 10),
-	};
+        // używamy tutaj aa!
+        .nesting = try aa.alloc(NestType, 10),
+    };
 
-  // przekazujemy tutaj aa, więc mamy gwarancję, że
-  // każda inna alokacja będzie w naszej arenie
-	return parseInternal(aa, state, input);
+    // przekazujemy tutaj aa, więc mamy gwarancję, że
+    // każda inna alokacja będzie w naszej arenie
+    return parseInternal(aa, state, input);
 }
 ```
 
@@ -496,25 +496,25 @@ Ostatnim alokatorem, któremu się przyjrzymy, jest `std.heap.FixedBufferAllocat
 const std = @import("std");
 
 pub fn main() !void {
-	var buf: [150]u8 = undefined;
-	var fa = std.heap.FixedBufferAllocator.init(&buf);
+    var buf: [150]u8 = undefined;
+    var fa = std.heap.FixedBufferAllocator.init(&buf);
 
-	// spowoduje to zwolnienie całej pamięci przydzielonej za pomocą tego alokatora
-	defer fa.reset();
+    // spowoduje to zwolnienie całej pamięci przydzielonej za pomocą tego alokatora
+    defer fa.reset();
 
-	const allocator = fa.allocator();
+    const allocator = fa.allocator();
 
-	const json = try std.json.stringifyAlloc(allocator, .{
-		.this_is = "an anonymous struct",
-		.above = true,
-		.last_param = "are options",
-	}, .{.whitespace = .indent_2});
+    const json = try std.json.stringifyAlloc(allocator, .{
+        .this_is = "an anonymous struct",
+        .above = true,
+        .last_param = "are options",
+    }, .{.whitespace = .indent_2});
 
-  // Możemy zwolnić tę alokację, ale ponieważ wiemy, że nasz alokator jest
-  // FixedBufferAllocator, możemy polegać na powyższym `defer fa.reset()`.
-	defer allocator.free(json);
+    // Możemy zwolnić tę alokację, ale ponieważ wiemy, że nasz alokator jest
+    // FixedBufferAllocator, możemy polegać na powyższym `defer fa.reset()`.
+    defer allocator.free(json);
 
-	std.debug.print("{s}\n", .{json});
+    std.debug.print("{s}\n", .{json});
 }
 ```
 
@@ -544,12 +544,12 @@ Jednak ze względu na złożoność związaną z pamięcią dynamiczną, powinie
 const std = @import("std");
 
 pub fn main() !void {
-	const name = "Leto";
+    const name = "Leto";
 
-	var buf: [100]u8 = undefined;
-	const greeting = try std.fmt.bufPrint(&buf, "Hello {s}", .{name});
+    var buf: [100]u8 = undefined;
+    const greeting = try std.fmt.bufPrint(&buf, "Hello {s}", .{name});
 
-	std.debug.print("{s}\n", .{greeting});
+    std.debug.print("{s}\n", .{greeting});
 }
 ```
 
@@ -561,13 +561,13 @@ Inną możliwą alternatywą dla dynamicznych alokacji jest strumieniowe przesy�
 const std = @import("std");
 
 pub fn main() !void {
-	const out = std.io.getStdOut();
+    const out = std.io.getStdOut();
 
-	try std.json.stringify(.{
-		.this_is = "an anonymous struct",
-		.above = true,
-		.last_param = "are options",
-	}, .{.whitespace = .indent_2}, out.writer());
+    try std.json.stringify(.{
+        .this_is = "an anonymous struct",
+        .above = true,
+        .last_param = "are options",
+    }, .{.whitespace = .indent_2}, out.writer());
 }
 ```
 
