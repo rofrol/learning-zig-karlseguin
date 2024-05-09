@@ -4,7 +4,7 @@ Ponieważ znaczna część języka została już omówiona, zamierzamy zakończy
 
 ## Zwisające wskaźniki
 
-Zaczniemy od przyjrzenia się większej liczbie przykładów zwisających wskaźników. Może się to wydawać dziwną rzeczą, na której należy się skupić, ale jeśli przychodzisz z języka garbage collectorem, jest to prawdopodobnie największe wyzwanie, z jakim będziesz musiał się zmierzyć.
+Zaczniemy od przyjrzenia się większej liczbie przykładów zwisających wskaźników. Może się to wydawać dziwną rzeczą, na której należy się skupić, ale jeśli przychodzisz z języka z garbage collectorem, jest to prawdopodobnie największe wyzwanie, z jakim będziesz musiał się zmierzyć.
 
 Czy potrafisz odgadnąć, co pokazują poniższe dane wyjściowe?
 
