@@ -128,8 +128,8 @@ pub fn main() !void {
         if (try stdin.readUntilDelimiterOrEof(&buf, '\n')) |line| {
             var name = line;
             if (builtin.os.tag == .windows) {
-        // W systemie Windows linie są zakończone znakiem \r\n.
-        // Musimy usunąć \r
+                // W systemie Windows linie są zakończone znakiem \r\n.
+                // Musimy usunąć \r
                 name = std.mem.trimRight(u8, name, "\r");
             }
             if (name.len == 0) {
@@ -247,8 +247,8 @@ pub fn main() !void {
         if (try stdin.readUntilDelimiterOrEof(&buf, '\n')) |line| {
             var name = line;
             if (builtin.os.tag == .windows) {
-        // W systemie Windows linie są zakończone znakiem \r\n.
-        // Musimy usunąć \r
+                // W systemie Windows linie są zakończone znakiem \r\n.
+                // Musimy usunąć \r
                 name = std.mem.trimRight(u8, name, "\r");
             }
             if (name.len == 0) {
@@ -314,8 +314,8 @@ W części 1 krótko omówiliśmy `anytype`. Jest to całkiem przydatna forma du
 pub const Logger = struct {
     level: Level,
 
-  // "błąd" jest zarezerwowany, nazwy wewnątrz @"..." są zawsze
-  // traktowane jako identyfikatory
+    // "błąd" jest zarezerwowany, nazwy wewnątrz @"..." są zawsze
+    // traktowane jako identyfikatory
     const Level = enum {
         debug,
         info,
@@ -427,7 +427,7 @@ pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-  // konfiguracja pliku wykonywalnego
+    // konfiguracja pliku wykonywalnego
     const exe = b.addExecutable(.{
         .name = "learning",
         .target = target,
@@ -491,7 +491,7 @@ Wbudowany menedżer pakietów Ziga jest stosunkowo nowy i w związku z tym ma wi
 
 Najpierw utwórz nowy folder o nazwie `calc` i utwórz trzy pliki. Pierwszy to `add.zig`, z następującą zawartością:
 
-````zig
+```zig
 // O, ukryta lekcja, spójrz na typ b
 // i typ zwracany!!!
 
@@ -503,7 +503,7 @@ const testing = @import("std").testing;
 test "add" {
     try testing.expectEqual(@as(i32, 32), add(30, 2));
 }
-``
+```
 
 To trochę głupie, cały pakiet tylko po to, by dodać dwie wartości, ale pozwoli nam skupić się na aspekcie pakowania. Następnie dodamy równie głupi pakiet: `calc.zig`:
 
@@ -517,7 +517,7 @@ test {
   // do wszystkich zagnieżdżonych kontenerów.
     @import("std").testing.refAllDecls(@This());
 }
-````
+```
 
 Rozdzielamy to między `calc.zig` i `add.zig`, aby udowodnić, że `zig build` automatycznie zbuduje i spakuje wszystkie pliki naszego projektu. Na koniec możemy dodać `build.zig`:
 
