@@ -28,7 +28,9 @@
 - variadic function - funkcja vardiadic
 - recursive - rekursywny
 - following the code - podążając za kodem
-- generics - generyki
+- generics - generyk (generyczność?)
+- generic type - typ generyczny
+- typical generic - typowy generyk
 - dot syntax - składnia kropkowa
 - runtime - czas wykonania
 - self-documenting - samodokumentujący
@@ -44,3 +46,6 @@
 - reference - referencja
 - child allocator - alokator potomny
 - writer - writer (pisarz dziwnie brzmi)
+- ArrayList - ArrayList
+- primitives and arrays - typy podstawowe (prymitywne?) i tablice
+- hash map - hash mapa (dziwnie brzmi tablia mieszająca)

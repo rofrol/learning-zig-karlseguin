@@ -1,10 +1,10 @@
-# Genéricos (parametrização polimórfica)
+# Generyki (generics)
 
-No final da parte anterior, construímos uma matriz dinâmica básica chamada `IntList`. O objetivo dessa estrutura de dados era armazenar um número dinâmico de valores. Embora o algoritmo que usamos funcionasse para qualquer tipo de dado, nossa implementação estava vinculada a valores `i64`. Aí entram os genéricos, cujo objetivo é abstrair algoritmos e estruturas de dados de tipos específicos.
+W poprzedniej części zbudowaliśmy tablicę dynamiczną o nazwie `IntList`. Celem tej struktury danych było przechowywanie dynamicznej liczby wartości. Chociaż algorytm, którego użyliśmy, działałby dla dowolnego typu danych, nasza implementacja była powiązana z wartościami `i64`. Z pomocą przychodzą generyki, których celem jest abstrahowanie algorytmów i struktur danych od konkretnych typów.
 
-Muitas linguagens implementam genéricos com sintaxe especial e regras específicas para genéricos. No caso do Zig, os genéricos são menos uma característica específica e mais uma expressão do que a linguagem é capaz. Especificamente, os genéricos aproveitam a poderosa metaprogramação em tempo de compilação do Zig.
+Wiele języków implementuje generyki ze specjalną składnią i regułami specyficznymi dla generyki. W Zigu generyki są mniej specyficzną cechą, a bardziej wyrazem tego, do czego zdolny jest język. W szczególności, generyki wykorzystują potężne metaprogramowanie Ziga w czasie kompilacji.
 
-Vamos começar olhando para um exemplo bobo, apenas para nos situarmos:
+Zaczniemy od głupiego przykładu, aby się zorientować:
 
 ```zig
 const std = @import("std");
@@ -22,9 +22,9 @@ fn IntArray(comptime length: usize) type {
 }
 ```
 
-O código acima imprime `{ 1, 10, 100 }`. A parte interessante é que temos uma função que retorna um `type` (portanto, a função tem _PascalCase_). E não é qualquer tipo, mas um tipo com base em um parâmetro de função. Esse código só funcionou porque declaramos `length` como `comptime`. Ou seja, exigimos que quem chama `IntArray` forneça um parâmetro de comprimento conhecido em tempo de compilação. Isso é necessário porque nossa função retorna um tipo (`type`) e os tipos (`types`) devem sempre ser conhecidos em tempo de compilação.
+Powyższe wypisuje `{ 1, 10, 100 }`. Interesujące jest to, że mamy funkcję, która zwraca `type` (stąd funkcja jest PascalCase). I to nie byle jaki typ, ale typ oparty na parametrze funkcji. Ten kod działa tylko dlatego, że zadeklarowaliśmy `length` jako `comptime`. Oznacza to, że wymagamy, aby każdy, kto wywołuje `IntArray`, przekazał parametr `length` znany w czasie kompilacji. Jest to konieczne, ponieważ nasza funkcja zwraca `type`, a typy muszą być zawsze znane w czasie kompilacji.
 
-Uma função pode retornar qualquer tipo, não apenas primitivos e arrays. Por exemplo, com uma pequena alteração, podemos fazê-la retornar uma estrutura:
+Funkcja może zwracać _dowolny_ typ, nie tylko typy podstawowe i tablice. Na przykład, wprowadzając niewielką zmianę, możemy sprawić, że funkcja będzie zwracać strukturę:
 
 ```zig
 const std = @import("std");
@@ -44,7 +44,7 @@ fn IntArray(comptime length: usize) type {
 }
 ```
 
-Pode parecer estranho, mas o tipo de `arr` realmente é `IntArray(3)`. É um tipo como qualquer outro tipo, e `arr` é um valor como qualquer outro valor. Se chamássemos `IntArray(7)`, seria um tipo diferente. Talvez possamos organizar melhor as coisas:
+Może się to wydawać dziwne, ale typ `arr` to tak naprawdę `IntArray(3)`. Jest to typ jak każdy inny typ, a `arr` jest wartością jak każda inna wartość. Gdybyśmy wywołali `IntArray(7)`, byłby to inny typ. Może uda nam się to zrobić schludniej:
 
 ```zig
 const std = @import("std");
@@ -70,9 +70,9 @@ fn IntArray(comptime length: usize) type {
 }
 ```
 
-À primeira vista, pode não parecer mais organizado. Mas além de não ter nome e estar aninhada em uma função, nossa estrutura está se parecendo com qualquer outra estrutura que vimos até agora. Ela tem campos, tem funções. Você sabe o que dizem: se parece com um pato.... Bem, isso se parece, nada e grasna como uma estrutura normal, porque é.
+Na pierwszy rzut oka może to nie wyglądać schludniej. Ale poza tym, że jest bezimienna i zagnieżdżona w funkcji, nasza struktura wygląda jak każda inna struktura, którą widzieliśmy do tej pory. Ma pola, ma funkcje. Wiesz, co mówią, _jeśli wygląda jak kaczka..._. Cóż, ta struktura wygląda, pływa i kwacze jak normalna struktura, ponieważ nią jest.
 
-Tomamos esse caminho para nos familiarizarmos com uma função que retorna um tipo e a sintaxe correspondente. Para obter um genérico mais típico, precisamos fazer uma última alteração: nossa função precisa receber um tipo. Na realidade, esta é uma pequena mudança, mas `type` pode parecer mais abstrato do que `usize`, então fizemos isso lentamente. Vamos dar um salto e modificar nossa `IntList` anterior para funcionar com qualquer tipo. Começaremos com um esqueleto:
+Podjęliśmy tę drogę, aby poczuć się komfortowo z funkcją zwracającą typ i towarzyszącą jej składnią. Aby uzyskać bardziej typowy generyk, musimy wprowadzić ostatnią zmianę: nasza funkcja musi przyjmować `type`. W rzeczywistości jest to niewielka zmiana, ale `type` może wydawać się bardziej abstrakcyjny niż `usize`, więc zrobiliśmy to powoli. Zróbmy krok naprzód i zmodyfikujmy naszą poprzednią funkcję `IntList`, aby działała z dowolnym typem. Zaczniemy od szkieletu:
 
 ```zig
 fn List(comptime T: type) type {
@@ -88,23 +88,23 @@ fn List(comptime T: type) type {
 				.items = try allocator.alloc(T, 4),
 			};
 		}
-	}
-};
+	};
+}
 ```
 
-A estrutura (`struct`) acima é quase idêntica à nossa `IntList` anterior, exceto que `i64` foi substituído por `T`. Esse `T` pode parecer especial, mas é apenas um nome de variável. Poderíamos tê-lo chamado de `item_type`. No entanto, seguindo a convenção de nomenclatura do Zig, variáveis do tipo `type` são escritas em _PascalCase_.
+Powyższa struktura jest prawie identyczna z naszą `IntList`, z wyjątkiem tego, że `i64` zostało zastąpione przez `T`. To `T` może wydawać się wyjątkowe, ale to tylko nazwa zmiennej. Mogliśmy ją nazwać `item_type`. Jednakże, zgodnie z konwencją nazewnictwa Ziga, zmienne typu `type` są PascalCase.
 
-> Para o bem ou para o mal, usar uma única letra para representar um parâmetro de tipo é muito mais antigo que o Zig. `T` é um padrão comum na maioria das linguagens, mas você verá variações específicas do contexto, como mapas de hash usando `K` e `V` para seus tipos de parâmetros de chave e valor.
+> Na dobre i na złe, używanie pojedynczej litery do reprezentowania parametru typu jest znacznie starsze niż Zig. `T` jest powszechną wartością domyślną w większości języków, ale można spotkać się z odmianami specyficznymi dla kontekstu, takimi jak hash mapy używające `K` i `V` dla klucza i wartości jako typów parametrów.
 
-Se você não tem certeza sobre nosso esqueleto, considere os dois lugares onde usamos `T`: `items: []T` e `allocator.alloc(T, 4)`. Quando queremos usar esse tipo genérico, criaremos uma instância usando:
+Jeśli nie jesteś pewien naszego szkieletu, rozważ dwa miejsca, w których używamy `T`: `items: []T i allocator.alloc(T, 4)`. Gdy będziemy chcieli użyć tego typu generycznego, utworzymy jego instancję przy użyciu:
 
 ```zig
 var list = try List(u32).init(allocator);
 ```
 
-Quando o código é compilado, o compilador cria um novo tipo substituindo cada `T` por `u32`. Se usarmos `List(u32)` novamente, o compilador reutilizará o tipo que foi criado anteriormente. Se especificarmos um novo valor para `T`, como `List(bool)` ou `List(User)`, novos tipos serão criados.
+Gdy kod zostanie skompilowany, kompilator utworzy nowy typ, znajdując każdy `T` i zastępując go `u32`. Jeśli ponownie użyjemy `List(u32)`, kompilator ponownie użyje utworzonego wcześniej typu. Jeśli określimy nową wartość dla `T`, powiedzmy `List(bool)` lub `List(User)`, zostaną utworzone nowe typy.
 
-Para completar nossa Lista genérica, podemos literalmente copiar e colar o restante do código do `IntList` e substituir `i64` por `T`. Aqui está um exemplo completo funcional:
+Aby ukończyć naszą generyczną `List`, możemy dosłownie skopiować i wkleić resztę kodu `IntList` i zastąpić `i64` przez `T`. Oto w pełni działający przykład:
 
 ```zig
 const std = @import("std");
@@ -147,11 +147,11 @@ fn List(comptime T: type) type {
 			const len = self.items.len;
 
 			if (pos == len) {
-			    // ficamos sem espaço
-			    // cria-se um "slice" duas vezes maior
+        // zabrakło nam miejsca
+        // utwórz nowy wycinek, który jest dwa razy większy
 				var larger = try self.allocator.alloc(T, len * 2);
 
-                // copia-se os itens que adicionamos previamente ao nosso novo espaço criado
+        // skopiuj elementy, które wcześniej dodaliśmy do naszej nowej przestrzeni
 				@memcpy(larger[0..len], self.items);
 
 				self.allocator.free(self.items);
@@ -166,7 +166,7 @@ fn List(comptime T: type) type {
 }
 ```
 
-Nossa função `init` retorna uma `List(T)`, e nossas funções `deinit` e `add` recebem uma `List(T)` e `*List(T)`. Para nossa classe simples, isso está bem, mas para estruturas de dados grandes, escrever o nome genérico completo pode se tornar um pouco tedioso, especialmente se tivermos múltiplos parâmetros de tipo (por exemplo, um mapa hash que aceita um tipo separado para sua chave e valor). A função embutida `@This()` retorna o tipo mais interno de onde é chamada. Muito provavelmente, nosso `List(T)` seria escrito como:
+Nasza funkcja `init` zwraca `List(T)`, a nasze funkcje `deinit` i `add` pobierają `List(T)` i `*List(T)`. W naszej prostej klasie jest to w porządku, ale w przypadku dużych struktur danych pisanie pełnej nazwy ogólnej może stać się nieco uciążliwe, zwłaszcza jeśli mamy wiele parametrów typu (np. hash mapa, która przyjmuje oddzielny `type` dla swojego klucza i wartości). Wbudowana funkcja `@This()` zwraca najbardziej wewnętrzny `type`, z którego została wywołana. Najprawdopodobniej nasza funkcja `List(T)` zostałaby zapisana jako:
 
 ```zig
 fn List(comptime T: type) type {
@@ -175,28 +175,26 @@ fn List(comptime T: type) type {
 		items: []T,
 		allocator: Allocator,
 
-		// Adicionado
+		// Dodano
 		const Self = @This();
 
 		fn init(allocator: Allocator) !Self {
-			// mesmo código
+      // ... ten sam kod
 		}
 
 		fn deinit(self: Self) void {
-			// mesmo código
+      // ... ten sam kod
 		}
 
 		fn add(self: *Self, value: T) !void {
-			// mesmo código
+      // ... ten sam kod
 		}
 	};
 }
 ```
 
-`Self` não é um nome especial, é apenas uma variável, e está em _PascalCase_ porque seu valor é um tipo (`type`). Podemos usar `Self` onde anteriormente usávamos `List(T)`.
-
-
+`Self` nie jest specjalną nazwą, jest po prostu zmienną i jest PascalCase, ponieważ jej wartość to `type`. Możemy użyć `Self` tam, gdzie wcześniej używaliśmy `List(T)`.
 
 ---
 
-Poderíamos criar exemplos mais complexos, com vários parâmetros de tipo e algoritmos mais avançados. No entanto, no final, o código genérico essencial não seria diferente dos exemplos simples acima. Na próxima parte, voltaremos a abordar os genéricos ao analisar a `ArrayList(T)` e `StringHashMap(V)` da biblioteca padrão.
+Możemy tworzyć bardziej złożone przykłady, z wieloma parametrami typu i bardziej zaawansowanymi algorytmami. Ale ostatecznie podstawowy kod generyczny nie różniłby się od prostych przykładów powyżej. W następnej części ponownie dotkniemy generyczności, gdy przyjrzymy się standardowym bibliotekom `ArrayList(T)` i `StringHashMap(V)`.
