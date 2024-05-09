@@ -22,13 +22,13 @@ pub fn main() !void {
 
     try lookup.put("Goku", goku);
 
-  // zwraca opcjonalne, .? spanikowałoby, gdyby "Goku"
-  // nie było w naszej hashmapie
+    // zwraca opcjonalne, .? spanikowałoby, gdyby "Goku"
+    // nie było w naszej hashmapie
     const entry = lookup.getPtr("Goku").?;
 
     std.debug.print("Goku's power is: {d}\n", .{entry.power});
 
-  // zwraca prawdę/fałsz w zależności od tego, czy element został usunięty
+    // zwraca prawdę/fałsz w zależności od tego, czy element został usunięty
     _ = lookup.remove("Goku");
 
     std.debug.print("Goku's power is: {d}\n", .{entry.power});
@@ -46,7 +46,7 @@ Goku's power is: 9001
 Goku's power is: -1431655766
 ```
 
-Ten kod wprowadza generyczną `std.StringHashMap` Ziga, która jest wyspecjalizowaną wersją `std.AutoHashMap` z typem klucza ustawionym na `[]const u8`. Nawet jeśli nie jesteś w 100% pewien, co się dzieje, to dobrze jest zgadnąć, że moje wyjście odnosi się do faktu, że nasz drugi `print` ma miejsce po usunięciu wpisu z `lookup`. Wykreśl wywołanie `remove`, a wynik będzie normalny.
+Ten kod wprowadza generyczną `std.StringHashMap` Ziga, która jest wyspecjalizowaną wersją `std.AutoHashMap` z typem klucza ustawionym na `[]const u8`. Nawet jeśli nie jesteś w 100% pewien, co się dzieje, to dobre odgadnięcie, że moje wyjście odnosi się do faktu, że nasz drugi `print` ma miejsce po usunięciu wpisu z `lookup`. Wykreśl wywołanie `remove`, a wynik będzie normalny.
 
 Kluczem do zrozumienia powyższego kodu jest świadomość tego, gdzie istnieją dane/pamięć lub, mówiąc inaczej, kto jest ich _właścicielem_. Pamiętaj, że argumenty Ziga są przekazywane przez wartość, to znaczy przekazujemy [płytką] kopię wartości. `User` w naszym `lookup` nie jest tą samą pamięcią, do której odwołuje się `goku`. Nasz powyższy kod ma **dwóch** użytkowników, każdy z własnym właścicielem. `goku` jest własnością `main`, a jego kopia jest własnością `lookup`.
 
