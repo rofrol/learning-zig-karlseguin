@@ -92,24 +92,24 @@ Stos wywołań jest niesamowity zarówno ze względu na swoją prostotę, jak i 
 onst std = @import("std");
 
 pub fn main() void {
-	const user1 = User.init(1, 10);
-	const user2 = User.init(2, 20);
+    const user1 = User.init(1, 10);
+    const user2 = User.init(2, 20);
 
-	std.debug.print("User {d} has power of {d}\n", .{user1.id, user1.power});
-	std.debug.print("User {d} has power of {d}\n", .{user2.id, user2.power});
+    std.debug.print("User {d} has power of {d}\n", .{user1.id, user1.power});
+    std.debug.print("User {d} has power of {d}\n", .{user2.id, user2.power});
 }
 
 pub const User = struct {
-	id: u64,
-	power: i32,
+    id: u64,
+    power: i32,
 
-	fn init(id: u64, power: i32) *User{
-		var user = User{
-			.id = id,
-			.power = power,
-		};
-		return &user;
-	}
+    fn init(id: u64, power: i32) *User{
+        var user = User{
+            .id = id,
+            .power = power,
+        };
+        return &user;
+    }
 };
 ```
 
@@ -137,8 +137,8 @@ Inną kwestią, którą muszę z przykrością stwierdzić, jest to, że może t
 
 ```zig
 fn read() !void {
-	const input = try readUserInput();
-	return Parser.parse(input);
+    const input = try readUserInput();
+    return Parser.parse(input);
 }
 ```
 
@@ -148,4 +148,4 @@ Cokolwiek `Parser.parse` zwróci, przeżyje `input`. Jeśli `Parser` przechowuje
 
 Prostym sposobem na rozwiązanie naszego początkowego błędu jest zmiana `init` tak, aby zwracał `User`, a nie `*User` (wskaźnik do `User`). Moglibyśmy wtedy zrobić `return user;` zamiast `return &user;`. Ale nie zawsze będzie to możliwe. Dane często muszą żyć poza sztywnymi granicami zakresów funkcji. W tym celu mamy trzeci obszar pamięci, stertę (heap), temat następnej części.
 
-Zanim zagłębimy się w stertę, warto wiedzieć, że przed końcem tego przewodnika zobaczymy ostatni przykład zwisających wskaźników. W tym momencie omówimy już wystarczająco dużo języka, aby podać znacznie mniej zawiły przykład. Chcę powrócić do tego tematu, ponieważ dla programistów wywodzących się z języków garbage collected może to powodować błędy i frustrację. Jest to coś, z czym sobie **poradzisz**. Sprowadza się to do bycia świadomym tego, gdzie i kiedy istnieją dane.
+Zanim zagłębimy się w stertę, warto wiedzieć, że przed końcem tego przewodnika zobaczymy ostatni przykład zwisających wskaźników. W tym momencie omówimy już wystarczająco dużo języka, aby podać znacznie mniej zawiły przykład. Chcę powrócić do tego tematu, ponieważ dla programistów wywodzących się z języków z garbage collectorem może to powodować błędy i frustrację. Jest to coś, z czym sobie **poradzisz**. Sprowadza się to do bycia świadomym tego, gdzie i kiedy istnieją dane.
