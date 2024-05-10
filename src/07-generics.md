@@ -1,4 +1,4 @@
-# Generyki (generics)
+# Generyczność (polimorfizm parametryczny)
 
 W poprzedniej części zbudowaliśmy tablicę dynamiczną o nazwie `IntList`. Celem tej struktury danych było przechowywanie dynamicznej liczby wartości. Chociaż algorytm, którego użyliśmy, działałby dla dowolnego typu danych, nasza implementacja była powiązana z wartościami `i64`. Z pomocą przychodzą generyki, których celem jest abstrahowanie algorytmów i struktur danych od konkretnych typów.
 
