@@ -32,7 +32,7 @@
 - generics - generyk (generyczność?)
 - generic type - typ generyczny
 - typical generic - typowy generyk
-- dot syntax - składnia kropkowa
+- dot syntax - składnia kropki (kropkowa gorzej brzmi?)
 - runtime - czas wykonania, runtime
 - self-documenting - samodokumentujący
 - garbage collector - garbage collector
@@ -61,7 +61,7 @@
 - duck-typing - duck-typing
 - logger - logger (rejestrator? rejestrowacz?)
 - correctly typed function - prawidłowo otypowana funkcja
-- multiline - wieloliniowy (ew. wielowierszowy)
+- multiline - wieloliniowy (ew. wielowierszowy`)`
 - rough edge - nieoszlifowana krawędź
 - expose - eksponować
 - output - wyjście (dane wyjściowe?)

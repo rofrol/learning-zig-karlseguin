@@ -229,7 +229,7 @@ user -> -------------  (*User)            |
         -------------
 ```
 
-W `levelUp`, `user` jest wskaźnikiem do `User`. Jego wartością jest adres. Oczywiście nie byle jaki adres, ale adres `main.user`. Warto wyraźnie zaznaczyć, że zmienna `user` w `levelUp` reprezentuje konkretną wartość. Wartość ta jest adresem. I nie jest to tylko adres, ale także typ, `*User`. Wszystko to jest bardzo spójne, nie ma znaczenia, czy mówimy o wskaźnikach, czy nie: zmienne wiążą informacje o typie z adresem. Jedyną specjalną rzeczą dotyczącą wskaźników jest to, że gdy używamy składni kropkowej, np. `user.power`, Zig, wiedząc, że `user` jest wskaźnikiem, automatycznie podąży za adresem.
+W `levelUp`, `user` jest wskaźnikiem do `User`. Jego wartością jest adres. Oczywiście nie byle jaki adres, ale adres `main.user`. Warto wyraźnie zaznaczyć, że zmienna `user` w `levelUp` reprezentuje konkretną wartość. Wartość ta jest adresem. I nie jest to tylko adres, ale także typ, `*User`. Wszystko to jest bardzo spójne, nie ma znaczenia, czy mówimy o wskaźnikach, czy nie: zmienne wiążą informacje o typie z adresem. Jedyną specjalną rzeczą dotyczącą wskaźników jest to, że gdy używamy składni kropki, np. `user.power`, Zig, wiedząc, że `user` jest wskaźnikiem, automatycznie podąży za adresem.
 
 > Niektóre języki wymagają innego symbolu podczas uzyskiwania dostępu do pola za pomocą wskaźnika.
 
