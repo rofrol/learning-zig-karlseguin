@@ -113,7 +113,7 @@ fn add(a: i64, b: i64) i64 {
 }
 ```
 
-Programiści C i C++ zauważą, że Zig nie wymaga deklaracji forward, tj. `add` jest wywoływany przed jego zdefiniowaniem.
+Programiści C i C++ zauważą, że Zig nie wymaga wcześniejszej deklaracji, tj. `add` jest wywoływany przed jego zdefiniowaniem.
 
 Kolejną rzeczą, na którą należy zwrócić uwagę, jest typ `i64`: 64-bitowa liczba całkowita ze znakiem. Inne typy liczbowe to: `u8`, `i8`, `u16`, `i16`, `u32`, `i32`, `u47`, `i47`, `u64`, `i64`, `f32` i `f64`. Włączenie `u47` i `i47` nie jest testem, aby upewnić się, że nadal nie śpisz; Zig obsługuje liczby całkowite o dowolnej szerokości bitowej. Chociaż prawdopodobnie nie będziesz ich często używać, mogą się przydać. Jednym z często _używanych_ typów jest `usize`, który jest liczbą całkowitą bez znaku o rozmiarze wskaźnika i ogólnie typem reprezentującym długość/rozmiar czegoś.
 
