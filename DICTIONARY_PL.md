@@ -61,7 +61,7 @@
 - duck-typing - duck-typing
 - logger - logger (rejestrator? rejestrowacz?)
 - correctly typed function - prawidłowo otypowana funkcja
-- multiline - wieloliniowy
+- multiline - wieloliniowy (ew. wielowierszowy)
 - rough edge - nieoszlifowana krawędź
 - expose - eksponować
 - output - wyjście (dane wyjściowe?)
@@ -71,3 +71,4 @@
 - to start and begin your mastery - ruszyć i rozpocząć mistrzostwo
 - precompiled - prekompilowany
 - to alias - aliasować
+- command line interface - wiersz poleceń

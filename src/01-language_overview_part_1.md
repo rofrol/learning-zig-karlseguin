@@ -84,7 +84,7 @@ Następna linia naszego przykładu Zig jest komentarzem:
 // Ten kod nie skompiluje się, jeśli `main` nie jest `pub` (publiczny)
 ```
 
-Zig nie posiada wielowierszowych komentarzy, tak jak `/* ... */` w C.
+Zig nie posiada wieloliniowych komentarzy, tak jak `/* ... */` w C.
 
 Istnieje eksperymentalne wsparcie dla automatycznego generowania dokumentów na podstawie komentarzy. Jeśli widziałeś [dokumentację biblioteki standardowej](https://ziglang.org/documentation/master/std) Zig, to widziałeś to w akcji. `//!` jest znany jako komentarz dokumentu najwyższego poziomu i może być umieszczony na początku pliku. Komentarz z potrójnym ukośnikiem (`///`), znany jako komentarz dokumentu, może być umieszczony w określonych miejscach, na przykład przed deklaracją. Próba użycia któregokolwiek typu komentarza dokumentu w niewłaściwym miejscu spowoduje błąd kompilatora.
 
