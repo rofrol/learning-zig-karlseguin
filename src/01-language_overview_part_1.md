@@ -275,7 +275,7 @@ const b = a[1..4];
 
 Chciałbym móc powiedzieć, że `b` jest wycinkiem o długości 3 i wskaźnikiem do `a`. Ale ponieważ "pokroiliśmy" naszą tablicę przy użyciu wartości znanych w czasie kompilacji, tj. `1` i `4`, nasza długość, `3`, jest również znana w czasie kompilacji. Zig rozgryzł to wszystko i dlatego `b` nie jest wycinkiem, ale raczej wskaźnikiem do tablicy liczb całkowitych o długości 3. Konkretnie, jego typ to `*const [3]i32`. Tak więc ta demonstracja wycinka została udaremniona przez spryt Ziga.
 
-W prawdziwym kodzie prawdopodobnie będziesz używał wycinków częściej niż tablic. Na dobre i na złe, programy mają tendencję do posiadania większej ilości informacji w czasie wykonywania niż w czasie kompilacji. W tym małym przykładzie musimy jednak oszukać kompilator, aby uzyskać to, czego chcemy:
+W prawdziwym kodzie prawdopodobnie będziesz używał wycinków częściej niż tablic. Na dobre i na złe, programy mają tendencję do posiadania większej ilości informacji w czasie wykonania niż w czasie kompilacji. W tym małym przykładzie musimy jednak oszukać kompilator, aby uzyskać to, czego chcemy:
 
 ```zig
 const a = [_]i32{1, 2, 3, 4, 5};
@@ -288,7 +288,7 @@ const b = a[1..end];
 
 > Gdybyśmy zrobili `const end: usize = 4` bez inkrementacji, to `1...end` stałoby się znaną w czasie kompilacji długością dla `b`, a tym samym utworzyłoby wskaźnik do tablicy, a nie wycinek. Uważam, że jest to trochę mylące, ale nie jest to coś, co pojawia się zbyt często i nie jest zbyt trudne do opanowania. Chciałbym pominąć to w tym momencie, ale nie mogłem znaleźć uczciwego sposobu na uniknięcie tego szczegółu.
 
-Nauka Ziga nauczyła mnie, że typy są bardzo opisowe. To nie tylko liczba całkowita lub logiczna, czy nawet tablica podpisanych 32-bitowych liczb całkowitych. Typy zawierają również inne ważne informacje. Rozmawialiśmy o tym, że długość jest częścią typu tablicy, a wiele przykładów pokazało, że stałość jest również jego częścią. Na przykład, w naszym ostatnim przykładzie, typem `b` jest `[]const i32`. Można to zobaczyć na przykładzie poniższego kodu:
+Nauka Ziga nauczyła mnie, że typy są bardzo opisowe. To nie tylko liczba całkowita lub logiczna, czy nawet tablica 32-bitowych liczb całkowitych ze znakiem. Typy zawierają również inne ważne informacje. Rozmawialiśmy o tym, że długość jest częścią typu tablicy, a wiele przykładów pokazało, że stałość jest również jego częścią. Na przykład, w naszym ostatnim przykładzie, typem `b` jest `[]const i32`. Można to zobaczyć na przykładzie poniższego kodu:
 
 ```zig
 const std = @import("std");
