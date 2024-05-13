@@ -1,10 +1,10 @@
 # Przegląd języka - część 2
 
-Ta część jest kontynuacją poprzedniej: zapoznanie się z językiem. Zbadamy przepływ sterowania Zig i typy oprócz struktur. Wraz z pierwszą częścią omówimy większość składni języka, co pozwoli nam zająć się większą częścią języka i biblioteki standardowej.
+Ta część jest kontynuacją poprzedniej: zapoznanie się z językiem. Zbadamy przepływ sterowania Ziga i inne typy oprócz struktur. Wraz z pierwszą częścią omówimy większość składni języka, co pozwoli nam zająć się większą częścią języka i biblioteki standardowej.
 
 ## Przepływ sterowania
 
-Przepływ sterowania Ziga jest prawdopodobnie znajomy, ale z dodatkowymi synergiami z aspektami języka, które musimy jeszcze zbadać. Zaczniemy od szybkiego przeglądu przepływu sterowania i wrócimy do omawiania funkcji, które wywołują specjalne zachowanie przepływu sterowania.
+Przepływ sterowania Ziga jest prawdopodobnie Ci znany, ale musimy go jeszcze zbadać z dodatkowymi synergiami z aspektami języka. Zaczniemy od szybkiego przeglądu przepływu sterowania i wrócimy do omawiania funkcji, które wywołują specjalne zachowanie przepływu sterowania.
 
 Zauważysz, że zamiast operatorów logicznych `&&` i `||`, używamy `and` i `or`. Podobnie jak w większości języków, `and` i `or` kontrolują przepływ wykonania: robią krótkie spięcie. Prawa strona `and` nie jest obliczana, jeśli lewa strona jest fałszywa, a prawa strona `or` nie jest obliczana, jeśli lewa strona jest prawdziwa. W Zigu przepływ sterowania odbywa się za pomocą słów kluczowych, a zatem używane są `and` i `or`.
 
