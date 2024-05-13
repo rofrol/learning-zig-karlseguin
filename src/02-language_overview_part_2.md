@@ -10,7 +10,7 @@ Zauważysz, że zamiast operatorów logicznych `&&` i `||`, używamy `and` i `or
 
 Ponadto operator porównania, `==`, nie działa między wycinkami, takimi jak `[]const u8`, tj. łańcuchami. W większości przypadków należy użyć `std.mem.eql(u8, str1, str2)`, który porówna długość, a następnie bajty dwóch wycinków.
 
-Ziga `if`, `else if` i `else` są powszechne:
+`if`, `else if` i `else` są powszechne w Zigu:
 
 ```zig
 // std.mem.eql porównuje bajt po bajcie
@@ -135,7 +135,7 @@ fn indexOf(haystack: []const u32, needle: u32) ?usize {
 
 Koniec zakresu jest wywnioskowany z długości `haystack`, chociaż moglibyśmy się ukarać i napisać: `0..hastack.len`. Pętle `for` nie obsługują bardziej ogólnego idiomu `init; compare; step`. W tym celu polegamy na pętli `while`.
 
-Ponieważ `while` jest prostsze, przyjmując formę `while (warunek) { }`, mamy większą kontrolę nad iteracją. Na przykład, podczas liczenia liczby sekwencji escape w łańcuchu, musimy zwiększyć nasz iterator o 2, aby uniknąć podwójnego liczenia `\\`:
+Ponieważ `while` jest prostsze, przyjmując formę `while (warunek) { }`, mamy większą kontrolę nad iteracją. Na przykład, podczas liczenia ilości sekwencji escape w łańcuchu, musimy zwiększyć nasz iterator o 2, aby uniknąć podwójnego liczenia `\\`:
 
 ```zig
 var i: usize = 0;
