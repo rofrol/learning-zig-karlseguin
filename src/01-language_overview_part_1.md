@@ -385,9 +385,9 @@ W naszej ostatniej niezbadanej linii kodu dzieje się o wiele więcej niż na pi
 std.debug.print("{s}'s power is {d}\n", .{user.name, user.power});
 ```
 
-Prześledzimy go tylko pobieżnie, ale stanowi on okazję do podkreślenia niektórych z bardziej zaawansowanych funkcji Zig. Są to rzeczy, o których powinieneś przynajmniej wiedzieć, nawet jeśli ich nie opanowałeś.
+Prześledzimy go tylko pobieżnie, ale stanowi on okazję do podkreślenia niektórych z bardziej zaawansowanych funkcji Ziga. Są to rzeczy, o których powinieneś przynajmniej wiedzieć, nawet jeśli ich nie opanowałeś.
 
-Pierwszą z nich jest koncepcja wykonywania w czasie kompilacji, czyli `comptime`. Jest to rdzeń możliwości metaprogramowania Zig i, jak sama nazwa wskazuje, obraca się wokół uruchamiania kodu w czasie kompilacji, a nie w czasie wykonywania. W tym przewodniku tylko zbadamy po łebkach co jest możliwe z `comptime`, ale jest to coś, co stale istnieje.
+Pierwszą z nich jest koncepcja wykonywania w czasie kompilacji, czyli `comptime`. Jest to rdzeń możliwości metaprogramowania Ziga i, jak sama nazwa wskazuje, obraca się wokół uruchamiania kodu w czasie kompilacji, a nie w czasie wykonywania. W tym przewodniku tylko zbadamy po łebkach co jest możliwe z `comptime`, ale jest to coś, co stale istnieje.
 
 Być może zastanawiasz się, co takiego jest w powyższej linii, że wymaga ona wykonania w czasie kompilacji. Definicja funkcji `print` wymaga, aby nasz pierwszy parametr, format łańcucha, był znany w czasie kompilacji:
 
@@ -396,7 +396,7 @@ Być może zastanawiasz się, co takiego jest w powyższej linii, że wymaga ona
 pub fn print(comptime fmt: []const u8, args: anytype) void {
 ```
 
-Powodem tego jest to, że `print` wykonuje dodatkowe sprawdzenia w czasie kompilacji, którego nie można uzyskać w większości innych języków. Jakiego rodzaju sprawdzenia? Cóż, powiedzmy, że zmieniłeś format na `"it's over {d}\n"`, ale zachowałeś dwa argumenty. Otrzymasz błąd czasu kompilacji: _unused argument in 'it's over {d}'_. Będzie również sprawdzenia typu: zmień format łańcuchowy na `"{s}'s power is {s}\n"`, a otrzymasz `invalid format string 's' for type 'u64'`. To sprawdzenia nie byłyby możliwe do wykonania w czasie kompilacji, gdyby format łańcuchowy nie był znany w czasie kompilacji. Stąd wymóg wartości znanej w czasie kompilacji.
+Powodem tego jest to, że `print` wykonuje dodatkowe sprawdzenia w czasie kompilacji, którego nie można uzyskać w większości innych języków. Jakiego rodzaju sprawdzenia? Cóż, powiedzmy, że zmieniłeś format na `"it's over {d}\n"`, ale zachowałeś dwa argumenty. Otrzymasz błąd czasu kompilacji: _unused argument in 'it's over {d}'_. Będą również sprawdzenia typu: zmień format łańcuchowy na `"{s}'s power is {s}\n"`, a otrzymasz `invalid format string 's' for type 'u64'`. To sprawdzenia nie byłyby możliwe do wykonania w czasie kompilacji, gdyby format łańcuchowy nie był znany w czasie kompilacji. Stąd wymóg wartości znanej w czasie kompilacji.
 
 Jedynym miejscem, w którym `comptime` natychmiast wpłynie na twoje kodowanie, są domyślne typy dla literałów całkowitych i zmiennoprzecinkowych, specjalne `comptime_int` i `comptime_float`. Ten wiersz kodu jest nieprawidłowy: `var i = 0;`. Otrzymasz błąd kompilacji: _variable of type 'comptime_int' must be const or comptime_. Kod `comptime` może działać tylko z danymi, które są znane w czasie kompilacji, a dla liczb całkowitych i zmiennoprzecinkowych takie dane są identyfikowane przez specjalne typy `comptime_int` i `comptime_float`. Wartość tego typu może być użyta w czasie wykonywania kompilacji. Prawdopodobnie jednak nie będziesz spędzać większości czasu na pisaniu kodu do wykonania w czasie kompilacji, więc nie jest to szczególnie przydatna wartość domyślna. To, co musisz zrobić, to nadać zmiennym jawny typ:
 
