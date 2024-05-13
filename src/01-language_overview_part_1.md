@@ -411,7 +411,7 @@ W przyszłej części przyjrzymy się nieco bliżej `comptime` podczas eksplorac
 
 Inną szczególną rzeczą w naszej linii kodu jest dziwne `.{user.name, user.power}`, które, jak wiemy z powyższej definicji `print`, odwzorowuje na zmienną typu `anytype`. Typ ten nie powinien być mylony z czymś takim jak `Object` w Javie lub `any` w Go (znany jako `interface{}`). Zamiast tego, w czasie kompilacji, Zig utworzy wersję funkcji `print` specjalnie dla wszystkich typów, które zostały do niej przekazane.
 
-Nasuwa się pytanie: co do niej _przekazujemy_? Notację `.{...}` widzieliśmy już wcześniej, gdy pozwalaliśmy kompilatorowi wnioskować o typie naszej struktury. Tu jest podobnie: tworzy anonimową literalną strukturę. Rozważmy ten kod:
+Nasuwa się pytanie: co do niej _przekazujemy_? Notację `.{...}` widzieliśmy już wcześniej, gdy pozwalaliśmy kompilatorowi wnioskować o typie naszej struktury. Tu jest podobnie: tworzy literał anonimowej struktury. Rozważmy ten kod:
 
 ```zig
 pub fn main() void {
