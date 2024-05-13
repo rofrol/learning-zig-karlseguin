@@ -275,7 +275,7 @@ const b = a[1..4];
 
 Chciałbym móc powiedzieć, że `b` jest wycinkiem o długości 3 i wskaźnikiem do `a`. Ale ponieważ "pokroiliśmy" naszą tablicę przy użyciu wartości znanych w czasie kompilacji, tj. `1` i `4`, nasza długość, `3`, jest również znana w czasie kompilacji. Zig rozgryzł to wszystko i dlatego `b` nie jest wycinkiem, ale raczej wskaźnikiem do tablicy liczb całkowitych o długości 3. Konkretnie, jego typ to `*const [3]i32`. Tak więc ta demonstracja wycinka została udaremniona przez spryt Ziga.
 
-W prawdziwym kodzie prawdopodobnie będziesz używał wycinków częściej niż tablic. Na dobre i na złe, programy mają tendencję do posiadania większej ilości informacji w czasie wykonania niż w czasie kompilacji. W tym małym przykładzie musimy jednak oszukać kompilator, aby uzyskać to, czego chcemy:
+W prawdziwym kodzie prawdopodobnie będziesz używał wycinków częściej niż tablic. Na dobre i na złe, programy mają tendencję do posiadania większej ilości informacji w czasie wykonania (runtime) niż w czasie kompilacji (compile time). W tym małym przykładzie musimy jednak oszukać kompilator, aby uzyskać to, czego chcemy:
 
 ```zig
 const a = [_]i32{1, 2, 3, 4, 5};
@@ -311,7 +311,7 @@ Aby rozwiązać ten problem, można pokusić się o wprowadzenie następującej 
 var b = a[1..end];
 ```
 
-ale otrzymasz ten sam błąd, dlaczego? Jako podpowiedź, jaki jest typ `b`, lub bardziej ogólnie, czym jest `b`? Wycinek jest długością i wskaźnikiem do [części] tablicy. Typ wycinka jest zawsze pochodną tego, co jest wycinane. Niezależnie od tego, czy `b` jest zadeklarowane jako stałe, czy nie, jest to wycinek `[5]const i32`, więc `b` musi być typu `[]const i32`. Jeśli chcemy mieć możliwość zapisu do `b`, musimy zmienić `a` z `const` na `var`.
+ale otrzymasz ten sam błąd, dlaczego? Jako podpowiedź, jaki jest typ `b`, lub bardziej ogólnie, czym jest `b`? Wycinek jest długością i wskaźnikiem do [części] tablicy. Typ wycinka jest zawsze pochodną tego, co jest wycinane. Niezależnie od tego, czy `b` jest zadeklarowana jako stała, czy nie, jest to wycinek `[5]const i32`, więc `b` musi być typu `[]const i32`. Jeśli chcemy mieć możliwość zapisu do `b`, musimy zmienić `a` z `const` na `var`.
 
 ```zig
 const std = @import("std");
