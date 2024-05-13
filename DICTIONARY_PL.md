@@ -13,6 +13,7 @@
 - expression - wyrażenie
 - error - błąd (zostawić error?)
 - null-terminated - zakończony wartością null (zakończony nullem? terminowany nullem?)
+- terminator - zakończenie (ew. terminator)
 - check - sprawdzenie (kontrola dziwnie brzmi)
 - case - rozmiar znaku
 - caller - wywoływacz
@@ -72,3 +73,4 @@
 - precompiled - prekompilowany
 - to alias - aliasować
 - command line interface - wiersz poleceń
+- signed integer - liczba całkowita ze znakiem

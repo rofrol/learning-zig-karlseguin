@@ -345,9 +345,9 @@ Więcej o tablicach i wycinkach dowiemy się przyglądając się innym aspektom 
 
 ## Łańcuchy _(strings)_
 
-Chciałbym móc powiedzieć, że Zig ma typ łańcuch i że jest niesamowity. Niestety tak nie jest. W najprostszym ujęciu, łańcuchy Zig są sekwencjami (tj. tablicami lub wycinkami) bajtów (`u8`). Widzieliśmy to w definicji pola `name`: `name: []const u8,`.
+Chciałbym móc powiedzieć, że Zig ma typ łańcuch i że jest niesamowity. Niestety tak nie jest. W najprostszym ujęciu, łańcuchy Ziga są sekwencjami (tj. tablicami lub wycinkami) bajtów (`u8`). Widzieliśmy to w definicji pola `name`: `name: []const u8,`.
 
-Zgodnie z konwencją, i tylko zgodnie z konwencją, takie łańcuchy powinny zawierać tylko wartości UTF-8, ponieważ kod źródłowy Zig jest sam w sobie zakodowany w UTF-8. Ale nie jest to egzekwowane i tak naprawdę nie ma różnicy między `[]const u8`, który reprezentuje łańcuch ASCII lub UTF-8, a `[]const u8`, który reprezentuje dowolne dane binarne. Jak mogłoby być inaczej, są tego samego typu.
+Zgodnie z konwencją, i tylko zgodnie z konwencją, takie łańcuchy powinny zawierać tylko wartości UTF-8, ponieważ kod źródłowy Ziga jest sam w sobie zakodowany w UTF-8. Ale nie jest to egzekwowane i tak naprawdę nie ma różnicy między `[]const u8`, który reprezentuje łańcuch ASCII lub UTF-8, a `[]const u8`, który reprezentuje dowolne dane binarne. Jak mogłoby być inaczej, są tego samego typu.
 
 Z tego, czego nauczyliśmy się o tablicach i wycinkach, można się domyślić, że `[]const u8` jest wycinkiem do stałej tablicy bajtów (gdzie bajt jest 8-bitową liczbą całkowitą bez znaku). Ale nigdzie w naszym kodzie nie wycięliśmy tablicy, ani nawet nie mieliśmy tablicy, prawda? Wszystko, co zrobiliśmy, to przypisanie "Goku" do `user.name`. Jak to zadziałało?
 
@@ -371,7 +371,7 @@ Co daje wynik: `{ 0, 1, 0, 0}`.
 
 > Waham się, czy dołączyć ten przykład, ponieważ ostatnia linia jest dość zaawansowana i nie zamierzam jej wyjaśniać. Z drugiej strony, jest to działający przykład, który możesz uruchomić i pobawić się nim, aby lepiej zbadać trochę z tego, co omówiliśmy do tej pory, jeśli masz taką ochotę.
 
-Jeśli udało mi się to wyjaśnić w zadowalający sposób, prawdopodobnie nadal jest jedna rzecz, której nie jesteś pewien. Jeśli "Goku" jest `*const [4:0]u8`, jak to się stało, że mogliśmy przypisać go do `name`, które jest `[]const u8`? Odpowiedź jest prosta: Zig wymusi typ za ciebie. Zrobi to między kilkoma różnymi typami, ale jest to najbardziej oczywiste w przypadku łańcuchów. Oznacza to, że jeśli funkcja ma parametr `[]const u8` lub struktura ma pole `[]const u8`, można użyć literałów łańcuchowe. Ponieważ łańcuchy zakończone nullem są tablicami, a tablice mają znaną długość, ta koercja jest tania, tj. **nie** wymaga iteracji przez łańcuch w celu znalezienia zakończenia nullem.
+Jeśli udało mi się to wyjaśnić w zadowalający sposób, prawdopodobnie nadal jest jedna rzecz, której nie jesteś pewien. Jeśli "Goku" jest `*const [4:0]u8`, jak to się stało, że mogliśmy przypisać go do `name`, które jest `[]const u8`? Odpowiedź jest prosta: Zig wymusi typ za ciebie. Zrobi to między kilkoma różnymi typami, ale jest to najbardziej oczywiste w przypadku łańcuchów. Oznacza to, że jeśli funkcja ma parametr `[]const u8` lub struktura ma pole `[]const u8`, można użyć literałów łańcuchowych. Ponieważ łańcuchy zakończone nullem są tablicami, a tablice mają znaną długość, ta koercja jest tania, tj. **nie** wymaga iteracji przez łańcuch w celu znalezienia zakończenia nullem.
 
 Tak więc, mówiąc o łańcuchach, zwykle mamy na myśli `[]const u8`. W razie potrzeby wyraźnie podajemy łańcuch zakończony zerem, który może zostać automatycznie przekształcony w `[]const u8`. Należy jednak pamiętać, że `[]const u8` jest również używany do reprezentowania dowolnych danych binarnych i jako taki, Zig nie ma pojęcia łańcucha, które mają języki programowania wyższego poziomu. Co więcej, biblioteka standardowa Zig ma tylko bardzo podstawowy moduł unicode.
 
