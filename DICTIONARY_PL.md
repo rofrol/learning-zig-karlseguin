@@ -74,3 +74,4 @@
 - to alias - aliasować
 - command line interface - wiersz poleceń
 - signed integer - liczba całkowita ze znakiem
+- maps to - odwzorowuje
