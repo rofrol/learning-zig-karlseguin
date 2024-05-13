@@ -262,9 +262,9 @@ const b: [5]i32 = .{1, 2, 3, 4, 5};
 const c = [_]i32{1, 2, 3, 4, 5};
 ```
 
-Z drugiej strony, _slice_ jest wskaźnikiem do tablicy o określonej długości. Długość jest znana w czasie wykonywania. Wskaźniki omówimy w późniejszej części, ale można myśleć o wycinku jako o widoku tablicy.
+Z drugiej strony, _wycinek_ jest wskaźnikiem do tablicy o określonej długości. Długość jest znana w czasie wykonywania. Wskaźniki omówimy w późniejszej części, ale można myśleć o _wycinku_ jako o widoku tablicy.
 
-> Jeśli jesteś zaznajomiony z Go, być może zauważyłeś, że wycinki w Zig są nieco inne: nie mają pojemności, a jedynie wskaźnik i długość.
+> Jeśli jesteś zaznajomiony z Go, być może zauważyłeś, że wycinki w Zigu są nieco inne: nie mają pojemności, a jedynie wskaźnik i długość.
 
 Biorąc pod uwagę następujące,
 
