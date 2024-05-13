@@ -407,7 +407,7 @@ var j: f64 = 0;
 
 > Zauważ, że ten błąd wystąpił tylko dlatego, że użyliśmy `var`. Gdybyśmy użyli `const`, nie mielibyśmy błędu, ponieważ cała istota błędu polega na tym, że `comptime_int` musi być `const`.
 
-W przyszłej części przyjrzymy się nieco bliżej `comptime` podczas eksploracji generyków.
+W przyszłej części przyjrzymy się nieco bliżej `comptime` podczas eksploracji generyczności.
 
 Inną szczególną rzeczą w naszej linii kodu jest dziwne `.{user.name, user.power}`, które, jak wiemy z powyższej definicji `print`, mapuje na zmienną typu `anytype`. Typ ten nie powinien być mylony z czymś takim jak `Object` w Javie lub `any` w Go (znany jako `interface{}`). Zamiast tego, w czasie kompilacji, Zig utworzy wersję funkcji `print` specjalnie dla wszystkich typów, które zostały do niej przekazane.
 
