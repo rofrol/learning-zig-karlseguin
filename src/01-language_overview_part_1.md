@@ -341,7 +341,7 @@ pub fn main() void {
 
 To się nie skompiluje; jak mówi nam kompilator, _cannot assign to constant_. Ale jeśli zrobilibyśmy `var b = a[1..end];`, kod zadziałałby, ponieważ samo `b` nie jest już stałą.
 
-Więcej o tablicach i wycinkach dowiemy się przyglądając się innym aspektom języka, z których nie najmniej ważnym są łańcuchy.
+Więcej o tablicach i wycinkach dowiemy się przyglądając się innym aspektom języka, z których łańcuchy nie są najmniej ważnym.
 
 ## Łańcuchy _(strings)_
 
