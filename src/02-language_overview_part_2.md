@@ -360,7 +360,7 @@ while (rows.next()) |row| {
 
 ## Undefined
 
-Jak dotąd, każda pojedyncza zmienna, którą widzieliśmy, została zainicjowana do sensownej wartości. Czasami jednak nie znamy wartości zmiennej w momencie jej deklaracji. Typy opcjonalne są jedną z opcji, ale nie zawsze mają sens. W takich przypadkach możemy ustawić zmienne na `undefined`, aby pozostawić je niezainicjalizowane.
+Jak dotąd, każda pojedyncza zmienna, którą widzieliśmy, została zainicjowana sensowną wartością. Czasami jednak nie znamy wartości zmiennej w momencie jej deklaracji. Typy opcjonalne są jedną z opcji, ale nie zawsze mają sens. W takich przypadkach możemy ustawić zmienne na `undefined`, aby pozostawić je niezainicjalizowane.
 
 Jednym z miejsc, w których jest to często wykonywane, jest tworzenie tablicy, która ma zostać wypełniona przez jakąś funkcję:
 
