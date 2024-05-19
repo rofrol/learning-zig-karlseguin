@@ -76,3 +76,5 @@
 - signed integer - liczba całkowita ze znakiem
 - maps to - odwzorowuje
 - the number of - ilość (liczba dziwnie brzmi)
+- escape sign - znak uwolnienia (ucieczki?)
+- to escape - uwolnić (uciec?)

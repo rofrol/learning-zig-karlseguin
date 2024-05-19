@@ -133,22 +133,27 @@ fn indexOf(haystack: []const u32, needle: u32) ?usize {
 
 > To jest tylko krótki rzut oka na typy nullable.
 
-Koniec zakresu jest wywnioskowany z długości `haystack`, chociaż moglibyśmy się ukarać i napisać: `0..hastack.len`. Pętle `for` nie obsługują bardziej ogólnego idiomu `init; compare; step`. W tym celu polegamy na pętli `while`. Aby mieć `init;` ograniczone zakresem jak w takim `for`, musimy dodać blok wokół `while`.
+Koniec zakresu jest wywnioskowany z długości `haystack`, chociaż moglibyśmy się ukarać i napisać: `0..hastack.len`. Pętle `for` nie obsługują bardziej ogólnego idiomu `init; compare; step`. W tym celu polegamy na pętli `while`.
 
-Ponieważ `while` jest prostsze, przyjmując formę `while (warunek) { }`, mamy większą kontrolę nad iteracją. Na przykład, podczas liczenia ilości sekwencji escape w łańcuchu, musimy zwiększyć nasz iterator o 2, aby uniknąć podwójnego liczenia `\\`:
+Ponieważ `while` jest prostsze, przyjmując formę `while (warunek) { }`, mamy większą kontrolę nad iteracją. Na przykład, podczas liczenia ilości sekwencji escape w łańcuchu, musimy zwiększyć nasz iterator o 2, aby uniknąć podwójnego liczenia `\`:
 
 ```zig
-var i: usize = 0;
-var escape_count: usize = 0;
-while (i < src.len) {
-    if (src[i] == '\\') {
-        i += 2;
-        escape_count += 1;
-    } else {
-        i += 1;
-    }
+{
+	var i: usize = 0;
+	while (i < src.len) {
+    // odwrotny ukośnik jest używany jako znak uwolnienia, więc musimy go uwolnić...
+   // z odwrotnym ukośnikiem.
+		if (src[i] == '\\') {
+			i += 2;
+			escape_count += 1;
+		} else {
+			i += 1;
+		}
+	}
 }
 ```
+
+Dodaliśmy jawny blok wokół naszej tymczasowej zmiennej `i` i pętli `while`. Zawęża to zakres `i`. Bloki takie jak ten mogą być przydatne, choć w tym przypadku jest to prawdopodobnie przesada. Mimo to, powyższy przykład jest najbardziej zbliżony do tradycyjnej pętli `for(init; compare; step)`, jaką posiada Zig.
 
 `while` może mieć klauzulę `else`, która jest wykonywana, gdy warunek jest fałszywy. Akceptuje również instrukcję do wykonania po każdej iteracji. Może być wiele instrukcji oddzielonych `;`. Ta funkcja była powszechnie używana zanim `for` obsługiwało wielokrotne sekwencje. Powyższe można zapisać jako:
 
