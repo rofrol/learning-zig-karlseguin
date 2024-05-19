@@ -329,7 +329,7 @@ Potrzeba posiadania wyraźnego typu powinna być jasna: gdybyśmy po prostu zrob
 std.debug.print("{s}\n", .{name.?});
 ```
 
-Jeśli jednak użyjemy `.?` na wartości `null`, otrzymamy `runtime panic`. Instrukcja `if` może bezpiecznie rozpakować opcjonalny:
+Jeśli jednak użyjemy `.?` na wartości `null`, otrzymamy `runtime panic`. Instrukcja `if` może bezpiecznie rozpakować typu opcjonalnego:
 
 ```zig
 if (home) |h| {
@@ -340,7 +340,7 @@ if (home) |h| {
 }
 ```
 
-`orelse` może być używane do rozpakowania opcjonalnego lub wykonania kodu. Jest to często używane do określenia wartości domyślnej lub powrotu z funkcji:
+`orelse` może być używane do rozpakowania typu opcjonalnego lub wykonania kodu. Jest to często używane do określenia wartości domyślnej lub powrotu z funkcji:
 
 ```zig
 const h = home orelse "unknown"
