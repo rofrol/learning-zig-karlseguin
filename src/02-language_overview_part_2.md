@@ -26,7 +26,7 @@ if (std.mem.eql(u8, method, "GET") or std.mem.eql(u8, method, "HEAD")) {
 
 > Pierwszym argumentem funkcji `std.mem.eql` jest typ, w tym przypadku `u8`. Jest to pierwsza funkcja generyczna, którą widzieliśmy. Omówimy to bardziej szczegółowo w dalszej części.
 
-Powyższy przykład porównuje łańcuchy ASCII i prawdopodobnie powinien być niewrażliwy na wielkość liter. `std.ascii.eqlIgnoreCase(str1, str2)` jest prawdopodobnie lepszą opcją.
+Powyższy przykład porównuje łańcuchy ASCII i raczej powinien być niewrażliwy na wielkość liter. `std.ascii.eqlIgnoreCase(str1, str2)` jest prawdopodobnie lepszą opcją.
 
 Nie ma operatora trójargumentowego, ale można użyć `if/else` w następujący sposób:
 
