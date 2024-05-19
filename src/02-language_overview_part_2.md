@@ -211,7 +211,7 @@ const Status = enum {
 };
 ```
 
-I, podobnie jak struktura, może zawierać inne definicje, w tym funkcje, które mogą, ale nie muszą, przyjmować enuma jako parametr:
+I, podobnie jak struktura, enum może zawierać inne definicje, w tym funkcje, które mogą, ale nie muszą, przyjmować enuma jako parametr:
 
 ```zig
 const Stage = enum {
