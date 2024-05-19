@@ -229,7 +229,7 @@ const Stage = enum {
 
 > Jeśli chcesz uzyskać reprezentację łańcuchową enuma, możesz użyć wbudowanej funkcji `@tagName(enum)`.
 
-Przypomnijmy, że typy struktury można wywnioskować na podstawie ich przypisania lub typu zwracanego przy użyciu notacji `.{...}`. Powyżej widzimy, że typ enum jest wnioskowany na podstawie porównania z `self`, który jest typu `Stage`. Mogliśmy napisać wprost: `return self == Stage.confirmed or self == Stage.err;`. Jednak w przypadku enumów często można spotkać się z pominięciem typu enum za pomocą notacji `.$value`. Nazywa się to _literałem enum_.
+Przypomnijmy, że typ struktury można wywnioskować na podstawie jej przypisania lub typu zwracanego przy użyciu notacji `.{...}`. Powyżej widzimy, że typ enum jest wnioskowany na podstawie porównania z `self`, który jest typu `Stage`. Mogliśmy napisać wprost: `return self == Stage.confirmed or self == Stage.err;`. Jednak w przypadku enumów często można spotkać się z pominięciem typu enum za pomocą notacji `.$value`. Nazywa się to _literałem enum_.
 
 Wyczerpująca natura `switch` sprawia, że dobrze łączy się z enumami, ponieważ zapewnia obsługę wszystkich możliwych przypadków. Zachowaj jednak ostrożność podczas korzystania z klauzuli `else` w `switch`, ponieważ będzie ona pasować do wszystkich nowo dodanych wartości do enuma, co może, ale nie musi być zachowaniem, które chcesz.
 
