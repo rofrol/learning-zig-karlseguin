@@ -141,7 +141,7 @@ fn levelUp(user: User) void {
 }
 ```
 
-Jeśli to uruchomisz, otrzymasz dwa różne adresy. Oznacza to, że `user` modyfikowany w `levelUp` różni się od `user` w `main`. Dzieje się tak, ponieważ Zig przekazuje kopię wartości. Może się to wydawać dziwnym domyślnym rozwiązaniem, ale jedną z korzyści jest to, że wywołujący funkcję może być pewien, że funkcja nie zmodyfikuje parametru (ponieważ nie może). W wielu przypadkach jest to dobra rzecz do zagwarantowania. Oczywiście czasami, tak jak w przypadku `levelUp`, chcemy, aby funkcja zmodyfikowała parametr. Aby to osiągnąć, `levelUp` musi działać na rzeczywistym `user` w `main`, a nie na jego kopii. Możemy to zrobić, przekazując do funkcji adres naszego użytkownika:
+Jeśli to uruchomisz, otrzymasz dwa różne adresy. Oznacza to, że `user` modyfikowany w `levelUp` różni się od `user` w `main`. Dzieje się tak, ponieważ Zig przekazuje kopię wartości. Może się to wydawać dziwnym domyślnym rozwiązaniem, ale jedną z korzyści jest to, że wywoływacz funkcji może być pewien, że funkcja nie zmodyfikuje parametru (ponieważ nie może). W wielu przypadkach jest to dobra rzecz do zagwarantowania. Oczywiście czasami, tak jak w przypadku `levelUp`, chcemy, aby funkcja zmodyfikowała parametr. Aby to osiągnąć, `levelUp` musi działać na rzeczywistym `user` w `main`, a nie na jego kopii. Możemy to zrobić, przekazując do funkcji adres naszego użytkownika:
 
 ```zig
 const std = @import("std");
