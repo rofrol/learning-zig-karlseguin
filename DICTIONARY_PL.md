@@ -3,7 +3,7 @@
 - control - sprawdzenie (wykonanie kontrol brzmi dziwnie)
 - slice - wycinek (plasterek nie pasuje mi)
 - enum - enum (wyliczenie?)
-- optional - opcjonalny (opcjonal/opcjonał dziwnie brzmi, wartość opcjonalna/typ opcjonalny?)
+- optional - typ opcjonalny/wartość opcjonalna) (opcjonal/opcjonał dziwnie brzmi)
 - optional typ - typ opcjonany
 - uwrap optional - rozpakować opcjonalny
 - string - łańcuch (łańcuch znaków można skracać do łańcuch i używać też w literał łańcuchowy, zamiast ciąg znaków)

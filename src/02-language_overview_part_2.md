@@ -312,9 +312,9 @@ const Timestamp = union(enum) {
 
 a Zig utworzyłby niejawny enum oparty na polach naszej unii.
 
-## Opcjonalne
+## Typy i wartości opcjonalne (optionals)
 
-Każda wartość może być zadeklarowana jako opcjonalny poprzez dodanie znaku zapytania `?` do typu. Typy opcjonalne mogą mieć wartość `null` lub wartość zdefiniowanego typu:
+Każda wartość może być zadeklarowana jako typ opcjonalny poprzez dodanie znaku zapytania `?` do typu. Typy opcjonalne mogą mieć wartość `null` lub wartość zdefiniowanego typu:
 
 ```zig
 var home: ?[]const u8 = null;
