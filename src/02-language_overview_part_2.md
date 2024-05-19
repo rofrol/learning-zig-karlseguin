@@ -258,7 +258,7 @@ Unia może mieć ustawione tylko jedno pole na raz; próba uzyskania dostępu do
 const n = Number{.nan = {}};
 ```
 
-Wyzwaniem w przypadku unii jest wiedza, które pole jest ustawione. W tym miejscu do gry wkraczają tagowane unie. Tagowana unia łączy enuma z unią, która może być użyta w instrukcji `switch`. Rozważmy następujący przykład:
+Wyzwaniem w przypadku unii jest wiedza, które pole jest ustawione. W tym miejscu do gry wkraczają tagowane unie. Tagowana unia łączy enuma z unią, co może być użyta w instrukcji `switch`. Rozważmy następujący przykład:
 
 ```zig
 pub fn main() void {
