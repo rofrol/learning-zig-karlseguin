@@ -83,4 +83,4 @@ const T = @TypeOf(3)
 std.debug.print("{any}\n", .{T});
 ```
 
-Plik wykonywalny `zig` ma polecenie `fmt`, które, biorąc pod uwagę plik lub katalog, sformatuje plik w oparciu o własny przewodnik stylu Ziga. Nie obejmuje ono jednak wszystkiego, na przykład dostosuje wcięcia i pozycje nawiasów klamrowych, ale nie zmieni rozmiaru znaku identyfikatorów.
+Plik wykonywalny `zig` ma polecenie `fmt`, które, biorąc pod uwagę plik lub katalog, sformatuje plik w oparciu o własny przewodnik stylu Ziga. Nie obejmuje on jednak wszystkiego, na przykład dostosuje wcięcia i pozycje nawiasów klamrowych, ale nie zmieni rozmiaru znaku identyfikatorów.
