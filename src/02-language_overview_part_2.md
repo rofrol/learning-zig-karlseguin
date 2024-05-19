@@ -159,7 +159,7 @@ var escape_count: usize = 0;
 // ta część
 while (i < src.len) : (i += 1) {
     if (src[i] == '\\') {
-        // +1 tutaj i +1 powyżej == +2
+        // +1 tutaj, oraz i +1 powyżej == +2
         i += 1;
         escape_count += 1;
     }
