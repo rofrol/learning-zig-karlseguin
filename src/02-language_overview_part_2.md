@@ -133,7 +133,7 @@ fn indexOf(haystack: []const u32, needle: u32) ?usize {
 
 > To jest tylko krótki rzut oka na typy nullable.
 
-Koniec zakresu jest wywnioskowany z długości `haystack`, chociaż moglibyśmy się ukarać i napisać: `0..hastack.len`. Pętle `for` nie obsługują bardziej ogólnego idiomu `init; compare; step`. W tym celu polegamy na pętli `while`.
+Koniec zakresu jest wywnioskowany z długości `haystack`, chociaż moglibyśmy się ukarać i napisać: `0..hastack.len`. Pętle `for` nie obsługują bardziej ogólnego idiomu `init; compare; step`. W tym celu polegamy na pętli `while`. Aby mieć `init;` ograniczone zakresem jak w takim `for`, musimy dodać blok wokół `while`.
 
 Ponieważ `while` jest prostsze, przyjmując formę `while (warunek) { }`, mamy większą kontrolę nad iteracją. Na przykład, podczas liczenia ilości sekwencji escape w łańcuchu, musimy zwiększyć nasz iterator o 2, aby uniknąć podwójnego liczenia `\\`:
 
