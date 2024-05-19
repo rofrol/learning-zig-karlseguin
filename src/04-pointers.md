@@ -2,7 +2,7 @@
 
 Zig nie zawiera garbage collectora (odśmiecacza pamięci). Ciężar zarządzania pamięcią spoczywa na programiście. To duża odpowiedzialność, ponieważ ma bezpośredni wpływ na wydajność, stabilność i bezpieczeństwo aplikacji.
 
-Zaczniemy od omówienia wskaźników, co jest ważnym tematem do omówienia samym w sobie, ale także do rozpoczęcia szkolenia w zakresie postrzegania danych naszego programu z punktu widzenia pamięci. Jeśli jesteś już zaznajomiony ze wskaźnikami, alokacjami sterty i zwisającymi wskaźnikami, możesz pominąć kilka części do [pamięci sterty i alokatorów](06-heap_memory_and_allocators.md), które są bardziej specyficzne dla Zig.
+Zaczniemy od omówienia wskaźników, co jest ważnym tematem do omówienia samym w sobie, ale także do rozpoczęcia szkolenia w zakresie postrzegania danych naszego programu z punktu widzenia pamięci. Jeśli jesteś już zaznajomiony ze wskaźnikami, alokacjami sterty i zwisającymi wskaźnikami, możesz pominąć kilka części do [pamięci sterty i alokatorów](06-heap_memory_and_allocators.md), które są bardziej specyficzne dla Ziga.
 
 ---
 
