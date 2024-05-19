@@ -16,7 +16,7 @@
 - terminator - zakończenie (ew. terminator)
 - check - sprawdzenie (kontrola dziwnie brzmi)
 - case - rozmiar znaku
-- caller - wywoływacz
+- caller - wywoływacz (wywołujący, dzwoniący dziwnie brzmi)
 - call stack - stos wywołań
 - to Zig - dla Ziga
 - struct - struktura

@@ -454,7 +454,7 @@ action(req, res) catch |err| switch (err) {
 };
 ```
 
-To wszystko jest dość wymyślne, ale bądźmy szczerzy, najbardziej prawdopodobną rzeczą, jaką zamierzasz zrobić w `catch`, jest przekazanie błędu do wywołującego:
+To wszystko jest dość wymyślne, ale bądźmy szczerzy, najbardziej prawdopodobną rzeczą, jaką zamierzasz zrobić w `catch`, jest przekazanie błędu do wywoływacza:
 
 ```zig
 action(req, res) catch |err| return err;
