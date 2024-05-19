@@ -2,7 +2,7 @@
 - control flow - przepływ sterowania
 - control - sprawdzenie (wykonanie kontrol brzmi dziwnie)
 - slice - wycinek (plasterek nie pasuje mi)
-- enum - enum (wyliczenie nie pasuje mi)
+- enum - enum (wyliczenie?)
 - optional - opcjonalny (opcjonal/opcjonał dziwnie brzmi, wartość opcjonalna/typ opcjonalny?)
 - optional typ - typ opcjonany
 - uwrap optional - rozpakować opcjonalny

@@ -198,9 +198,9 @@ Bloki takie jak ten muszą być zakończone średnikiem.
 
 Później, gdy będziemy badać tagowane unie (tagged unions), unie błędów (error unions) i typy opcjonalne, zobaczymy, co jeszcze mają do zaoferowania te struktury przepływu sterowania.
 
-## Enumy
+## Wyliczenia (enums)
 
-Enumy są stałymi całkowitymi, które otrzymują etykietę. Są one zdefiniowane podobnie jak struktura:
+Wyliczenia są stałymi całkowitymi, które otrzymują etykietę. Są one zdefiniowane podobnie jak struktura:
 
 ```zig
 // może to być "pub"
@@ -235,7 +235,7 @@ Wyczerpująca natura `switch` sprawia, że dobrze łączy się z enumami, poniew
 
 ## Tagowane unie (tagged unions)
 
-Unia definiuje zestaw typów, które wartość może mieć. Na przykład, ta unia `Number` może być `integer`, `float` lub `nan` (not a number - nie liczba):
+Unia definiuje zestaw typów, które dana wartość może mieć. Na przykład, ta unia `Number` może być `integer`, `float` lub `nan` (not a number - nie liczba):
 
 ```zig
 const std = @import("std");
