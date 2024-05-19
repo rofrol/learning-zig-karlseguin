@@ -116,7 +116,7 @@ pub fn main() void {
 }
 ```
 
-Naszym pierwotnym celem było zwiększenie mocy użytkownika o 1 za pomocą funkcji `levelUp`. Udało nam się skompilować kod, ale kiedy wypisaliśmy `powe`, wciąż była to oryginalna wartość. To trochę przeskok, ale zmieńmy kod, aby wypisać adres `user` w `main` i w `levelUp`:
+Naszym pierwotnym celem było zwiększenie mocy użytkownika o 1 za pomocą funkcji `levelUp`. Udało nam się skompilować kod, ale kiedy wypisaliśmy `power`, wciąż była to oryginalna wartość. To trochę przeskok, ale zmieńmy kod, aby wypisać adres `user` w `main` i w `levelUp`:
 
 ```zig
 pub fn main() void {
