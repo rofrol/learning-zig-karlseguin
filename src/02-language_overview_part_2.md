@@ -153,7 +153,7 @@ Ponieważ `while` jest prostsze, przyjmując formę `while (warunek) { }`, mamy 
 }
 ```
 
-Dodaliśmy jawny blok wokół naszej tymczasowej zmiennej `i` i pętli `while`. Zawęża to zakres `i`. Bloki takie jak ten mogą być przydatne, choć w tym przypadku jest to prawdopodobnie przesada. Mimo to, powyższy przykład jest najbardziej zbliżony do tradycyjnej pętli `for(init; compare; step)`, jaką posiada Zig.
+Dodaliśmy jawny blok wokół naszej tymczasowej zmiennej `i` i pętli `while`. Zawęża to zakres `i`. Bloki takie jak ten mogą być przydatne, choć w tym przypadku jest to prawdopodobnie przesada. Jednak powyższy przykład to najbliższe co jest w Zigu do tradycyjnej pętli `for(init; compare; step)`.
 
 `while` może mieć klauzulę `else`, która jest wykonywana, gdy warunek jest fałszywy. Akceptuje również instrukcję do wykonania po każdej iteracji. Może być wiele instrukcji oddzielonych `;`. Ta funkcja była powszechnie używana zanim `for` obsługiwało wielokrotne sekwencje. Powyższe można zapisać jako:
 
