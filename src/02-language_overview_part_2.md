@@ -419,7 +419,7 @@ pub fn main() !void {
 }
 ```
 
-Nasze całkowicie jawne i niejawne podejścia nie są dokładnie równoważne. Na przykład odniesienia do funkcji z niejawnymi zestawami błędów wymagają użycia specjalnego typu `anyerror`. Deweloperzy bibliotek mogą dostrzec zalety bycia bardziej jawnym, takie jak samodokumentujący się kod. Mimo to uważam, że zarówno niejawne zestawy błędów, jak i wywnioskowana unia błędów są pragmatyczne; intensywnie korzystam z obu.
+Nasze całkowicie jawne i niejawne podejścia nie są dokładnie równoważne. Na przykład referencje do funkcji z niejawnymi zestawami błędów wymagają użycia specjalnego typu `anyerror`. Deweloperzy bibliotek mogą dostrzec zalety bycia bardziej jawnym, takie jak samodokumentujący się kod. Mimo to uważam, że zarówno niejawne zestawy błędów, jak i wywnioskowana unia błędów są pragmatyczne; intensywnie korzystam z obu.
 
 Prawdziwą wartością unii błędów jest wbudowane wsparcie językowe w postaci `catch` i `try`. Wywołanie funkcji zwracającej unię błędów może zawierać klauzulę `catch`. Na przykład, biblioteka serwera http może mieć kod, który wygląda następująco:
 
