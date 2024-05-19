@@ -8,7 +8,7 @@ Przepływ sterowania Ziga jest prawdopodobnie Ci znany, ale musimy go jeszcze zb
 
 Zauważysz, że zamiast operatorów logicznych `&&` i `||`, używamy `and` i `or`. Podobnie jak w większości języków, `and` i `or` kontrolują przepływ wykonania: robią krótkie spięcie. Prawa strona `and` nie jest obliczana, jeśli lewa strona jest fałszywa, a prawa strona `or` nie jest obliczana, jeśli lewa strona jest prawdziwa. W Zigu przepływ sterowania odbywa się za pomocą słów kluczowych, a zatem używane są `and` i `or`.
 
-Ponadto operator porównania, `==`, nie działa między wycinkami, takimi jak `[]const u8`, tj. łańcuchami. W większości przypadków należy użyć `std.mem.eql(u8, str1, str2)`, który porówna długość, a następnie bajty dwóch wycinków.
+Ponadto operator porównania, `==`, nie działa z wycinkami, takimi jak `[]const u8`, tj. łańcuchami. W większości przypadków należy użyć `std.mem.eql(u8, str1, str2)`, który porówna długość, a następnie bajty dwóch wycinków.
 
 `if`, `else if` i `else` są powszechne w Zigu:
 
