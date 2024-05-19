@@ -141,7 +141,7 @@ Ponieważ `while` jest prostsze, przyjmując formę `while (warunek) { }`, mamy 
 {
 	var i: usize = 0;
 	while (i < src.len) {
-    // odwrotny ukośnik jest używany jako znak uwolnienia, więc musimy go uwolnić...
+    // odwrotny ukośnik jest używany jako znak uwolnienia (escape sign), więc musimy go uwolnić...
    // odwrotnym ukośnikiem.
 		if (src[i] == '\\') {
 			i += 2;
