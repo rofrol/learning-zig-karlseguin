@@ -230,7 +230,7 @@ Wyczerpująca natura `switch` sprawia, że dobrze łączy się z enumami, poniew
 
 ## Tagowane unie (tagged unions)
 
-Unia definiuje zestaw typów, które może mieć wartość. Na przykład, ta unia `Number` może być `integer`, `float` lub `nan` (nie liczbą):
+Unia definiuje zestaw typów, które wartość może mieć. Na przykład, ta unia `Number` może być `integer`, `float` lub `nan` (nie liczbą):
 
 ```zig
 const std = @import("std");
