@@ -32,7 +32,7 @@ pub const User = struct {
 };
 ```
 
-To była niemiła sztuczka; kod się nie skompiluje: zmienna lokalna nigdy nie jest mutowana. Jest to referencja do zmiennej `user` w `main`. Zmienna, która nigdy nie jest mutowana, musi być zadeklarowana jako `const`. Możesz pomyśleć: ale w `levelUp` _mutujemy_ `user`, co się dzieje? Załóżmy, że kompilator Zig jest w błędzie i oszukajmy go. Zmusimy kompilator do zobaczenia, że `user` jest zmutowany:
+To była niemiła sztuczka; kod się nie skompiluje: zmienna lokalna nigdy nie jest mutowana. Jest to referencja do zmiennej `user` w `main`. Zmienna, która nigdy nie jest mutowana, musi być zadeklarowana jako `const`. Możesz pomyśleć: ale w `levelUp` _mutujemy_ `user`, co się dzieje? Załóżmy, że kompilator Ziga jest w błędzie i oszukajmy go. Zmusimy kompilator do zobaczenia, że `user` jest zmutowany:
 
 ```zig
 const std = @import("std");
@@ -57,7 +57,7 @@ fn levelUp(user: User) void {
 
 Co się skompiluje, ale na wyjściu otrzymamy, że _User 1 has power of 100_, mimo że intencją naszego kodu jest wyraźnie, aby `levelUp` zwiększył moc użytkownika do `101`. Co się dzieje?
 
-Aby to zrozumieć, warto myśleć o danych w odniesieniu do pamięci, a zmienne jako etykiety, które kojarzą typ z określoną lokalizacją pamięci. Na przykład w `main` tworzymy `User`. Prosta wizualizacja tych danych w pamięci wyglądałaby następująco:
+Aby to zrozumieć, warto myśleć o danych w odniesieniu do pamięci, a zmiennych jako etykietach, które kojarzą typ z określoną lokalizacją pamięci. Na przykład w `main` tworzymy `User`. Prosta wizualizacja tych danych w pamięci wyglądałaby następująco:
 
 ```
 user -> ------------ (id)
