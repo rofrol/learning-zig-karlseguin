@@ -32,7 +32,7 @@ pub const User = struct {
 };
 ```
 
-To była niemiła sztuczka; kod się nie skompiluje: zmienna lokalna nigdy nie jest mutowana. Jest to odniesienie do zmiennej `user` w `main`. Zmienna, która nigdy nie jest mutowana, musi być zadeklarowana jako `const`. Możesz pomyśleć: ale w `levelUp` _mutujemy_ `user`, co się dzieje? Załóżmy, że kompilator Zig jest w błędzie i oszukajmy go. Zmusimy kompilator do zobaczenia, że `user` jest zmutowany:
+To była niemiła sztuczka; kod się nie skompiluje: zmienna lokalna nigdy nie jest mutowana. Jest to referencja do zmiennej `user` w `main`. Zmienna, która nigdy nie jest mutowana, musi być zadeklarowana jako `const`. Możesz pomyśleć: ale w `levelUp` _mutujemy_ `user`, co się dzieje? Załóżmy, że kompilator Zig jest w błędzie i oszukajmy go. Zmusimy kompilator do zobaczenia, że `user` jest zmutowany:
 
 ```zig
 const std = @import("std");
