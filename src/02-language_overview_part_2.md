@@ -405,7 +405,7 @@ pub fn main() OpenError!void {
 }
 ```
 
-Nazywa się to typem unii błędów i wskazuje, że nasza funkcja może zwrócić albo błąd `OpenError`, albo `void` (czyli nic). Do tej pory byliśmy dość jednoznaczni: utworzyliśmy zestaw błędów dla możliwych błędów, które może zwrócić nasza funkcja, i użyliśmy tego zestawu błędów w typie zwracanym naszej funkcji. Ale jeśli chodzi o błędy, Zig ma kilka zgrabnych sztuczek w rękawie. Po pierwsze, zamiast określać związek błędów jako `error set!return type`, możemy pozwolić Zigowi wywnioskować zestaw błędów za pomocą: `!zwracany typ`. Moglibyśmy więc, i prawdopodobnie byśmy to zrobili, zdefiniować nasz `main` jako:
+Nazywa się to typem unii błędów i wskazuje, że nasza funkcja może zwrócić albo błąd `OpenError`, albo `void` (czyli nic). Do tej pory byliśmy dość jednoznaczni: utworzyliśmy zestaw błędów dla możliwych błędów, które może zwrócić nasza funkcja, i użyliśmy tego zestawu błędów w typie zwracanym naszej funkcji. Ale jeśli chodzi o błędy, Zig ma kilka zgrabnych sztuczek w rękawie. Po pierwsze, zamiast określać związek błędów jako `zestaw błędów!zwracany typ`, możemy pozwolić Zigowi wywnioskować zestaw błędów za pomocą: `!zwracany typ`. Moglibyśmy więc, i prawdopodobnie byśmy to zrobili, zdefiniować nasz `main` jako:
 
 ```zig
 pub fn main() !void
