@@ -79,3 +79,4 @@
 - escape sign - znak uwolnienia (ucieczki?)
 - to escape - uwolnić (uciec?)
 - structure types - typy struktury
+- idiomatic - idiomatyczny
