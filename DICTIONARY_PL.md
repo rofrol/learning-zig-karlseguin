@@ -78,3 +78,4 @@
 - the number of - ilość (liczba dziwnie brzmi)
 - escape sign - znak uwolnienia (ucieczki?)
 - to escape - uwolnić (uciec?)
+- structure types - typy struktury
