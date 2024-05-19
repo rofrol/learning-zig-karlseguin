@@ -150,7 +150,7 @@ while (i < src.len) {
 }
 ```
 
-`while` może mieć klauzulę `else`, która jest wykonywana, gdy warunek jest fałszywy. Akceptuje również instrukcję do wykonania po każdej iteracji. Ta funkcja była powszechnie używana zanim `for` obsługiwało wielokrotne sekwencje. Powyższe można zapisać jako:
+`while` może mieć klauzulę `else`, która jest wykonywana, gdy warunek jest fałszywy. Akceptuje również instrukcję do wykonania po każdej iteracji. Może być wiele instrukcji oddzielonych `;`. Ta funkcja była powszechnie używana zanim `for` obsługiwało wielokrotne sekwencje. Powyższe można zapisać jako:
 
 ```zig
 var i: usize = 0;
