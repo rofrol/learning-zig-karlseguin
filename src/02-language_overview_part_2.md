@@ -484,7 +484,7 @@ pub fn loadLast() !?Save {
 }
 ```
 
-Istnieją różne sposoby korzystania z takich funkcji, ale najbardziej kompaktowym jest użycie `try` do rozpakowania naszego błędu, a następnie `orelse` do rozpakowania opcjonalnego. Oto działający szkielet:
+Istnieją różne sposoby korzystania z takich funkcji, ale najbardziej kompaktowym jest użycie `try` do rozpakowania naszego błędu, a następnie `orelse` do rozpakowania typu opcjonalnego. Oto działający szkielet:
 
 ```zig
 const std = @import("std");
