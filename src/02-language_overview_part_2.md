@@ -15,7 +15,7 @@ Ponadto operator porównania, `==`, nie działa z wycinkami, takimi jak `[]const
 ```zig
 // std.mem.eql porównuje bajt po bajcie
 // dla łańcucha będzie rozróżniana wielkość liter
-if (std.mem.eql(u8, method, "GET") lub std.mem.eql(u8, method, "HEAD")) {
+if (std.mem.eql(u8, method, "GET") or std.mem.eql(u8, method, "HEAD")) {
     // obsłuż żądanie GET
 } else if (std.mem.eql(u8, method, "POST")) {
     // obsłuż żądanie POST
