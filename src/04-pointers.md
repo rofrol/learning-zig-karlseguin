@@ -200,7 +200,7 @@ Początkowo wybrałem funkcję, ponieważ jest ona jawna, a tym samym łatwiejsz
 
 Więcej niż sugerowałem, że domyślnie Zig będzie przekazywał kopię wartości (zwaną "przekazywaniem przez wartość"). Wkrótce zobaczymy, że rzeczywistość jest nieco bardziej subtelna (podpowiedź: co ze złożonymi wartościami z zagnieżdżonymi obiektami?).
 
-Nawet trzymając się prostych typów, prawda jest taka, że Zig może przekazywać parametry w dowolny sposób, o ile może zagwarantować, że intencja kodu zostanie zachowana. W naszym oryginalnym `levelUp`, gdzie parametrem był `User`, Zig mógł przekazać kopię użytkownika lub odwołanie do `main.user`, o ile mógł zagwarantować, że funkcja go nie zmutuje. (Wiem, że ostatecznie chcieliśmy go zmutować, ale tworząc typ `User`, mówiliśmy kompilatorowi, że tego nie chcemy).
+Nawet trzymając się prostych typów, prawda jest taka, że Zig może przekazywać parametry w dowolny sposób, o ile może zagwarantować, że intencja kodu zostanie zachowana. W naszym oryginalnym `levelUp`, gdzie parametrem był `User`, Zig mógł przekazać kopię użytkownika lub referencję do `main.user`, o ile mógł zagwarantować, że funkcja go nie zmutuje. (Wiem, że ostatecznie chcieliśmy go zmutować, ale tworząc typ `User`, mówiliśmy kompilatorowi, że tego nie chcemy).
 
 Ta swoboda pozwala Zigowi na użycie najbardziej optymalnej strategii opartej na typie parametru. Małe typy, takie jak `User`, mogą być tanio przekazywane przez wartość (tj. kopiowane). Większe typy mogą być tańsze do przekazania przez referencję. Zig może stosować dowolne podejście, o ile intencje kodu zostaną zachowane. Do pewnego stopnia jest to możliwe dzięki stałym parametrom funkcji.
 
