@@ -53,7 +53,7 @@
 - primitives and arrays - typy podstawowe (prymitywne?) i tablice
 - hash map - hashmapa (dziwnie brzmi tablia mieszająca)
 - hash - hash
-- ownership - własność - może się mylić z własnością jako cechą (posiadanie?) <https://devenv.pl/rust-borrowing-ownership-pozyczanie-wlasnosci/>
+- ownership - własność - może się mylić z własnością jako cechą (posiadanie?) https://devenv.pl/rust-borrowing-ownership-pozyczanie-wlasnosci/
 - legitimately - zasadnie
 - lookup - wyszukiwanie
 - The code is case sensitive - W kodzie rozróżniana jest wielkość liter
@@ -67,7 +67,7 @@
 - expose - eksponować
 - output - wyjście (dane wyjściowe?)
 - background - praktyka
-- background and experience - praktyka i doświadczenie <https://ell.stackexchange.com/questions/134367/study-background-vs-study-experience/134376#134376>
+- background and experience - praktyka i doświadczenie https://ell.stackexchange.com/questions/134367/study-background-vs-study-experience/134376#134376
 - seasoned programmer - wytrawny programista
 - to start and begin your mastery - ruszyć i rozpocząć mistrzostwo
 - precompiled - prekompilowany

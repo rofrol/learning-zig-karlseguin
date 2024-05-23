@@ -260,7 +260,7 @@ pub const User = struct {
 };
 ```
 
-Dodaliśmy `name`, która jest wycinkiem. Przypomnijmy, że wycinek to długość i wskaźnik. Gdybyśmy zainicjowali naszego `user` nazwą `"Goku"`, jak wyglądałby on w pamięci?
+Dodaliśmy `name`, które jest wycinkiem. Przypomnijmy, że wycinek to długość i wskaźnik. Gdybyśmy zainicjowali naszego `user` nazwą `"Goku"`, jak wyglądałby on w pamięci?
 
 ```
 user -> -------------  (id: 1043368d0)
