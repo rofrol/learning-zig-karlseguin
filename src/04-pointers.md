@@ -81,7 +81,7 @@ user ->   ------------  (id: 1043368d0)
           ------------
 ```
 
-Abyś mógł to sprawdzić, chciałbym przedstawić operator adresu: `&`. Jak sama nazwa wskazuje, operator adresu zwraca adres zmiennej (może również zwrócić adres funkcji, prawda?!). Zachowując istniejącą definicję `User`, wypróbuj ten `main`:
+Abyś mógł to sprawdzić, chciałbym przedstawić operator adresu: `&`. Jak sama nazwa wskazuje, operator adresu zwraca adres zmiennej (może również zwrócić adres funkcji, prawda?!). Zachowując istniejącą definicję `User`, wypróbuj tą `main`:
 
 ```zig
 pub fn main() void {
