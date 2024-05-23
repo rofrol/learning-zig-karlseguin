@@ -192,7 +192,7 @@ pub const User = struct {
 };
 ```
 
-Nasuwa się pytanie: jak wywołać metodę z odbiornikiem wskaźnika? Może musimy zrobić coś w stylu: `&user.levelUp()`? Właściwie wystarczy wywołać ją normalnie, tj. `user.levelUp()`. Zig wie, że metoda oczekuje wskaźnika i przekazuje wartość poprawnie (przez referencję).
+Nasuwa się pytanie: jak wywołać metodę oczekującą wskaźnika? Może musimy zrobić coś w stylu: `&user.levelUp()`? Właściwie wystarczy wywołać ją normalnie, tj. `user.levelUp()`. Zig wie, że metoda oczekuje wskaźnika i przekazuje wartość poprawnie (przez referencję).
 
 Początkowo wybrałem funkcję, ponieważ jest ona jawna, a tym samym łatwiejsza do nauczenia.
 
