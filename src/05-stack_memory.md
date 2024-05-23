@@ -129,7 +129,7 @@ User 9114745905793990681 has power of 0
 
 Możesz uzyskać inne wyniki, ale na podstawie moich danych wyjściowych `user1` odziedziczył wartości `user2`, a wartości `user2` są bezsensowne. Kluczowym problemem w tym kodzie jest to, że `User.init` zwraca adres lokalnego użytkownika, `&user`. Nazywa się to zwisającym wskaźnikiem, wskaźnikiem, który odwołuje się do nieprawidłowej pamięci. Jest to źródło wielu naruszeń ochrony pamięci (segfaults).
 
-Gdy ramka stosu jest usuwana ze stosu wywołań, wszelkie odniesienia do tej pamięci są nieważne. Wynik próby uzyskania dostępu do tej pamięci jest niezdefiniowany. Prawdopodobnie otrzymasz bezsensowne dane lub segfault. Moglibyśmy spróbować wyciągnąć jakieś wnioski z moich danych wyjściowych, ale nie jest to zachowanie, na którym chcielibyśmy lub nawet moglibyśmy polegać.
+Gdy ramka stosu jest usuwana ze stosu wywołań, wszelkie referencje do tej pamięci są nieważne. Wynik próby uzyskania dostępu do tej pamięci jest niezdefiniowany. Prawdopodobnie otrzymasz bezsensowne dane lub segfault. Moglibyśmy spróbować wyciągnąć jakieś wnioski z moich danych wyjściowych, ale nie jest to zachowanie, na którym chcielibyśmy lub nawet moglibyśmy polegać.
 
 Jednym z wyzwań związanych z tego typu błędami jest to, że w językach z garbage collectorami powyższy kod jest całkowicie w porządku. Na przykład Go wykryłby, że lokalny `user` przeżyje swój zakres, funkcję `init` i zapewniłby jej ważność tak długo, jak jest to potrzebne (sposób, w jaki Go to robi, jest szczegółem implementacji, ale ma kilka opcji, w tym przeniesienie danych na stertę, o czym jest następna część).
 
@@ -142,7 +142,7 @@ fn read() !void {
 }
 ```
 
-Cokolwiek `Parser.parse` zwróci, przeżyje `input`. Jeśli `Parser` przechowuje odniesienie do `input`, będzie to zwisający wskaźnik, który tylko czeka na awarię naszej aplikacji. Idealnie, jeśli `Parser` potrzebuje `input` tak długo, jak to robi, utworzy ich kopię, a ta kopia będzie powiązana z jej własnym czasem życia (więcej na ten temat w następnej części). Nie ma tu jednak nic, co pozwoliłoby wyegzekwować ten kontrakt. Dokumentacja `Parser` może rzucić nieco światła na to, czego oczekuje od `input` lub co z nim robi. W przeciwnym razie będziemy musieli zagłębić się w kod, aby to rozgryźć.
+Cokolwiek `Parser.parse` zwróci, przeżyje `input`. Jeśli `Parser` przechowuje referencję do `input`, będzie to zwisający wskaźnik, który tylko czeka na awarię naszej aplikacji. Idealnie, jeśli `Parser` potrzebuje `input` tak długo, jak to robi, utworzy ich kopię, a ta kopia będzie powiązana z jej własnym czasem życia (więcej na ten temat w następnej części). Nie ma tu jednak nic, co pozwoliłoby wyegzekwować ten kontrakt. Dokumentacja `Parser` może rzucić nieco światła na to, czego oczekuje od `input` lub co z nim robi. W przeciwnym razie będziemy musieli zagłębić się w kod, aby to rozgryźć.
 
 ---
 

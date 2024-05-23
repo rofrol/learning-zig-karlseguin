@@ -80,3 +80,4 @@
 - to escape - uwolnić (uciec?)
 - structure types - typy struktury
 - idiomatic - idiomatyczny
+- with respect to - w odniesieniu do (mając na uwadze?)

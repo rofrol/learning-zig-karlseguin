@@ -513,7 +513,7 @@ pub const add = @import("add.zig").add;
 test {
   // Domyślnie, tylko testy w określonym pliku
   // są uwzględniane. Ta magiczna linia kodu
-  // spowoduje, że odniesienie do wszystkich zagnieżdżonych kontenerów
+  // spowoduje, że referencja do wszystkich zagnieżdżonych kontenerów
   // do wszystkich zagnieżdżonych kontenerów.
     @import("std").testing.refAllDecls(@This());
 }
