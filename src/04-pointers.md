@@ -244,9 +244,9 @@ fn levelUp(user: *User) void {
 
 Powyższe wypisuje adres, do którego odwołuje się zmienna `user`, a także jej wartość, która jest adresem `user` w `main`.
 
-Jeśli `user` jest `*User`, to czym jest `&user`? To `**User`, czyli wskaźnik do wskaźnika na użytkownika. Mogę to robić, dopóki jednemu z nas nie skończy się pamięć!
+Jeśli `user` jest `*User`, to czym jest `&user`? To `**User`, czyli wskaźnik do wskaźnika na `User`. Mogę to robić, dopóki jednemu z nas nie skończy się pamięć!
 
-_Istnieją_ przypadki użycia dla wielu poziomów pośrednictwa (indirection), ale nie jest to nic, czego teraz potrzebujemy. Celem tej sekcji jest pokazanie, że wskaźniki nie są niczym specjalnym, są po prostu wartością, która jest adresem i typem.
+_Istnieją_ przypadki użycia dla wielu poziomów pośrednictwa (indirection), ale nie jest to coś, co teraz potrzebujemy. Celem tej sekcji jest pokazanie, że wskaźniki nie są niczym specjalnym, są po prostu wartością, która jest adresem i typem.
 
 ## Zagnieżdżone wskaźniki
 
