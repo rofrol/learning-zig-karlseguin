@@ -171,7 +171,7 @@ pub const User = struct {
 
     pub const SUPER_POWER = 9000;
 
-    fn diagnose(user: User) void {
+    pub fn diagnose(user: User) void {
         if (user.power >= SUPER_POWER) {
             std.debug.print("it's over {d}!!!", .{SUPER_POWER});
         }
