@@ -148,6 +148,8 @@ const User = struct {
 };
 ```
 
+> Początkowa wersja tego kodu nie kompilowała się w systemie Windows. Konieczne było dodanie funkcji `@constCast`, którą teraz widzisz. Widzieliśmy już inne wbudowane funkcje, ale ta jest bardziej zaawansowana. Zastanawiałem się nad usunięciem całej linii, ale chciałem, aby ludzie mogli podążać za mną w systemie Windows i dlatego potrzebowałem przycięcia. Istniały prostsze rozwiązania specyficzne dla tego przypadku, ale zamiast tego zdecydowałem się pozostać przy niebezpiecznym `@constCast`. Napisałem [wpis na blogu](https://www.openmymind.net/Zigs-ConstCast/) oparty na tym przykładzie, który wyjaśnia, dlaczego jest to konieczne - ale jest znacznie bardziej zaawansowany. Jest to rodzaj rzeczy, do których możesz chcieć wrócić po spędzeniu więcej czasu z Zigiem.
+
 W kodzie rozróżniana jest wielkość liter, ale bez względu na to, jak idealnie wpiszemy "Leto", `contains` zawsze zwraca `false`. Zdebugujmy to, iterując przez `lookup` i zrzucając klucze i wartości:
 
 ```zig
