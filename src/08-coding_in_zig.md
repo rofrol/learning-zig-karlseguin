@@ -130,7 +130,7 @@ pub fn main() !void {
             if (builtin.os.tag == .windows) {
                 // W systemie Windows linie są zakończone znakiem \r\n.
                 // Musimy usunąć \r
-                name = std.mem.trimRight(u8, name, "\r");
+                name = @constCast(std.mem.trimRight(u8, name, "\r"));
             }
             if (name.len == 0) {
                 break;
@@ -249,7 +249,7 @@ pub fn main() !void {
             if (builtin.os.tag == .windows) {
                 // W systemie Windows linie są zakończone znakiem \r\n.
                 // Musimy usunąć \r
-                name = std.mem.trimRight(u8, name, "\r");
+                name = @constCast(std.mem.trimRight(u8, name, "\r"));
             }
             if (name.len == 0) {
                 break;
